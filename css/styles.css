@@ -241,7 +241,8 @@ ul, ol {
   font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.04em;
-  color: var(--text);
+  color: #FFFFFF;
+  text-shadow: 0px 2px 6px rgba(0,0,0,0.4);
   position: relative;
   padding: 4px 0;
   transition: color var(--duration-fast) var(--ease-smooth);
@@ -254,12 +255,13 @@ ul, ol {
   left: 0;
   right: 100%;
   height: 1px;
-  background: var(--sage);
+  background: #FFFFFF;
   transition: right var(--duration-base) var(--ease-smooth);
 }
 
 .nav-link:hover {
-  color: var(--sage-dark);
+  color: #FFFFFF;
+  text-shadow: 0px 2px 8px rgba(0,0,0,0.6);
 }
 
 .nav-link:hover::after {
@@ -2925,6 +2927,20 @@ ul, ol {
     border-top: 1px solid rgba(90,148,96,0.12);
     box-shadow: var(--shadow-md);
     z-index: 899;
+  }
+
+  .nav-links.mobile-open .nav-link {
+    color: var(--text);
+    text-shadow: none;
+  }
+
+  .nav-links.mobile-open .nav-link:hover {
+    color: var(--sage-dark);
+    text-shadow: none;
+  }
+
+  .nav-links.mobile-open .nav-link::after {
+    background: var(--sage);
   }
 
   .features-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
