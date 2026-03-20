@@ -1,0 +1,9 @@
+{
+  "name": "greenlife-flowers",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "puppeteer": "^24.39.0",
+    "resend": "^4.8.0"
+  }
+}

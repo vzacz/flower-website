@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Submissions — Green Life Flowers</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+
+  <style>
+    body { background: var(--dark); }
+
+    /* Login bg decoration */
+    .admin-login-bg-decoration {
+      position: fixed; inset: 0; overflow: hidden;
+      pointer-events: none; z-index: 0;
+    }
+    .deco-circle { position: absolute; border-radius: 50%; }
+    .deco-1 {
+      width: 500px; height: 500px; top: -200px; right: -150px;
+      background: radial-gradient(circle, rgba(122,158,126,0.08) 0%, transparent 70%);
+    }
+    .deco-2 {
+      width: 400px; height: 400px; bottom: -150px; left: -100px;
+      background: radial-gradient(circle, rgba(201,165,90,0.06) 0%, transparent 70%);
+    }
+    .admin-login-page { position: relative; z-index: 1; }
+
+    /* Password show toggle */
+    .password-wrap { position: relative; }
+    .password-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.35); transition: color 0.2s;
+      display: flex; align-items: center;
+    }
+    .password-toggle:hover { color: rgba(255,255,255,0.7); }
+
+    /* Search bar */
+    .admin-search {
+      padding: 9px 14px;
+      border: 1.5px solid rgba(27,94,32,0.14);
+      border-radius: var(--radius-full);
+      background: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--dark);
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .admin-search:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(122,158,126,0.12);
+    }
+    .admin-search::placeholder { color: var(--text-muted); }
+
+    /* Status badges for submissions */
+    .sub-status-new {
+      background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2);
+    }
+    .sub-status-contacted {
+      background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid rgba(245,158,11,0.2);
+    }
+    .sub-status-completed {
+      background: rgba(34,197,94,0.1); color: #16a34a; border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    /* Status select dropdown */
+    .status-select {
+      padding: 4px 8px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      border: 1.5px solid rgba(27,94,32,0.14);
+      background: var(--cream);
+      color: var(--dark);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .status-select:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 2px rgba(122,158,126,0.12);
+    }
+
+    /* Message preview */
+    .msg-preview {
+      max-width: 280px;
+      font-size: 0.82rem;
+      color: var(--text-light);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px; color: var(--text-muted); font-size: 0.9rem;
+    }
+
+    /* Message modal */
+    .msg-modal-backdrop {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: var(--space-lg);
+    }
+    .msg-modal-backdrop.open { display: flex; }
+    .msg-modal {
+      background: var(--cream-card);
+      border-radius: var(--radius-xl);
+      max-width: 520px; width: 100%;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+    .msg-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(42,40,37,0.08);
+    }
+    .msg-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 500; color: var(--dark);
+    }
+    .msg-modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 1.2rem;
+      transition: color 0.2s;
+    }
+    .msg-modal-close:hover { color: var(--dark); }
+    .msg-modal-body { padding: 24px; }
+    .msg-modal-label {
+      font-size: 0.78rem; font-weight: 500; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .msg-modal-value {
+      font-size: 0.92rem; color: var(--dark); line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .msg-modal-message {
+      background: var(--cream);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Decorative bg (login only) -->
+<div class="admin-login-bg-decoration" id="loginBgDecor" aria-hidden="true">
+  <div class="deco-circle deco-1"></div>
+  <div class="deco-circle deco-2"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN FORM
+     ══════════════════════════════════════════════ -->
+<div class="admin-login-page" id="adminLoginPage" style="display:flex;min-height:100vh;align-items:center;justify-content:center;padding:var(--space-xl)">
+  <div class="admin-login-card" style="max-width:400px;width:100%">
+    <div class="admin-login-logo">
+      <img src="brand_assets/green life logo.png" alt="Green Life Flowers" />
+    </div>
+
+    <h1 class="admin-login-title">Contact Submissions</h1>
+    <p class="admin-login-sub">Green Life Flowers Dashboard</p>
+
+    <form id="adminLoginForm" novalidate>
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="adminPassword">Password</label>
+        <div class="password-wrap">
+          <input
+            class="admin-form-input"
+            id="adminPassword"
+            type="password"
+            placeholder="Enter admin password"
+            autocomplete="current-password"
+            required
+            style="padding-right:42px"
+          />
+          <button type="button" class="password-toggle" id="togglePassword" aria-label="Show/hide password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="eyeIcon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="admin-login-btn" type="submit" id="adminLoginSubmit">
+        Enter Dashboard
+      </button>
+    </form>
+
+    <p class="admin-login-error" id="adminLoginError"></p>
+
+    <p style="text-align:center;margin-top:var(--space-xl);font-size:0.72rem;color:rgba(255,255,255,0.25);line-height:1.6">
+      Default password: <code style="font-family:monospace;color:rgba(255,255,255,0.4)">GreenLife2024!</code><br>
+      <a href="index.html" style="color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.55)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">← Return to shop</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SUBMISSIONS DASHBOARD
+     ══════════════════════════════════════════════ -->
+<div class="admin-page" id="adminDashboard">
+
+  <!-- Admin Nav -->
+  <nav class="admin-nav">
+    <div class="container admin-nav-inner">
+      <div class="admin-nav-logo">
+        <img src="brand_assets/green life logo.png" alt="" />
+        <div>
+          <div class="admin-nav-title">Green Life Flowers</div>
+          <span class="admin-nav-subtitle">Contact Submissions</span>
+        </div>
+      </div>
+      <div class="admin-nav-actions">
+        <a href="index.html" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">
+          ← Back to Shop
+        </a>
+        <a href="admin.html" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">
+          Orders Dashboard
+        </a>
+        <button class="admin-logout-btn" id="adminLogoutBtn" type="button">Log Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="admin-content">
+    <div class="container">
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statTotal">—</div>
+          <div class="admin-stat-label">Total Messages</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-gold">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statNew">—</div>
+          <div class="admin-stat-label">New</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-pink">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.15a16 16 0 006.93 6.93l1.51-1.51a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statContacted">—</div>
+          <div class="admin-stat-label">Contacted</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statCompleted">—</div>
+          <div class="admin-stat-label">Completed</div>
+        </div>
+      </div>
+
+      <!-- Submissions Table -->
+      <div class="admin-orders-card">
+        <div class="admin-orders-header">
+          <h2 class="admin-orders-title">Submissions</h2>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <input
+              class="admin-search"
+              type="search"
+              id="subSearch"
+              placeholder="Search name, email..."
+              aria-label="Search submissions"
+            />
+            <div class="admin-filter-tabs">
+              <button class="admin-filter-tab active" data-filter="all">All</button>
+              <button class="admin-filter-tab" data-filter="new">New</button>
+              <button class="admin-filter-tab" data-filter="contacted">Contacted</button>
+              <button class="admin-filter-tab" data-filter="completed">Completed</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="loading-spinner" id="subsLoading">Loading submissions...</div>
+
+        <!-- Empty state -->
+        <div class="admin-empty" id="subsEmpty" style="display:none">
+          <div class="admin-empty-icon">📬</div>
+          <div class="admin-empty-text">No submissions yet</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Contact form submissions will appear here.</div>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto">
+          <table class="admin-orders-table" aria-label="Contact submissions" id="subsTable" style="display:none">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="subsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Message Detail Modal ── -->
+<div class="msg-modal-backdrop" id="msgModal">
+  <div class="msg-modal">
+    <div class="msg-modal-header">
+      <h3 class="msg-modal-title">Message Details</h3>
+      <button class="msg-modal-close" id="msgModalClose" aria-label="Close">✕</button>
+    </div>
+    <div class="msg-modal-body" id="msgModalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ── Auth (same as admin.html) ── */
+const SESSION_KEY = 'gl_admin_session';
+function isAuthenticated() { return sessionStorage.getItem(SESSION_KEY) === 'authenticated'; }
+function setAuthenticated() { sessionStorage.setItem(SESSION_KEY, 'authenticated'); }
+function clearAuthenticated() { sessionStorage.removeItem(SESSION_KEY); }
+
+/* ── State ── */
+let submissions = [];
+let currentFilter = 'all';
+let searchQuery = '';
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  if (isAuthenticated()) {
+    showDashboard();
+  } else {
+    document.getElementById('adminLoginPage').style.display = 'flex';
+  }
+
+  // Login form
+  document.getElementById('adminLoginForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('adminPassword');
+    const pw = input.value.trim();
+    if (!pw) { showLoginError('Please enter a password.'); return; }
+
+    if (pw === 'GreenLife2024!' || pw === 'admin123') {
+      setAuthenticated();
+      showDashboard();
+    } else {
+      showLoginError('Incorrect password.');
+      input.value = '';
+      input.focus();
+    }
+  });
+
+  // Logout
+  document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
+    clearAuthenticated();
+    location.reload();
+  });
+
+  // Password toggle
+  document.getElementById('togglePassword')?.addEventListener('click', () => {
+    const input = document.getElementById('adminPassword');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+      input.type = 'password';
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+  });
+
+  // Filter tabs
+  document.querySelectorAll('.admin-filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentFilter = tab.dataset.filter;
+      document.querySelectorAll('.admin-filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderTable();
+    });
+  });
+
+  // Search
+  document.getElementById('subSearch')?.addEventListener('input', function() {
+    searchQuery = this.value.toLowerCase().trim();
+    renderTable();
+  });
+
+  // Modal close
+  document.getElementById('msgModalClose')?.addEventListener('click', closeModal);
+  document.getElementById('msgModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'msgModal') closeModal();
+  });
+
+  // Hide login decoration when dashboard shows
+  const dashboard = document.getElementById('adminDashboard');
+  const observer = new MutationObserver(() => {
+    if (dashboard.classList.contains('visible')) {
+      document.getElementById('loginBgDecor').style.display = 'none';
+      document.body.style.background = '#f1f8f4';
+    }
+  });
+  observer.observe(dashboard, { attributes: true, attributeFilter: ['class'] });
+});
+
+function showLoginError(msg) {
+  const el = document.getElementById('adminLoginError');
+  if (el) { el.textContent = msg; el.classList.add('visible'); }
+}
+
+async function showDashboard() {
+  document.getElementById('adminLoginPage').style.display = 'none';
+  document.getElementById('adminDashboard').classList.add('visible');
+  await loadSubmissions();
+}
+
+/* ── Fetch submissions from API ── */
+async function loadSubmissions() {
+  document.getElementById('subsLoading').style.display = '';
+  document.getElementById('subsTable').style.display = 'none';
+  document.getElementById('subsEmpty').style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/get-submissions');
+    const data = await resp.json();
+    if (data.success) {
+      submissions = data.submissions;
+    } else {
+      submissions = [];
+    }
+  } catch {
+    submissions = [];
+  }
+
+  document.getElementById('subsLoading').style.display = 'none';
+  updateStats();
+  renderTable();
+}
+
+/* ── Stats ── */
+function updateStats() {
+  const total     = submissions.length;
+  const newCount  = submissions.filter(s => s.status === 'new').length;
+  const contacted = submissions.filter(s => s.status === 'contacted').length;
+  const completed = submissions.filter(s => s.status === 'completed').length;
+
+  document.getElementById('statTotal').textContent     = total;
+  document.getElementById('statNew').textContent       = newCount;
+  document.getElementById('statContacted').textContent = contacted;
+  document.getElementById('statCompleted').textContent = completed;
+}
+
+/* ── Render table ── */
+function renderTable() {
+  const tbody   = document.getElementById('subsTableBody');
+  const table   = document.getElementById('subsTable');
+  const emptyEl = document.getElementById('subsEmpty');
+
+  let filtered = submissions;
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(s => s.status === currentFilter);
+  }
+  if (searchQuery) {
+    filtered = filtered.filter(s =>
+      (s.name || '').toLowerCase().includes(searchQuery) ||
+      (s.email || '').toLowerCase().includes(searchQuery) ||
+      (s.message || '').toLowerCase().includes(searchQuery)
+    );
+  }
+
+  if (filtered.length === 0) {
+    table.style.display = 'none';
+    emptyEl.style.display = '';
+    tbody.innerHTML = '';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  table.style.display = '';
+
+  tbody.innerHTML = filtered.map(sub => {
+    const date = formatDate(sub.created_at);
+    const msgPreview = (sub.message || '').length > 60
+      ? sub.message.slice(0, 60) + '…'
+      : sub.message;
+
+    const statusClass = 'sub-status-' + sub.status;
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:500;color:var(--dark)">${escHtml(sub.name)}</div>
+        </td>
+        <td>
+          <div style="font-size:0.85rem;color:var(--text-light)">${escHtml(sub.email)}</div>
+        </td>
+        <td>
+          <div class="msg-preview" title="${escHtml(sub.message)}">${escHtml(msgPreview)}</div>
+        </td>
+        <td style="font-size:0.82rem;color:var(--text-muted);white-space:nowrap">
+          ${date}
+        </td>
+        <td>
+          <select class="status-select ${statusClass}" onchange="updateStatus('${sub.id}', this.value)" data-sub-id="${sub.id}">
+            <option value="new" ${sub.status === 'new' ? 'selected' : ''}>New</option>
+            <option value="contacted" ${sub.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+            <option value="completed" ${sub.status === 'completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </td>
+        <td>
+          <div class="admin-action-btns">
+            <button class="admin-action-btn admin-btn-view" onclick="viewMessage('${sub.id}')">View</button>
+            <button class="admin-action-btn admin-btn-delete" onclick="deleteSubmission('${sub.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* ── Update status ── */
+async function updateStatus(id, status) {
+  try {
+    const resp = await fetch('/api/update-submission', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      const idx = submissions.findIndex(s => s.id === id);
+      if (idx !== -1) {
+        submissions[idx].status = status;
+        submissions[idx].updated_at = new Date().toISOString();
+      }
+      updateStats();
+      // Update the select styling
+      const sel = document.querySelector(`select[data-sub-id="${id}"]`);
+      if (sel) {
+        sel.className = 'status-select sub-status-' + status;
+      }
+    }
+  } catch {
+    alert('Failed to update status. Please try again.');
+  }
+}
+
+/* ── Delete submission ── */
+async function deleteSubmission(id) {
+  if (!confirm('Delete this submission? This cannot be undone.')) return;
+
+  try {
+    const resp = await fetch('/api/delete-submission', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      submissions = submissions.filter(s => s.id !== id);
+      updateStats();
+      renderTable();
+    } else {
+      alert('Failed to delete. Please try again.');
+    }
+  } catch {
+    alert('Failed to delete. Please try again.');
+  }
+}
+
+/* ── View message modal ── */
+function viewMessage(id) {
+  const sub = submissions.find(s => s.id === id);
+  if (!sub) return;
+
+  document.getElementById('msgModalBody').innerHTML = `
+    <div class="msg-modal-label">From</div>
+    <div class="msg-modal-value">${escHtml(sub.name)}</div>
+
+    <div class="msg-modal-label">Email</div>
+    <div class="msg-modal-value">
+      <a href="mailto:${escHtml(sub.email)}" style="color:var(--sage-dark);text-decoration:none">${escHtml(sub.email)}</a>
+    </div>
+
+    <div class="msg-modal-label">Submitted</div>
+    <div class="msg-modal-value">${formatDate(sub.created_at)}</div>
+
+    <div class="msg-modal-label">Status</div>
+    <div class="msg-modal-value" style="margin-bottom:20px">
+      <span class="order-status-badge ${sub.status === 'new' ? 'sub-status-new' : sub.status === 'contacted' ? 'sub-status-contacted' : 'sub-status-completed'}"
+        style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.78rem;font-weight:500">
+        ${sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
+      </span>
+    </div>
+
+    <div class="msg-modal-label">Message</div>
+    <div class="msg-modal-message">${escHtml(sub.message)}</div>
+  `;
+
+  document.getElementById('msgModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('msgModal').classList.remove('open');
+}
+
+/* ── Helpers ── */
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  } catch { return iso; }
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Green Life Flowers</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+
+  <style>
+    body { background: var(--dark); }
+    /* Admin login bg decoration */
+    .admin-login-bg-decoration {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .deco-circle {
+      position: absolute;
+      border-radius: 50%;
+    }
+    .deco-1 {
+      width: 500px; height: 500px;
+      top: -200px; right: -150px;
+      background: radial-gradient(circle, rgba(122,158,126,0.08) 0%, transparent 70%);
+    }
+    .deco-2 {
+      width: 400px; height: 400px;
+      bottom: -150px; left: -100px;
+      background: radial-gradient(circle, rgba(201,165,90,0.06) 0%, transparent 70%);
+    }
+    .admin-login-page { position: relative; z-index: 1; }
+
+    /* Password show toggle */
+    .password-wrap { position: relative; }
+    .password-toggle {
+      position: absolute;
+      right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.35);
+      transition: color 0.2s;
+      display: flex; align-items: center;
+    }
+    .password-toggle:hover { color: rgba(255,255,255,0.7); }
+
+    /* Search bar in admin */
+    .admin-search {
+      padding: 9px 14px;
+      border: 1.5px solid rgba(27,94,32,0.14);
+      border-radius: var(--radius-full);
+      background: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--dark);
+      outline: none;
+      width: 220px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .admin-search:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(122,158,126,0.12);
+    }
+    .admin-search::placeholder { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- Decorative bg (login only) -->
+<div class="admin-login-bg-decoration" id="loginBgDecor" aria-hidden="true">
+  <div class="deco-circle deco-1"></div>
+  <div class="deco-circle deco-2"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN FORM
+     ══════════════════════════════════════════════ -->
+<div class="admin-login-page" id="adminLoginPage" style="display:flex;min-height:100vh;align-items:center;justify-content:center;padding:var(--space-xl)">
+  <div class="admin-login-card" style="max-width:400px;width:100%">
+    <div class="admin-login-logo">
+      <img src="brand_assets/green life logo.png" alt="Green Life Flowers" />
+    </div>
+
+    <h1 class="admin-login-title">Admin Access</h1>
+    <p class="admin-login-sub">Green Life Flowers Dashboard</p>
+
+    <form id="adminLoginForm" novalidate>
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="adminPassword">Password</label>
+        <div class="password-wrap">
+          <input
+            class="admin-form-input"
+            id="adminPassword"
+            type="password"
+            placeholder="Enter admin password"
+            autocomplete="current-password"
+            required
+            style="padding-right:42px"
+          />
+          <button type="button" class="password-toggle" id="togglePassword" aria-label="Show/hide password">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="eyeIcon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="admin-login-btn" type="submit" id="adminLoginSubmit">
+        Enter Dashboard
+      </button>
+    </form>
+
+    <p class="admin-login-error" id="adminLoginError"></p>
+
+    <p style="text-align:center;margin-top:var(--space-xl);font-size:0.72rem;color:rgba(255,255,255,0.25);line-height:1.6">
+      Default password: <code style="font-family:monospace;color:rgba(255,255,255,0.4)">GreenLife2024!</code><br>
+      <a href="index.html" style="color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.55)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">← Return to shop</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ADMIN DASHBOARD
+     ══════════════════════════════════════════════ -->
+<div class="admin-page" id="adminDashboard">
+
+  <!-- Admin Nav -->
+  <nav class="admin-nav">
+    <div class="container admin-nav-inner">
+      <div class="admin-nav-logo">
+        <img src="brand_assets/green life logo.png" alt="" />
+        <div>
+          <div class="admin-nav-title">Green Life Flowers</div>
+          <span class="admin-nav-subtitle">Order Management</span>
+        </div>
+      </div>
+      <div class="admin-nav-actions">
+        <a href="index.html" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">
+          ← Back to Shop
+        </a>
+        <a href="submissions.html" style="font-size:0.8rem;color:rgba(255,255,255,0.45);transition:color 0.2s" onmouseover="this.style.color='rgba(255,255,255,0.75)'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">
+          Contact Submissions
+        </a>
+        <button class="admin-logout-btn" id="adminLogoutBtn" type="button">Log Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="admin-content">
+    <div class="container">
+
+      <!-- Stats -->
+      <div class="admin-stats">
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statTotal">0</div>
+          <div class="admin-stat-label">Total Orders</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-gold">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statPending">0</div>
+          <div class="admin-stat-label">Pending</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statCompleted">0</div>
+          <div class="admin-stat-label">Completed</div>
+        </div>
+        <div class="admin-stat-card">
+          <div class="admin-stat-icon stat-icon-pink">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div class="admin-stat-num" id="statRevenue">$0</div>
+          <div class="admin-stat-label">Total Revenue</div>
+        </div>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="admin-orders-card">
+        <div class="admin-orders-header">
+          <h2 class="admin-orders-title">Orders</h2>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <input
+              class="admin-search"
+              type="search"
+              id="orderSearch"
+              placeholder="Search orders..."
+              aria-label="Search orders"
+            />
+            <div class="admin-filter-tabs">
+              <button class="admin-filter-tab active" data-filter="all">All</button>
+              <button class="admin-filter-tab" data-filter="pending">Pending</button>
+              <button class="admin-filter-tab" data-filter="completed">Completed</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="admin-empty" id="ordersEmpty" style="display:none">
+          <div class="admin-empty-icon">🌿</div>
+          <div class="admin-empty-text">No orders yet</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Orders will appear here once customers start placing them.</div>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto">
+          <table class="admin-orders-table" aria-label="Orders">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Rows injected by admin.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Order Detail Modal ── -->
+<div class="modal-backdrop" id="orderModal" role="dialog" aria-modal="true" aria-label="Order details">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title">Order Details</h3>
+      <button class="modal-close" id="orderModalClose" aria-label="Close modal">✕</button>
+    </div>
+    <div id="orderModalContent">
+      <!-- Content injected by admin.js -->
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/orders.js"></script>
+<script src="js/admin.js"></script>
+
+<script>
+  // Password show/hide toggle
+  document.getElementById('togglePassword')?.addEventListener('click', function() {
+    const input = document.getElementById('adminPassword');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      input.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  });
+
+  // Search orders
+  document.getElementById('orderSearch')?.addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    const rows  = document.querySelectorAll('#ordersTableBody tr');
+    rows.forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+    });
+  });
+
+  // Hide login bg decoration on dashboard
+  document.addEventListener('DOMContentLoaded', function() {
+    const dashboard = document.getElementById('adminDashboard');
+    const observer  = new MutationObserver(() => {
+      const decor = document.getElementById('loginBgDecor');
+      if (dashboard.classList.contains('visible') && decor) {
+        decor.style.display = 'none';
+        document.body.style.background = '#f1f8f4';
+      }
+    });
+    observer.observe(dashboard, { attributes: true, attributeFilter: ['class'] });
+  });
+</script>
+
+</body>
+</html>

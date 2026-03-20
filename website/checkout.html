@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — Green Life Flowers</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="nav scrolled" style="position:sticky" aria-label="Navigation">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" aria-label="Green Life Flowers">
+      <img src="brand_assets/green life logo.png" alt="Green Life Flowers" />
+    </a>
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-muted)">
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='var(--sage-dark)'" onmouseout="this.style.color='var(--text-muted)'">Shop</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span style="color:var(--sage-dark);font-weight:500">Checkout</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Checkout Page ── -->
+<main class="checkout-page page-enter">
+  <div class="container">
+    <!-- Header -->
+    <div style="margin-bottom:var(--space-2xl);text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:14px;margin-bottom:var(--space-md)">
+        <div style="width:32px;height:1px;background:var(--gold)"></div>
+        <span style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-family:var(--font-body)">Your Order</span>
+        <div style="width:32px;height:1px;background:var(--gold)"></div>
+      </div>
+      <h1 class="heading-1" style="color:var(--dark)">Complete Your Order</h1>
+      <p style="font-family:var(--font-serif);font-size:1.05rem;color:var(--text-light);margin-top:8px;font-weight:300">
+        Fill in your details below and we'll prepare your blooms right away.
+      </p>
+    </div>
+
+    <!-- Empty cart redirect notice (shown if cart empty) -->
+    <div id="emptyCartNotice" style="display:none;text-align:center;padding:var(--space-3xl)">
+      <div style="font-size:3rem;margin-bottom:var(--space-md)">🌷</div>
+      <h2 class="heading-2" style="margin-bottom:var(--space-md)">Your cart is empty</h2>
+      <p style="color:var(--text-muted);margin-bottom:var(--space-xl)">Add some flowers before checking out.</p>
+      <a href="index.html" class="btn btn-sage btn-lg">Browse Flowers</a>
+    </div>
+
+    <div class="checkout-grid" id="checkoutGrid">
+      <!-- ── Left: Customer Form ── -->
+      <div>
+        <!-- Customer Details -->
+        <div class="checkout-form-section" style="margin-bottom:var(--space-lg)">
+          <div class="form-section-title">
+            <div class="form-section-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            Customer Details
+          </div>
+
+          <form id="checkoutForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="firstName">First Name <span style="color:#C0392B">*</span></label>
+                <input class="form-input" id="firstName" type="text" placeholder="Jane" autocomplete="given-name" required />
+                <span class="form-error" id="err-firstName">Please enter your first name.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="lastName">Last Name <span style="color:#C0392B">*</span></label>
+                <input class="form-input" id="lastName" type="text" placeholder="Smith" autocomplete="family-name" required />
+                <span class="form-error" id="err-lastName">Please enter your last name.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="email">Email Address <span style="color:#C0392B">*</span></label>
+                <input class="form-input" id="email" type="email" placeholder="jane@example.com" autocomplete="email" required />
+                <span class="form-error" id="err-email">Please enter a valid email address.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input class="form-input" id="phone" type="tel" placeholder="(555) 123-4567" autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="company">Company / Business Name</label>
+              <input class="form-input" id="company" type="text" placeholder="Your Studio or Business (optional)" autocomplete="organization" />
+            </div>
+          </form>
+        </div>
+
+        <!-- Delivery Details -->
+        <div class="checkout-form-section">
+          <div class="form-section-title">
+            <div class="form-section-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            Delivery Information
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="address">Street Address</label>
+            <input class="form-input" id="address" type="text" placeholder="123 Flower Street" autocomplete="street-address" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="city">City / State</label>
+              <input class="form-input" id="city" type="text" placeholder="Portland, OR" autocomplete="address-level2" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="zip">ZIP Code</label>
+              <input class="form-input" id="zip" type="text" placeholder="97201" autocomplete="postal-code" maxlength="10" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="notes">Order Notes</label>
+            <textarea class="form-textarea" id="notes" placeholder="Special instructions, preferred delivery time, stem lengths, etc." rows="3"></textarea>
+          </div>
+
+          <!-- No payment info collected -->
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--sage-pale);border-radius:var(--radius-md);border:1px solid rgba(122,158,126,0.2);margin-top:var(--space-md)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div>
+              <div style="font-size:0.82rem;font-weight:500;color:var(--sage-dark);margin-bottom:3px">No Payment Required Online</div>
+              <div style="font-size:0.78rem;color:var(--text-light);line-height:1.5">
+                This is a wholesale order request. Payment is handled separately by our team upon order confirmation.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Right: Order Summary ── -->
+      <div class="order-summary-panel">
+        <div class="order-summary-title">Order Summary</div>
+        <div class="order-items-list" id="checkoutItemsList">
+          <!-- Items injected by JS -->
+        </div>
+        <div class="order-divider"></div>
+        <div class="order-total-row">
+          <span>Items subtotal</span>
+          <span id="checkoutSubtotal">$0.00</span>
+        </div>
+        <div class="order-total-row">
+          <span>Delivery</span>
+          <span style="color:var(--sage-dark)">Arranged on confirmation</span>
+        </div>
+        <div class="order-total-row grand">
+          <span>Order Total</span>
+          <span id="checkoutTotal">$0.00</span>
+        </div>
+
+        <button class="place-order-btn" id="placeOrderBtn" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+          Place Order
+        </button>
+
+        <div class="order-secure-note">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Secure order · No payment info collected</span>
+        </div>
+
+        <!-- Back to shop -->
+        <div style="text-align:center;margin-top:var(--space-md)">
+          <a href="index.html" style="font-size:0.8rem;color:var(--text-muted);transition:color 0.2s" onmouseover="this.style.color='var(--dark)'" onmouseout="this.style.color='var(--text-muted)'">
+            ← Back to Shop
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="js/orders.js"></script>
+<script src="js/cart.js"></script>
+
+<script>
+(function() {
+  /* ── Load cart on checkout page ── */
+  function init() {
+    const items = JSON.parse(localStorage.getItem('greenlife_cart') || '[]');
+
+    if (items.length === 0) {
+      document.getElementById('emptyCartNotice').style.display = '';
+      document.getElementById('checkoutGrid').style.display = 'none';
+      return;
+    }
+
+    renderItems(items);
+    renderTotals(items);
+
+    document.getElementById('placeOrderBtn').addEventListener('click', () => placeOrder(items));
+  }
+
+  function renderItems(items) {
+    const list = document.getElementById('checkoutItemsList');
+    list.innerHTML = items.map(item => `
+      <div class="order-item">
+        <img class="order-item-img" src="${item.image}?w=112&q=75" alt="${item.name}" loading="lazy">
+        <div class="order-item-info">
+          <div class="order-item-name">${item.name}</div>
+          <div class="order-item-qty">${item.unit} · Qty: ${item.qty}</div>
+        </div>
+        <div class="order-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderTotals(items) {
+    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+    document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('checkoutTotal').textContent    = `$${subtotal.toFixed(2)}`;
+  }
+
+  /* ── Validate form ── */
+  function validate() {
+    let valid = true;
+
+    const required = ['firstName', 'lastName', 'email'];
+    required.forEach(id => {
+      const input = document.getElementById(id);
+      const error = document.getElementById(`err-${id}`);
+      const val   = input.value.trim();
+      let ok = !!val;
+
+      if (id === 'email') {
+        ok = ok && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      }
+
+      if (!ok) {
+        input.classList.add('error');
+        if (error) error.classList.add('visible');
+        valid = false;
+      } else {
+        input.classList.remove('error');
+        if (error) error.classList.remove('visible');
+      }
+    });
+
+    return valid;
+  }
+
+  /* ── Place order ── */
+  async function placeOrder(cartItems) {
+    if (!validate()) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('placeOrderBtn');
+    btn.disabled = true;
+    btn.classList.add('btn-loading');
+    btn.textContent = '';
+
+    const customerData = {
+      firstName: sanitize(document.getElementById('firstName').value),
+      lastName:  sanitize(document.getElementById('lastName').value),
+      email:     sanitize(document.getElementById('email').value),
+      phone:     sanitize(document.getElementById('phone').value),
+      company:   sanitize(document.getElementById('company').value),
+      address:   sanitize(document.getElementById('address').value),
+      city:      sanitize(document.getElementById('city').value),
+      notes:     sanitize(document.getElementById('notes').value),
+    };
+
+    try {
+      // 1. Save order locally
+      const order = Orders.create(customerData, cartItems);
+
+      // 2. Send email via backend API
+      const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+      const response = await fetch('/api/send-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: customerData,
+          items: cartItems.map(item => ({
+            name: item.name,
+            qty: item.qty,
+            price: item.price,
+            unit: item.unit || '',
+            category: item.category || '',
+          })),
+          subtotal: subtotal,
+          total: subtotal,
+          orderId: order.id,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Log the error for debugging
+        console.error('[checkout] API error:', response.status, result);
+        throw new Error(result.error || 'Failed to send order email.');
+      }
+
+      console.log('[checkout] Order email sent! ID:', result.messageId);
+
+      // 3. Clear cart and redirect
+      localStorage.removeItem('greenlife_cart');
+      sessionStorage.setItem('gl_last_order_id', order.id);
+      window.location.href = 'confirmation.html';
+
+    } catch (err) {
+      console.error('[checkout] Order submission failed:', err.message);
+      btn.disabled = false;
+      btn.classList.remove('btn-loading');
+      btn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        Place Order
+      `;
+      showToast('Failed to send your order: ' + err.message, 'error');
+    }
+  }
+
+  function sanitize(str) {
+    return (str || '').replace(/</g,'&lt;').replace(/>/g,'&gt;').trim().slice(0,500);
+  }
+
+  function showToast(msg, type) {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'toast-error' : type === 'success' ? 'toast-success' : ''}`;
+    t.innerHTML = `<span>${type === 'error' ? '✕' : '🌸'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3200);
+  }
+
+  // Scroll to first error on input
+  ['firstName','lastName','email'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        el.classList.remove('error');
+        const err = document.getElementById(`err-${id}`);
+        if (err) err.classList.remove('visible');
+      });
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+
+</body>
+</html>
