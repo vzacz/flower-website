@@ -188,10 +188,22 @@ ul, ol {
 }
 
 .nav.scrolled {
-  background: rgba(241, 248, 244, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgb(241, 248, 244);
   box-shadow: 0 1px 0 rgba(26,46,28,0.08), var(--shadow-sm);
+}
+
+.nav.scrolled .nav-link {
+  color: #000000;
+  text-shadow: none;
+}
+
+.nav.scrolled .nav-link:hover {
+  color: #000000;
+  text-shadow: none;
+}
+
+.nav.scrolled .nav-link::after {
+  background: #000000;
 }
 
 .nav-inner {
