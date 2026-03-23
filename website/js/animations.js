@@ -79,14 +79,14 @@ const Animations = (() => {
     canvas.width  = W;
     canvas.height = H;
 
-    // Leaf color palette — soft greens
+    // Leaf color palette — soft, elegant greens
     const leafColors = [
-      'rgba(90,148,96,0.45)',
-      'rgba(61,140,68,0.35)',
-      'rgba(130,191,138,0.40)',
-      'rgba(78,145,84,0.30)',
-      'rgba(46,107,53,0.38)',
-      'rgba(110,175,117,0.32)',
+      'rgba(74,124,89,0.5)',
+      'rgba(107,158,122,0.45)',
+      'rgba(90,148,104,0.4)',
+      'rgba(120,180,130,0.35)',
+      'rgba(53,94,66,0.45)',
+      'rgba(140,190,148,0.3)',
     ];
 
     // Leaf shapes (simple botanical leaf paths)
@@ -95,8 +95,8 @@ const Animations = (() => {
       ctx.translate(x, y);
       ctx.rotate(angle);
       ctx.fillStyle = leafColors[colorIdx % leafColors.length];
-      ctx.strokeStyle = leafColors[(colorIdx + 2) % leafColors.length].replace(/[\d.]+\)$/, '0.25)');
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = leafColors[(colorIdx + 2) % leafColors.length].replace(/[\d.]+\)$/, '0.4)');
+      ctx.lineWidth = 0.8;
 
       const s = size;
       ctx.beginPath();
@@ -112,32 +112,32 @@ const Animations = (() => {
       ctx.beginPath();
       ctx.moveTo(0, -s * 0.85);
       ctx.lineTo(0, s * 0.85);
-      ctx.strokeStyle = leafColors[(colorIdx + 1) % leafColors.length].replace(/[\d.]+\)$/, '0.18)');
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = leafColors[(colorIdx + 1) % leafColors.length].replace(/[\d.]+\)$/, '0.3)');
+      ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
     }
 
-    // Create leaves
+    // Create leaves — clean, refined, gentle drift
     function makeLeaf() {
       return {
         x: Math.random() * W,
-        y: -20 - Math.random() * 100,
-        size: 6 + Math.random() * 10,
-        speedY: 0.4 + Math.random() * 0.7,
-        speedX: (Math.random() - 0.5) * 0.6,
+        y: -30 - Math.random() * 150,
+        size: 12 + Math.random() * 18,
+        speedY: 0.2 + Math.random() * 0.4,
+        speedX: (Math.random() - 0.5) * 0.3,
         angle: Math.random() * Math.PI * 2,
-        angleSpeed: (Math.random() - 0.5) * 0.018,
-        swayAmp: 12 + Math.random() * 20,
-        swayFreq: 0.006 + Math.random() * 0.008,
+        angleSpeed: (Math.random() - 0.5) * 0.01,
+        swayAmp: 15 + Math.random() * 25,
+        swayFreq: 0.003 + Math.random() * 0.004,
         swayOffset: Math.random() * Math.PI * 2,
         colorIdx: Math.floor(Math.random() * leafColors.length),
-        opacity: 0.35 + Math.random() * 0.45,
+        opacity: 0.5 + Math.random() * 0.5,
         t: Math.random() * 1000,
       };
     }
 
-    const LEAF_COUNT = Math.min(28, Math.floor(W / 45));
+    const LEAF_COUNT = Math.min(22, Math.floor(W / 55));
     const leaves = Array.from({ length: LEAF_COUNT }, makeLeaf);
     // Spread initial vertical positions so they don't all start at top
     leaves.forEach((leaf, i) => {
@@ -161,8 +161,8 @@ const Animations = (() => {
           leaf.y = -20 - Math.random() * 40;
           leaf.x = Math.random() * W;
           leaf.colorIdx = Math.floor(Math.random() * leafColors.length);
-          leaf.size = 6 + Math.random() * 10;
-          leaf.speedY = 0.4 + Math.random() * 0.7;
+          leaf.size = 12 + Math.random() * 18;
+          leaf.speedY = 0.2 + Math.random() * 0.4;
         }
 
         ctx.globalAlpha = leaf.opacity;

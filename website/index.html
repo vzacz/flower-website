@@ -121,48 +121,52 @@
 </nav>
 
 <!-- ══════════════════════════════════════════════
-     HERO SECTION
+     HERO SECTION — Split Layout
      ══════════════════════════════════════════════ -->
 <section class="hero" id="home" aria-label="Hero">
-  <div class="hero-bg">
-    <img
-      src="flowers/Screenshot 2026-03-12 000052.png"
-      alt=""
-      loading="eager"
-      fetchpriority="high"
-    />
-  </div>
-  <div class="hero-overlay"></div>
-  <div class="hero-overlay-texture"></div>
-
-  <!-- Botanical leaf shapes in hero -->
-  <div aria-hidden="true" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;z-index:0">
-    <svg viewBox="0 0 120 180" width="140" height="210" style="position:absolute;top:8%;right:4%;opacity:0.12;transform:rotate(15deg)"><path d="M60 5C60 5 10 50 10 95C10 140 35 175 60 175C85 175 110 140 110 95C110 50 60 5 60 5Z" fill="#a8e6ad"/><line x1="60" y1="175" x2="60" y2="40" stroke="#c8f0cc" stroke-width="2.5" opacity="0.7"/></svg>
-    <svg viewBox="0 0 80 120" width="100" height="150" style="position:absolute;top:55%;right:2%;opacity:0.10;transform:rotate(-20deg)"><path d="M40 4C40 4 6 35 6 65C6 95 22 116 40 116C58 116 74 95 74 65C74 35 40 4 40 4Z" fill="#82bf8a"/><line x1="40" y1="116" x2="40" y2="30" stroke="#a8e6ad" stroke-width="1.5" opacity="0.6"/></svg>
-    <svg viewBox="0 0 60 90" width="75" height="112" style="position:absolute;top:25%;left:2%;opacity:0.09;transform:rotate(-35deg)"><path d="M30 3C30 3 3 25 3 50C3 72 16 87 30 87C44 87 57 72 57 50C57 25 30 3 30 3Z" fill="#5a9460"/><line x1="30" y1="87" x2="30" y2="22" stroke="#82bf8a" stroke-width="1.5" opacity="0.5"/></svg>
+  <!-- Floating leaf decorations -->
+  <div class="hero-leaves" aria-hidden="true">
+    <svg class="hero-leaf hero-leaf-1" viewBox="0 0 120 180" width="90" height="135"><path d="M60 5C60 5 10 50 10 95C10 140 35 175 60 175C85 175 110 140 110 95C110 50 60 5 60 5Z" fill="currentColor"/><line x1="60" y1="175" x2="60" y2="40" stroke="currentColor" stroke-width="2" opacity="0.4"/></svg>
+    <svg class="hero-leaf hero-leaf-2" viewBox="0 0 80 120" width="60" height="90"><path d="M40 4C40 4 6 35 6 65C6 95 22 116 40 116C58 116 74 95 74 65C74 35 40 4 40 4Z" fill="currentColor"/><line x1="40" y1="116" x2="40" y2="30" stroke="currentColor" stroke-width="1.5" opacity="0.3"/></svg>
+    <svg class="hero-leaf hero-leaf-3" viewBox="0 0 60 90" width="45" height="68"><path d="M30 3C30 3 3 25 3 50C3 72 16 87 30 87C44 87 57 72 57 50C57 25 30 3 30 3Z" fill="currentColor"/><line x1="30" y1="87" x2="30" y2="22" stroke="currentColor" stroke-width="1.5" opacity="0.3"/></svg>
   </div>
 
-  <div class="container">
+  <div class="container hero-grid">
     <div class="hero-content">
       <div class="hero-eyebrow">
         <div class="hero-eyebrow-line"></div>
         <span class="hero-eyebrow-text">Premium Wholesale Flowers</span>
       </div>
       <h1 class="hero-title">
-        Nature's Finest<br><em>Blooms,</em><br>Delivered.
+        <span class="hero-title-light">Nature's Finest</span><br>
+        <em>Blooms,</em><br>
+        Delivered.
       </h1>
       <p class="hero-subtitle">
         Curated wholesale flowers for florists, event planners, and anyone who appreciates beauty in full bloom.
       </p>
       <div class="hero-actions">
-        <a href="#shop" class="btn btn-primary btn-lg">
+        <a href="#shop" class="btn btn-primary btn-lg hero-btn-primary">
           Shop the Collection
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
           </svg>
         </a>
-        <a href="#contact" class="btn btn-outline">Get in Touch</a>
+        <a href="#contact" class="btn btn-outline hero-btn-outline">Get in Touch</a>
       </div>
+      <div class="hero-trust">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Trusted by 500+ florists & event planners nationwide</span>
+      </div>
+    </div>
+    <div class="hero-bg">
+      <div class="hero-image-glow" aria-hidden="true"></div>
+      <img
+        src="flowers/Screenshot 2026-03-12 000052.png"
+        alt="Beautiful fresh flowers arrangement"
+        loading="eager"
+        fetchpriority="high"
+      />
     </div>
   </div>
 
@@ -261,10 +265,6 @@
      CTA SECTION
      ══════════════════════════════════════════════ -->
 <section class="cta-section reveal" aria-label="Call to action">
-  <!-- Decorative botanical circles -->
-  <div aria-hidden="true" style="position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(90,148,96,0.12),transparent 70%);pointer-events:none"></div>
-  <div aria-hidden="true" style="position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(61,140,68,0.10),transparent 70%);pointer-events:none"></div>
-
   <div class="container" style="position:relative">
     <div class="section-eyebrow" style="justify-content:center">
       <div class="section-eyebrow-line"></div>
@@ -276,7 +276,7 @@
       Browse our full collection and place your wholesale order in minutes. No account needed — just beautiful flowers.
     </p>
     <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-      <a href="#shop" class="btn btn-primary btn-lg">🌿 Shop All Flowers</a>
+      <a href="#shop" class="btn btn-primary btn-lg">Shop All Flowers</a>
       <a href="#contact" class="btn btn-ghost btn-lg">Get in Touch</a>
     </div>
   </div>
@@ -285,9 +285,9 @@
 <!-- ══════════════════════════════════════════════
      CONTACT SECTION
      ══════════════════════════════════════════════ -->
-<section class="section-sm" id="contact" style="background:var(--cream-deep)" aria-label="Contact">
+<section class="section-sm" id="contact" aria-label="Contact">
   <div class="container">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3xl);align-items:center" class="reveal">
+    <div class="contact-grid reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3xl);align-items:center">
       <div>
         <div class="section-eyebrow">
           <div class="section-eyebrow-line"></div>
