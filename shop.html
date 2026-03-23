@@ -32,7 +32,7 @@
      ══════════════════════════════════════════════ -->
 <nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
   <div class="container nav-inner">
-    <a href="index.html" class="nav-logo" aria-label="Green Life Flowers home" title="Green Life Flowers">
+    <a href="index.html" class="nav-logo" id="navLogo" aria-label="Green Life Flowers home" title="Green Life Flowers">
       <img src="brand_assets/green life logo.png" alt="Green Life Flowers logo" />
     </a>
 
@@ -207,12 +207,191 @@
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ══════════════════════════════════════════════
+     ADMIN PANEL OVERLAY (hidden — 5-click logo)
+     ══════════════════════════════════════════════ -->
+<div class="admin-overlay" id="adminOverlay" role="dialog" aria-label="Admin Panel" aria-modal="true">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
+      <div class="admin-panel-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Admin Panel — Green Life Flowers
+      </div>
+      <button class="admin-close-btn" id="adminCloseBtn" aria-label="Close admin panel">&#10005;</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" data-admin-tab="orders">📋 Orders</button>
+      <button class="admin-tab-btn" data-admin-tab="products">🌸 Products</button>
+      <button class="admin-tab-btn" data-admin-tab="flowerList">🌿 Categories</button>
+      <button class="admin-tab-btn" data-admin-tab="contactMessages">📩 Contact Messages</button>
+      <button class="admin-tab-btn" data-admin-tab="emailSignups">✉️ Email Signups</button>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="admin-tab-content active" id="adminTabOrders">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">All Orders</h3>
+        <span id="adminOrderCount" style="font-size:0.8rem;color:var(--text-muted)"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="adminOrdersTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminOrdersBody">
+            <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:32px">No orders yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div class="admin-tab-content" id="adminTabProducts">
+      <button class="admin-add-btn" id="adminAddProductBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Product
+      </button>
+      <div class="admin-product-grid" id="adminProductGrid"></div>
+    </div>
+
+    <!-- Flower Categories Tab -->
+    <div class="admin-tab-content" id="adminTabFlowerList">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">Flower Categories</h3>
+        <span style="font-size:0.78rem;color:var(--text-muted)">Drag to reorder · Toggle visibility · Changes update the site instantly.</span>
+      </div>
+      <div id="adminFlowerListContainer" class="admin-flower-list-container"></div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <input class="form-input" type="text" id="adminFlowerListInput" placeholder="New flower name..." style="flex:1" />
+        <button class="admin-add-btn" id="adminFlowerListAddBtn" style="margin:0;white-space:nowrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add
+        </button>
+      </div>
+    </div>
+
+    <!-- Contact Messages Tab -->
+    <div class="admin-tab-content" id="adminTabContactMessages">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">Contact Messages</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span id="adminContactCount" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          <button class="btn btn-ghost btn-sm" id="adminExportContactsBtn" style="font-size:0.75rem;padding:6px 12px">Export CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="adminContactsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Received</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminContactsBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No messages yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Email Signups Tab -->
+    <div class="admin-tab-content" id="adminTabEmailSignups">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">Email Signups</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span id="adminEmailCount" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          <button class="btn btn-ghost btn-sm" id="adminExportEmailsBtn" style="font-size:0.75rem;padding:6px 12px">Export CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="adminEmailsTable">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Discount Code</th>
+              <th>Used</th>
+              <th>Signed Up</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="adminEmailsBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No signups yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="admin-modal-overlay" id="adminProductModal">
+  <div class="admin-modal">
+    <h3 class="admin-modal-title" id="adminModalTitle">Add New Product</h3>
+    <input type="hidden" id="adminProductId" value="" />
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="adminProdName">Product Name</label>
+        <input class="form-input" id="adminProdName" type="text" placeholder="e.g. Garden Roses" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="adminProdCategory">Category</label>
+        <select class="form-input" id="adminProdCategory"></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="adminProdPrice">Price ($)</label>
+        <input class="form-input" id="adminProdPrice" type="number" min="1" placeholder="e.g. 45" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="adminProdUnit">Unit</label>
+        <input class="form-input" id="adminProdUnit" type="text" placeholder="e.g. per dozen" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="adminProdDesc">Description</label>
+      <textarea class="form-input form-textarea" id="adminProdDesc" placeholder="Short product description..." rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="adminProdImage">Image URL</label>
+      <input class="form-input" id="adminProdImage" type="text" placeholder="https://images.unsplash.com/..." />
+      <div id="adminImgPreviewWrap" style="display:none;margin-top:10px">
+        <img id="adminImgPreview" src="" alt="Image preview" style="width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid rgba(90,148,96,0.2)" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-primary" id="adminSaveProductBtn" style="flex:1">Save Changes</button>
+      <button class="btn btn-ghost" id="adminCancelProductBtn" style="flex:0 0 auto">Cancel</button>
+    </div>
+    <div id="adminDeleteProductWrap" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(192,57,43,0.15)">
+      <button id="adminDeleteProductBtn" class="admin-delete-btn" style="width:100%;padding:8px 16px;font-size:0.8rem">
+        🗑 Delete This Product
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Scripts ── -->
 <script src="js/orders.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/flower-list.js"></script>
 <script src="js/app.js"></script>
+<script src="js/admin-panel.js"></script>
 <script src="js/whatsapp-button.js"></script>
 </body>
 </html>

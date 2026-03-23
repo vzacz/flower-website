@@ -11,12 +11,13 @@ const Animations = (() => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('revealed');
-          // Don't unobserve — keep revealed state
+        } else {
+          entry.target.classList.remove('revealed');
         }
       });
     }, {
-      threshold: 0.12,
-      rootMargin: '0px 0px -40px 0px',
+      threshold: 0.08,
+      rootMargin: '0px 0px -20px 0px',
     });
 
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale')
@@ -68,126 +69,79 @@ const Animations = (() => {
     });
   }
 
-  /* ── Falling Leaves Canvas Animation ── */
+  /* ── Falling Leaves — soft silhouettes matching the floating bg style ── */
   function initFallingLeaves() {
+    // Hide the old canvas
     const canvas = document.getElementById('leafCanvas');
-    if (!canvas) return;
+    if (canvas) canvas.style.display = 'none';
 
-    const ctx = canvas.getContext('2d');
-    let W = window.innerWidth;
-    let H = window.innerHeight;
-    canvas.width  = W;
-    canvas.height = H;
+    // Container
+    const container = document.createElement('div');
+    container.id = 'fallingLeavesContainer';
+    container.setAttribute('aria-hidden', 'true');
+    container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:899;overflow:hidden;';
+    document.body.appendChild(container);
 
-    // Leaf color palette — very light greens for white background
-    const leafColors = [
-      'rgba(90,148,96,0.08)',
-      'rgba(61,140,68,0.06)',
-      'rgba(130,191,138,0.07)',
-      'rgba(78,145,84,0.05)',
-      'rgba(46,107,53,0.07)',
-      'rgba(110,175,117,0.06)',
+    // Soft silhouette leaf SVGs — matching the muted sage style already on the page
+    const leafSVGs = [
+      // Teardrop leaf
+      `<svg viewBox="0 0 40 58"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="COLOR" opacity="OPACITY"/></svg>`,
+      // Wider rounded leaf
+      `<svg viewBox="0 0 52 68"><path d="M26 2C26 2 4 20 4 40C4 56 14 66 26 66C38 66 48 56 48 40C48 20 26 2 26 2Z" fill="COLOR" opacity="OPACITY"/></svg>`,
+      // Small round leaf
+      `<svg viewBox="0 0 24 38"><path d="M12 1C12 1 2 12 2 23C2 33 7 37 12 37C17 37 22 33 22 23C22 12 12 1 12 1Z" fill="COLOR" opacity="OPACITY"/></svg>`,
+      // Oval leaf
+      `<svg viewBox="0 0 36 50"><ellipse cx="18" cy="25" rx="16" ry="23" fill="COLOR" opacity="OPACITY"/></svg>`,
+      // Pointy leaf
+      `<svg viewBox="0 0 30 46"><path d="M15 2C15 2 2 16 2 28C2 40 8 44 15 44C22 44 28 40 28 28C28 16 15 2 15 2Z" fill="COLOR" opacity="OPACITY"/></svg>`,
     ];
 
-    // Leaf shapes (simple botanical leaf paths)
-    function drawLeaf(ctx, x, y, size, angle, colorIdx) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle);
-      ctx.fillStyle = leafColors[colorIdx % leafColors.length];
-      ctx.strokeStyle = leafColors[(colorIdx + 2) % leafColors.length].replace(/[\d.]+\)$/, '0.25)');
-      ctx.lineWidth = 0.5;
+    // Muted sage/green colors — same palette as floating-bg shapes
+    const colors = ['#5A9460', '#3D8C44', '#82BF8A', '#6DB874', '#5A9460', '#82BF8A'];
 
-      const s = size;
-      ctx.beginPath();
-      // Teardrop leaf shape
-      ctx.moveTo(0, -s);
-      ctx.bezierCurveTo(s * 0.7, -s * 0.6, s * 0.6, s * 0.4, 0, s);
-      ctx.bezierCurveTo(-s * 0.6, s * 0.4, -s * 0.7, -s * 0.6, 0, -s);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+    const LEAF_COUNT = Math.min(40, Math.max(16, Math.floor(window.innerWidth / 40)));
 
-      // Midrib
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.85);
-      ctx.lineTo(0, s * 0.85);
-      ctx.strokeStyle = leafColors[(colorIdx + 1) % leafColors.length].replace(/[\d.]+\)$/, '0.18)');
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-      ctx.restore();
+    for (let i = 0; i < LEAF_COUNT; i++) {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const svgTemplate = leafSVGs[Math.floor(Math.random() * leafSVGs.length)];
+      const leafOpacity = (0.10 + Math.random() * 0.14).toFixed(2);
+      const svg = svgTemplate.replace('COLOR', color).replace('OPACITY', leafOpacity);
+
+      const leaf = document.createElement('div');
+      leaf.className = 'falling-leaf';
+      leaf.innerHTML = svg;
+
+      const size = 30 + Math.random() * 40;
+      const startX = Math.random() * 100;
+      const duration = 12;
+      const swayDuration = 3 + Math.random() * 4;
+      const swayAmount = 50 + Math.random() * 80;
+      const startRotate = Math.random() * 360;
+      const rotateAmount = (Math.random() - 0.5) * 540;
+
+      // Force this leaf to start at a specific % through the fall
+      // i/LEAF_COUNT gives even spread: leaf 0 at 0%, leaf 1 at ~3%, etc.
+      const startPercent = i / LEAF_COUNT;
+      const negDelay = -(startPercent * duration).toFixed(2);
+
+      leaf.style.cssText = `
+        position: absolute;
+        top: -80px;
+        left: ${startX}%;
+        width: ${size}px;
+        height: auto;
+        opacity: 1;
+        animation:
+          leafFall ${duration}s ${negDelay}s linear infinite,
+          leafSway ${swayDuration}s ${negDelay}s ease-in-out infinite alternate,
+          leafSpin ${duration * 0.7}s ${negDelay}s linear infinite;
+        --sway: ${swayAmount}px;
+        --rotate-start: ${startRotate}deg;
+        --rotate-end: ${startRotate + rotateAmount}deg;
+      `;
+
+      container.appendChild(leaf);
     }
-
-    // Create leaves
-    function makeLeaf() {
-      return {
-        x: Math.random() * W,
-        y: -20 - Math.random() * 100,
-        size: 10 + Math.random() * 16,
-        speedY: 0.15 + Math.random() * 0.3,
-        speedX: (Math.random() - 0.5) * 0.25,
-        angle: Math.random() * Math.PI * 2,
-        angleSpeed: (Math.random() - 0.5) * 0.008,
-        swayAmp: 18 + Math.random() * 30,
-        swayFreq: 0.003 + Math.random() * 0.004,
-        swayOffset: Math.random() * Math.PI * 2,
-        colorIdx: Math.floor(Math.random() * leafColors.length),
-        opacity: 0.5 + Math.random() * 0.5,
-        t: Math.random() * 1000,
-      };
-    }
-
-    const LEAF_COUNT = Math.min(18, Math.floor(W / 65));
-    const leaves = Array.from({ length: LEAF_COUNT }, makeLeaf);
-    // Spread initial vertical positions so they don't all start at top
-    leaves.forEach((leaf, i) => {
-      leaf.y = -20 + (i / LEAF_COUNT) * H * 1.2;
-    });
-
-    let rafId;
-    let paused = false;
-
-    function animate() {
-      ctx.clearRect(0, 0, W, H);
-
-      leaves.forEach(leaf => {
-        leaf.t += 1;
-        leaf.y += leaf.speedY;
-        leaf.x += leaf.speedX + Math.sin(leaf.t * leaf.swayFreq + leaf.swayOffset) * 0.35;
-        leaf.angle += leaf.angleSpeed;
-
-        // Reset when off screen
-        if (leaf.y > H + 30) {
-          leaf.y = -20 - Math.random() * 40;
-          leaf.x = Math.random() * W;
-          leaf.colorIdx = Math.floor(Math.random() * leafColors.length);
-          leaf.size = 10 + Math.random() * 16;
-          leaf.speedY = 0.15 + Math.random() * 0.3;
-        }
-
-        ctx.globalAlpha = leaf.opacity;
-        drawLeaf(ctx, leaf.x, leaf.y, leaf.size, leaf.angle, leaf.colorIdx);
-      });
-
-      ctx.globalAlpha = 1;
-      rafId = requestAnimationFrame(animate);
-    }
-
-    // Pause when tab is hidden for performance
-    document.addEventListener('visibilitychange', () => {
-      paused = document.hidden;
-      if (!paused && !rafId) animate();
-    });
-
-    // Resize handler
-    window.addEventListener('resize', () => {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width  = W;
-      canvas.height = H;
-    }, { passive: true });
-
-    animate();
   }
 
   /* ── Floating background botanical corner shapes ── */
@@ -324,6 +278,9 @@ const Animations = (() => {
   /* ── Page Transition — fade out before navigating ── */
   function initPageTransitions() {
     document.addEventListener('click', e => {
+      // Skip if another handler already prevented default (e.g. admin 5-click)
+      if (e.defaultPrevented) return;
+
       const link = e.target.closest('a[href]');
       if (!link) return;
 
@@ -347,7 +304,7 @@ const Animations = (() => {
     initSmoothScroll();
     initScrollReveal();
     initFloatingBg();
-    initFallingLeaves();
+    // initFallingLeaves(); — disabled
     initParallax();
     initMobileNav();
     initCategoryFilter();
