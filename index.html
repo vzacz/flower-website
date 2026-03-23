@@ -802,7 +802,7 @@
               '<option value="contacted"' + (m.status==='contacted'?' selected':'') + '>Contacted</option>' +
               '<option value="done"' + (m.status==='done'?' selected':'') + '>Done</option>' +
             '</select>' +
-            ' <button onclick="if(confirm(\'Delete this message?\')){ContactMessages.remove(\'' + m.id + '\');ContactMessages.renderAdmin()}" style="font-size:0.72rem;padding:4px 8px;border:none;background:none;color:var(--text-muted);cursor:pointer" title="Delete">🗑</button>' +
+            ' <button onclick="if(confirm(\'Delete this message?\')){ContactMessages.remove(\'' + m.id + '\');ContactMessages.renderAdmin()}" style="font-size:0.85rem;padding:4px 10px;border:1px solid rgba(192,57,43,0.2);border-radius:4px;background:rgba(192,57,43,0.06);color:#C0392B;cursor:pointer;font-weight:600;transition:background 0.2s" onmouseover="this.style.background=\'rgba(192,57,43,0.15)\'" onmouseout="this.style.background=\'rgba(192,57,43,0.06)\'" title="Delete">✕</button>' +
           '</td></tr>';
       }).join('');
     }
