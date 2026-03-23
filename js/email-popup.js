@@ -249,6 +249,15 @@ const EmailPopup = (() => {
     });
   }
 
+  /* ── Remove a signup by email ── */
+  function removeSignup(email) {
+    const signups = getSignups().filter(s => s.email !== email);
+    localStorage.setItem(STORAGE_KEYS.emailSignups, JSON.stringify(signups));
+    // Also remove the discount code
+    const codes = getDiscountCodes().filter(c => c.email !== email);
+    localStorage.setItem(STORAGE_KEYS.discountCodes, JSON.stringify(codes));
+  }
+
   /* ── Admin: render email signups table ── */
   function renderAdminTable() {
     const tbody = document.getElementById('adminEmailsBody');
@@ -259,7 +268,7 @@ const EmailPopup = (() => {
     if (countEl) countEl.textContent = `${signups.length} signup${signups.length !== 1 ? 's' : ''}`;
 
     if (signups.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No signups yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">No signups yet.</td></tr>';
       return;
     }
 
@@ -275,6 +284,7 @@ const EmailPopup = (() => {
           : '<span class="admin-status-badge pending">Unused</span>'
         }</td>
         <td style="color:var(--text-muted);font-size:0.82rem">${date}</td>
+        <td><button onclick="if(confirm('Delete this signup?')){EmailPopup.removeSignup('${escapeHtml(s.email)}');EmailPopup.renderAdminTable()}" style="font-size:0.78rem;padding:4px 10px;border:none;background:none;color:var(--text-muted);cursor:pointer;transition:color 0.2s" onmouseover="this.style.color='#C0392B'" onmouseout="this.style.color='var(--text-muted)'" title="Delete">✕</button></td>
       </tr>`;
     }).join('');
   }
@@ -381,6 +391,7 @@ const EmailPopup = (() => {
     markCodeUsed,
     getSignups,
     getDiscountCodes,
+    removeSignup,
     renderAdminTable,
     DISCOUNT_PERCENT,
   };
