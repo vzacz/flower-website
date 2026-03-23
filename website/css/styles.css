@@ -74,7 +74,7 @@
   --duration-drawer: 400ms;
 
   /* Layout */
-  --nav-height: 80px;
+  --nav-height: 130px;
   --container-max: 1320px;
   --container-pad: clamp(20px, 5vw, 60px);
 }
