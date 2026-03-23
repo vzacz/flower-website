@@ -321,6 +321,26 @@ const Animations = (() => {
     setTimeout(() => loader.classList.add('hidden'), 600);
   }
 
+  /* ── Page Transition — fade out before navigating ── */
+  function initPageTransitions() {
+    document.addEventListener('click', e => {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      // Skip anchor links, external links, javascript:, #, empty, new-tab
+      if (!href || href.startsWith('#') || href.startsWith('javascript')
+          || href.startsWith('http') || link.target === '_blank') return;
+
+      // Skip if modifier key held (open in new tab)
+      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+      e.preventDefault();
+      document.body.classList.add('page-leaving');
+      setTimeout(() => { window.location.href = href; }, 220);
+    });
+  }
+
   /* ── Init all ── */
   function init() {
     initNav();
@@ -331,6 +351,7 @@ const Animations = (() => {
     initParallax();
     initMobileNav();
     initCategoryFilter();
+    initPageTransitions();
     hideLoader();
   }
 

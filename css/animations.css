@@ -2,6 +2,23 @@
    GREEN LIFE FLOWERS — ANIMATIONS & TRANSITIONS
    ============================================================ */
 
+/* ── Page Transition ────────────────────────────────────── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body {
+  animation: pageEnter 0.5s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+}
+
+body.page-leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
 /* ── @keyframes ──────────────────────────────────────────── */
 
 @keyframes leafDrift {
