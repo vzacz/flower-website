@@ -406,6 +406,70 @@
   </div>
 </footer>
 
+<!-- ══════════════════════════════════════════════
+     EMAIL SIGNUP POPUP
+     ══════════════════════════════════════════════ -->
+<div class="email-popup-backdrop" id="emailPopupBackdrop"></div>
+<div class="email-popup" id="emailPopup" role="dialog" aria-label="Sign up for 10% off" aria-modal="true">
+  <!-- Hero -->
+  <div class="email-popup-hero">
+    <div class="leaf-decor"></div>
+    <div class="leaf-decor"></div>
+    <div class="leaf-decor"></div>
+    <div class="email-popup-hero-icon">🌿</div>
+    <button class="email-popup-close" id="emailPopupClose" aria-label="Close popup">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="email-popup-body">
+    <!-- Sign-up form state -->
+    <div id="emailPopupFormState">
+      <div class="email-popup-eyebrow">
+        <div class="email-popup-eyebrow-line"></div>
+        <span class="email-popup-eyebrow-text">Exclusive Offer</span>
+        <div class="email-popup-eyebrow-line"></div>
+      </div>
+      <h2 class="email-popup-title">Join Us!</h2>
+      <p class="email-popup-offer">Get <strong>10% off</strong> your next order</p>
+      <form class="email-popup-form" id="emailPopupForm" novalidate>
+        <input
+          class="email-popup-input"
+          id="emailPopupInput"
+          type="email"
+          placeholder="Your email address"
+          autocomplete="email"
+          required
+          aria-describedby="emailPopupError"
+        />
+        <div class="email-popup-error" id="emailPopupError">Please enter a valid email address.</div>
+        <button type="submit" class="email-popup-submit" id="emailPopupSubmit">Continue</button>
+      </form>
+      <p class="email-popup-note">No spam, ever. Unsubscribe anytime.</p>
+    </div>
+
+    <!-- Success state (hidden by default) -->
+    <div class="email-popup-success" id="emailPopupSuccess">
+      <div class="email-popup-success-icon">🌸</div>
+      <h3 class="email-popup-success-title">You're In!</h3>
+      <p class="email-popup-success-text">Here's your personal discount code — use it at checkout:</p>
+      <div class="email-popup-discount-code">
+        <span id="emailPopupCode">---</span>
+        <button class="email-popup-copy-btn" id="emailPopupCopyBtn" aria-label="Copy discount code" title="Copy code">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+      <a href="#shop" class="email-popup-success-shop" id="emailPopupShopLink">
+        Start Shopping
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -427,6 +491,7 @@
       <button class="admin-tab-btn" data-admin-tab="products">🌸 Products</button>
       <button class="admin-tab-btn" data-admin-tab="flowerList">🌿 Categories</button>
       <button class="admin-tab-btn" data-admin-tab="about">📄 About Page</button>
+      <button class="admin-tab-btn" data-admin-tab="emailSignups">✉️ Email Signups</button>
     </div>
 
     <!-- Orders Tab -->
@@ -481,6 +546,32 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add
         </button>
+      </div>
+    </div>
+
+    <!-- Email Signups Tab -->
+    <div class="admin-tab-content" id="adminTabEmailSignups">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">Email Signups</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span id="adminEmailCount" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          <button class="btn btn-ghost btn-sm" id="adminExportEmailsBtn" style="font-size:0.75rem;padding:6px 12px">Export CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="adminEmailsTable">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Discount Code</th>
+              <th>Used</th>
+              <th>Signed Up</th>
+            </tr>
+          </thead>
+          <tbody id="adminEmailsBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px">No signups yet.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -615,6 +706,7 @@
 <script src="js/app.js"></script>
 <script src="js/about-content.js"></script>
 <script src="js/admin-panel.js"></script>
+<script src="js/email-popup.js"></script>
 
 <script>
   // Contact form demo handler

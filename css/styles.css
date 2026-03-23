@@ -3310,3 +3310,521 @@ ul, ol {
   .admin-product-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-table { display: block; overflow-x: auto; }
 }
+
+/* ============================================================
+   EMAIL POPUP MODAL
+   ============================================================ */
+.email-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,46,28,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-base) var(--ease-smooth),
+              visibility var(--duration-base) var(--ease-smooth);
+}
+.email-popup-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.email-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  z-index: 9999;
+  width: min(440px, calc(100vw - 40px));
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 80px rgba(26,46,28,0.18), 0 8px 24px rgba(26,46,28,0.08);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-slow) var(--ease-spring),
+              transform var(--duration-slow) var(--ease-spring),
+              visibility var(--duration-slow) var(--ease-spring);
+}
+.email-popup.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.email-popup-hero {
+  position: relative;
+  height: 160px;
+  background: linear-gradient(135deg, var(--sage-pale) 0%, var(--leaf-pale) 50%, var(--blush-pale) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.email-popup-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(90,148,96,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(61,140,68,0.10) 0%, transparent 60%);
+}
+.email-popup-hero-icon {
+  position: relative;
+  font-size: 3.5rem;
+  animation: popupFloat 3s ease-in-out infinite;
+}
+@keyframes popupFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Decorative leaf shapes in hero */
+.email-popup-hero .leaf-decor {
+  position: absolute;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.email-popup-hero .leaf-decor:nth-child(2) {
+  top: 12%;
+  left: 8%;
+  width: 60px;
+  height: 60px;
+  border-radius: 0 50% 50% 50%;
+  background: var(--sage);
+  transform: rotate(-30deg);
+}
+.email-popup-hero .leaf-decor:nth-child(3) {
+  bottom: 10%;
+  right: 10%;
+  width: 45px;
+  height: 45px;
+  border-radius: 50% 0 50% 50%;
+  background: var(--leaf);
+  transform: rotate(15deg);
+}
+.email-popup-hero .leaf-decor:nth-child(4) {
+  top: 50%;
+  right: 25%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 0 50%;
+  background: var(--sage-dark);
+  transform: rotate(45deg);
+}
+
+.email-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: background var(--duration-fast) var(--ease-smooth),
+              color var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring);
+  z-index: 2;
+}
+.email-popup-close:hover {
+  background: var(--white);
+  color: var(--dark);
+  transform: scale(1.08);
+}
+.email-popup-close:active {
+  transform: scale(0.95);
+}
+.email-popup-close:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+.email-popup-body {
+  padding: 32px 32px 28px;
+  text-align: center;
+}
+.email-popup-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.email-popup-eyebrow-line {
+  width: 24px;
+  height: 1px;
+  background: var(--sage-light);
+}
+.email-popup-eyebrow-text {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sage-dark);
+  font-weight: 600;
+}
+.email-popup-title {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 500;
+  color: var(--dark);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.email-popup-offer {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--sage-dark);
+  font-weight: 400;
+  font-style: italic;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.email-popup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.email-popup-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1.5px solid rgba(90,148,96,0.2);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--text);
+  background: var(--cream);
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+  outline: none;
+  box-sizing: border-box;
+}
+.email-popup-input::placeholder {
+  color: var(--text-muted);
+}
+.email-popup-input:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(90,148,96,0.1);
+}
+.email-popup-input.error {
+  border-color: #C0392B;
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+}
+
+.email-popup-submit {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--sage-dark);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+.email-popup-submit:hover {
+  background: var(--leaf);
+  box-shadow: 0 4px 16px rgba(46,107,53,0.25);
+  transform: translateY(-1px);
+}
+.email-popup-submit:active {
+  transform: translateY(0) scale(0.98);
+}
+.email-popup-submit:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+.email-popup-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.email-popup-submit.loading {
+  position: relative;
+  color: transparent;
+}
+.email-popup-submit.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: popupSpin 0.6s linear infinite;
+}
+@keyframes popupSpin {
+  to { transform: rotate(360deg); }
+}
+
+.email-popup-error {
+  font-size: 0.78rem;
+  color: #C0392B;
+  text-align: left;
+  margin-top: -4px;
+  display: none;
+}
+.email-popup-error.visible {
+  display: block;
+}
+
+.email-popup-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* ── Success state ── */
+.email-popup-success {
+  display: none;
+  text-align: center;
+  padding: 8px 0 0;
+}
+.email-popup-success.active {
+  display: block;
+  animation: popupFadeUp 0.5s var(--ease-spring) both;
+}
+@keyframes popupFadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.email-popup-success-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+.email-popup-success-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+.email-popup-success-text {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.email-popup-discount-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--sage-pale);
+  border: 1.5px dashed var(--sage);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  margin-bottom: 16px;
+}
+.email-popup-discount-code span {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sage-dark);
+  letter-spacing: 0.1em;
+}
+.email-popup-copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+.email-popup-copy-btn:hover {
+  color: var(--sage-dark);
+}
+.email-popup-success-shop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--sage-dark);
+  text-decoration: none;
+  transition: opacity var(--duration-fast);
+}
+.email-popup-success-shop:hover {
+  opacity: 0.7;
+}
+
+/* ── Mobile popup adjustments ── */
+@media (max-width: 520px) {
+  .email-popup {
+    width: calc(100vw - 24px);
+    border-radius: var(--radius-lg);
+  }
+  .email-popup-hero { height: 130px; }
+  .email-popup-hero-icon { font-size: 2.8rem; }
+  .email-popup-body { padding: 24px 20px 22px; }
+  .email-popup-title { font-size: 1.4rem; }
+  .email-popup-offer { font-size: 1.05rem; }
+}
+
+/* ============================================================
+   CHECKOUT DISCOUNT CODE
+   ============================================================ */
+.discount-section {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(90,148,96,0.12);
+}
+.discount-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--sage-dark);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-weight: 500;
+  transition: opacity var(--duration-fast);
+}
+.discount-toggle:hover { opacity: 0.7; }
+.discount-toggle:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.discount-toggle svg {
+  transition: transform var(--duration-fast) var(--ease-smooth);
+}
+.discount-toggle.open svg {
+  transform: rotate(90deg);
+}
+
+.discount-form {
+  display: none;
+  margin-top: 12px;
+}
+.discount-form.visible {
+  display: flex;
+  gap: 8px;
+  animation: popupFadeUp 0.3s var(--ease-spring) both;
+}
+.discount-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(90,148,96,0.2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--white);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-smooth),
+              box-shadow var(--duration-fast) var(--ease-smooth);
+}
+.discount-input::placeholder {
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+.discount-input:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(90,148,96,0.1);
+}
+.discount-apply-btn {
+  padding: 10px 18px;
+  background: var(--sage-dark);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring);
+}
+.discount-apply-btn:hover {
+  background: var(--leaf);
+  transform: translateY(-1px);
+}
+.discount-apply-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.discount-apply-btn:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+.discount-message {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  display: none;
+}
+.discount-message.success {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sage-dark);
+}
+.discount-message.error {
+  display: block;
+  color: #C0392B;
+}
+
+.discount-applied-row {
+  display: none;
+}
+.discount-applied-row.active {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: popupFadeUp 0.3s var(--ease-spring) both;
+}
+.discount-applied-row .discount-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--sage-dark);
+  font-weight: 500;
+}
+.discount-applied-row .discount-amount {
+  font-size: 0.85rem;
+  color: var(--sage-dark);
+  font-weight: 600;
+}
+.discount-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color var(--duration-fast);
+}
+.discount-remove-btn:hover {
+  color: #C0392B;
+}

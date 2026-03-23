@@ -154,6 +154,31 @@
           <span>Delivery</span>
           <span style="color:var(--sage-dark)">Arranged on confirmation</span>
         </div>
+        <!-- Discount Code Section -->
+        <div class="discount-section">
+          <button class="discount-toggle" id="discountToggle" type="button" aria-expanded="false" aria-controls="discountForm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            Have a discount code?
+          </button>
+          <div class="discount-form" id="discountForm">
+            <input class="discount-input" id="discountInput" type="text" placeholder="Enter code" autocomplete="off" />
+            <button class="discount-apply-btn" id="discountApplyBtn" type="button">Apply</button>
+          </div>
+          <div class="discount-message" id="discountMessage"></div>
+        </div>
+
+        <div class="order-divider" style="margin-top:var(--space-md)"></div>
+
+        <!-- Discount applied row (hidden until code applied) -->
+        <div class="discount-applied-row" id="discountAppliedRow">
+          <div class="discount-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span id="discountCodeLabel">---</span>
+            <button class="discount-remove-btn" id="discountRemoveBtn" type="button" title="Remove discount">remove</button>
+          </div>
+          <span class="discount-amount" id="discountAmount">-$0.00</span>
+        </div>
+
         <div class="order-total-row grand">
           <span>Order Total</span>
           <span id="checkoutTotal">$0.00</span>
@@ -189,12 +214,18 @@
 <!-- Scripts -->
 <script src="js/orders.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/email-popup.js"></script>
 
 <script>
 (function() {
+  /* ── Discount state ── */
+  let appliedDiscount = null; // { code, percent }
+  let currentItems = [];
+
   /* ── Load cart on checkout page ── */
   function init() {
     const items = JSON.parse(localStorage.getItem('greenlife_cart') || '[]');
+    currentItems = items;
 
     if (items.length === 0) {
       document.getElementById('emptyCartNotice').style.display = '';
@@ -204,6 +235,7 @@
 
     renderItems(items);
     renderTotals(items);
+    initDiscount();
 
     document.getElementById('placeOrderBtn').addEventListener('click', () => placeOrder(items));
   }
@@ -222,10 +254,103 @@
     `).join('');
   }
 
-  function renderTotals(items) {
-    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+  function renderTotals() {
+    const subtotal = currentItems.reduce((s, i) => s + i.price * i.qty, 0);
     document.getElementById('checkoutSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById('checkoutTotal').textContent    = `$${subtotal.toFixed(2)}`;
+
+    if (appliedDiscount) {
+      const discountAmt = subtotal * (appliedDiscount.percent / 100);
+      const total = subtotal - discountAmt;
+      document.getElementById('discountAmount').textContent = `-$${discountAmt.toFixed(2)}`;
+      document.getElementById('checkoutTotal').textContent = `$${total.toFixed(2)}`;
+    } else {
+      document.getElementById('checkoutTotal').textContent = `$${subtotal.toFixed(2)}`;
+    }
+  }
+
+  /* ── Discount code UI ── */
+  function initDiscount() {
+    const toggle = document.getElementById('discountToggle');
+    const form = document.getElementById('discountForm');
+    const input = document.getElementById('discountInput');
+    const applyBtn = document.getElementById('discountApplyBtn');
+    const removeBtn = document.getElementById('discountRemoveBtn');
+    const msg = document.getElementById('discountMessage');
+
+    // Toggle discount form visibility
+    toggle.addEventListener('click', () => {
+      const isOpen = form.classList.contains('visible');
+      form.classList.toggle('visible', !isOpen);
+      toggle.classList.toggle('open', !isOpen);
+      toggle.setAttribute('aria-expanded', !isOpen);
+      if (!isOpen) setTimeout(() => input.focus(), 100);
+    });
+
+    // Apply discount
+    applyBtn.addEventListener('click', () => applyDiscount());
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); applyDiscount(); }
+    });
+
+    // Remove discount
+    removeBtn.addEventListener('click', () => {
+      appliedDiscount = null;
+      document.getElementById('discountAppliedRow').classList.remove('active');
+      msg.className = 'discount-message';
+      msg.textContent = '';
+      input.value = '';
+      renderTotals();
+    });
+
+    // Auto-fill discount code if user just signed up
+    const signups = typeof EmailPopup !== 'undefined' ? EmailPopup.getSignups() : [];
+    if (signups.length > 0) {
+      const latest = signups[0];
+      if (!latest.used && latest.code) {
+        input.value = latest.code;
+        // Auto-open the discount section
+        form.classList.add('visible');
+        toggle.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+
+  function applyDiscount() {
+    const input = document.getElementById('discountInput');
+    const msg = document.getElementById('discountMessage');
+    const code = input.value.trim().toUpperCase();
+
+    if (!code) {
+      msg.className = 'discount-message error';
+      msg.textContent = 'Please enter a discount code.';
+      return;
+    }
+
+    // Validate using EmailPopup module
+    if (typeof EmailPopup === 'undefined') {
+      msg.className = 'discount-message error';
+      msg.textContent = 'Discount system unavailable.';
+      return;
+    }
+
+    const result = EmailPopup.validateCode(code);
+    if (!result.valid) {
+      msg.className = 'discount-message error';
+      msg.textContent = result.error;
+      return;
+    }
+
+    // Apply discount
+    appliedDiscount = { code: result.code, percent: result.percent };
+    msg.className = 'discount-message success';
+    msg.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Discount applied!';
+
+    // Show the applied row
+    document.getElementById('discountAppliedRow').classList.add('active');
+    document.getElementById('discountCodeLabel').textContent = `${result.code} (${result.percent}% off)`;
+
+    renderTotals();
   }
 
   /* ── Validate form ── */
@@ -283,6 +408,32 @@
     setTimeout(() => {
       try {
         const order = Orders.create(customerData, cartItems);
+
+        // Apply discount to the order if one was used
+        if (appliedDiscount) {
+          const subtotal = order.subtotal;
+          const discountAmt = subtotal * (appliedDiscount.percent / 100);
+          order.discount = {
+            code: appliedDiscount.code,
+            percent: appliedDiscount.percent,
+            amount: parseFloat(discountAmt.toFixed(2)),
+          };
+          order.total = parseFloat((subtotal - discountAmt).toFixed(2));
+
+          // Update in localStorage
+          const allOrders = Orders.getAll();
+          const idx = allOrders.findIndex(o => o.id === order.id);
+          if (idx !== -1) {
+            allOrders[idx] = order;
+            localStorage.setItem('greenlife_orders', JSON.stringify(allOrders));
+          }
+
+          // Mark discount code as used
+          if (typeof EmailPopup !== 'undefined') {
+            EmailPopup.markCodeUsed(appliedDiscount.code);
+          }
+        }
+
         // Clear cart
         localStorage.removeItem('greenlife_cart');
         // Save order ID for confirmation page
@@ -315,7 +466,7 @@
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3200);
   }
 
-  // Scroll to first error on input
+  // Clear error on input
   ['firstName','lastName','email'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
