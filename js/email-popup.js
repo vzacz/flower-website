@@ -80,8 +80,8 @@ const EmailPopup = (() => {
     localStorage.setItem(STORAGE_KEYS.discountCodes, JSON.stringify(codes));
   }
 
-  function markCodeUsed(code) {
-    // Mark in discount codes
+  function markCodeUsedLocal(code) {
+    // Mark in discount codes (localStorage)
     const codes = getDiscountCodes();
     const idx = codes.findIndex(c => c.code === code);
     if (idx !== -1) {
@@ -89,7 +89,7 @@ const EmailPopup = (() => {
       codes[idx].usedAt = new Date().toISOString();
       localStorage.setItem(STORAGE_KEYS.discountCodes, JSON.stringify(codes));
     }
-    // Mark in signups
+    // Mark in signups (localStorage)
     const signups = getSignups();
     const sIdx = signups.findIndex(s => s.code === code);
     if (sIdx !== -1) {
@@ -98,8 +98,26 @@ const EmailPopup = (() => {
     }
   }
 
+  /* ── Mark code as used — calls server first, then localStorage ── */
+  async function markCodeUsed(code, email, orderId) {
+    // Always mark locally
+    markCodeUsedLocal(code);
+
+    // Also mark on server (source of truth)
+    try {
+      await fetch('/api/use-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, email: email || '', orderId: orderId || '' }),
+      });
+    } catch {
+      // Server unavailable — local mark is the fallback
+    }
+  }
+
   /* ── Validate a discount code — returns { valid, percent, error } ── */
-  function validateCode(code) {
+  /* Synchronous local validation (fast fallback) */
+  function validateCodeLocal(code) {
     if (!code || typeof code !== 'string') {
       return { valid: false, percent: 0, error: 'Please enter a discount code.' };
     }
@@ -114,6 +132,40 @@ const EmailPopup = (() => {
       return { valid: false, percent: 0, error: 'This code has already been used.' };
     }
     return { valid: true, percent: match.percent, code: match.code, error: null };
+  }
+
+  /* Async server-first validation (source of truth) */
+  async function validateCode(code, email) {
+    if (!code || typeof code !== 'string') {
+      return { valid: false, percent: 0, error: 'Please enter a discount code.' };
+    }
+
+    // Try server validation first
+    try {
+      const res = await fetch('/api/validate-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, email: email || '' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // If server gave a definitive answer (not a fallback), use it
+        if (!data.fallback) {
+          return {
+            valid: data.valid,
+            percent: data.valid ? data.percent : 0,
+            code: data.code || code.trim().toUpperCase(),
+            email: data.email || null,
+            error: data.error || null,
+          };
+        }
+      }
+    } catch {
+      // Server unavailable — fall through to local validation
+    }
+
+    // Fallback to localStorage validation
+    return validateCodeLocal(code);
   }
 
   /* ── Should we show the popup? ── */
@@ -173,6 +225,14 @@ const EmailPopup = (() => {
       return;
     }
 
+    // Check localStorage first — if this email already signed up, block immediately
+    const existingSignups = getSignups();
+    const alreadyLocal = existingSignups.find(s => s.email.toLowerCase() === email.toLowerCase());
+    if (alreadyLocal) {
+      showAlreadySubscribed();
+      return;
+    }
+
     // Loading state
     submitBtn.disabled = true;
     submitBtn.classList.add('loading');
@@ -180,7 +240,7 @@ const EmailPopup = (() => {
     // Generate code
     const code = generateCode();
 
-    // Try API call (non-blocking — falls back to localStorage)
+    // Try API call — server is source of truth
     try {
       const res = await fetch('/api/signup-email', {
         method: 'POST',
@@ -189,21 +249,71 @@ const EmailPopup = (() => {
       });
       if (res.ok) {
         const data = await res.json();
-        // API may return a different code if email already exists
-        if (data.code) {
+
+        // Server says email already received the welcome offer
+        if (data.already_subscribed) {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('loading');
+          showAlreadySubscribed();
+          return;
+        }
+
+        // New signup succeeded on server
+        if (data.success && data.code) {
+          // Save locally as cache
+          saveSignup(email, data.code);
+          saveDiscountCode(data.code, email);
+          showSuccess(data.code, email);
+          return;
+        }
+
+        // Fallback: server returned source: 'local' (Supabase not configured)
+        if (data.source === 'local' && data.code) {
+          saveSignup(email, data.code);
+          saveDiscountCode(data.code, email);
           showSuccess(data.code, email);
           return;
         }
       }
     } catch {
-      // API not available — continue with localStorage
+      // API not available — continue with localStorage fallback
     }
 
-    // Save locally (always, as fallback)
+    // Save locally (fallback when API is unavailable)
     const finalCode = saveSignup(email, code);
     saveDiscountCode(finalCode, email);
 
     showSuccess(finalCode, email);
+  }
+
+  /* ── Show "already subscribed" message in popup ── */
+  function showAlreadySubscribed() {
+    markDismissed();
+    els.formState.style.display = 'none';
+    els.success.classList.add('active');
+    els.codeDisplay.textContent = '';
+
+    // Replace the success content with an already-subscribed message
+    const successInner = els.success;
+    successInner.innerHTML = `
+      <div style="text-align:center;padding:8px 0">
+        <div style="font-size:2rem;margin-bottom:12px">📧</div>
+        <div style="font-family:var(--font-heading,Georgia,serif);font-size:1.15rem;color:var(--dark,#1a1a1a);margin-bottom:8px;font-weight:500">
+          Already Subscribed
+        </div>
+        <div style="font-size:0.88rem;color:var(--text-muted,#888);line-height:1.5;margin-bottom:16px">
+          This email has already received the welcome offer.<br>
+          Each customer can only receive one welcome discount.
+        </div>
+        <a href="index.html" style="font-size:0.85rem;color:var(--sage-dark,#5a7a5e);font-weight:500;text-decoration:none">
+          Continue Shopping →
+        </a>
+      </div>
+    `;
+
+    // Reset button state
+    els.submitBtn.disabled = false;
+    els.submitBtn.classList.remove('loading');
   }
 
   function showSuccess(code, email) {
@@ -387,8 +497,9 @@ const EmailPopup = (() => {
 
   // Public API (for checkout page to use)
   return {
-    validateCode,
-    markCodeUsed,
+    validateCode,        // async — server-first, returns Promise
+    validateCodeLocal,   // sync — localStorage only (fast fallback)
+    markCodeUsed,        // async — marks on server + localStorage
     getSignups,
     getDiscountCodes,
     removeSignup,

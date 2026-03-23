@@ -3376,6 +3376,14 @@ ul, ol {
   font-size: 3.5rem;
   animation: popupFloat 3s ease-in-out infinite;
 }
+.email-popup-hero-logo {
+  position: relative;
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+  animation: popupFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(90,148,96,0.2));
+}
 @keyframes popupFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
@@ -3677,6 +3685,7 @@ ul, ol {
   }
   .email-popup-hero { height: 130px; }
   .email-popup-hero-icon { font-size: 2.8rem; }
+  .email-popup-hero-logo { height: 70px; }
   .email-popup-body { padding: 24px 20px 22px; }
   .email-popup-title { font-size: 1.4rem; }
   .email-popup-offer { font-size: 1.05rem; }
@@ -3827,4 +3836,65 @@ ul, ol {
 }
 .discount-remove-btn:hover {
   color: #C0392B;
+}
+
+/* ── Floating WhatsApp Button ───────────────────────────── */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 900;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 14px rgba(37, 211, 102, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    bottom 0.3s ease;
+}
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow:
+    0 6px 20px rgba(37, 211, 102, 0.45),
+    0 3px 8px rgba(0, 0, 0, 0.15);
+}
+.whatsapp-float:focus-visible {
+  outline: 3px solid rgba(37, 211, 102, 0.5);
+  outline-offset: 3px;
+}
+.whatsapp-float:active {
+  transform: scale(0.95);
+}
+.whatsapp-float svg {
+  display: block;
+}
+
+/* Shift up when email popup is visible */
+.whatsapp-float--shifted {
+  bottom: 120px;
+}
+
+@media (max-width: 600px) {
+  .whatsapp-float {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 16px;
+  }
+  .whatsapp-float svg {
+    width: 24px;
+    height: 24px;
+  }
+  .whatsapp-float--shifted {
+    bottom: 100px;
+  }
 }

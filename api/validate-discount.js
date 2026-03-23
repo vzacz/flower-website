@@ -1,6 +1,7 @@
 /* ============================================================
    POST /api/validate-discount
    Validates a discount code against Supabase.
+   Optionally checks that the code belongs to the checkout email.
    Falls back gracefully if Supabase is not configured.
    ============================================================ */
 
@@ -15,13 +16,14 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { code } = req.body || {};
+    const { code, email } = req.body || {};
 
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ valid: false, error: 'Discount code is required.' });
     }
 
     const cleanCode = code.trim().toUpperCase();
+    const cleanEmail = email ? email.toLowerCase().trim() : null;
 
     // Check if Supabase is configured
     const supabaseUrl = process.env.SUPABASE_URL;
@@ -38,6 +40,7 @@ module.exports = async function handler(req, res) {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Look up the discount code
     const { data, error } = await supabase
       .from('email_signups')
       .select('email, discount_code, used')
@@ -57,10 +60,19 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ valid: false, error: 'This code has already been used.' });
     }
 
+    // If checkout email provided, verify the code belongs to that email
+    if (cleanEmail && data[0].email !== cleanEmail) {
+      return res.status(200).json({
+        valid: false,
+        error: 'This discount code is linked to a different email address.',
+      });
+    }
+
     return res.status(200).json({
       valid: true,
       percent: 10,
       code: data[0].discount_code,
+      email: data[0].email,
     });
 
   } catch (err) {

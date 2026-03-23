@@ -215,6 +215,7 @@
 <script src="js/orders.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/email-popup.js"></script>
+<script src="js/whatsapp-button.js"></script>
 
 <script>
 (function() {
@@ -316,9 +317,10 @@
     }
   }
 
-  function applyDiscount() {
+  async function applyDiscount() {
     const input = document.getElementById('discountInput');
     const msg = document.getElementById('discountMessage');
+    const applyBtn = document.getElementById('discountApplyBtn');
     const code = input.value.trim().toUpperCase();
 
     if (!code) {
@@ -334,7 +336,17 @@
       return;
     }
 
-    const result = EmailPopup.validateCode(code);
+    // Show loading state
+    applyBtn.disabled = true;
+    applyBtn.textContent = '...';
+
+    // Server-first validation (async) — pass checkout email for binding check
+    const checkoutEmail = document.getElementById('email').value.trim();
+    const result = await EmailPopup.validateCode(code, checkoutEmail || undefined);
+
+    applyBtn.disabled = false;
+    applyBtn.textContent = 'Apply';
+
     if (!result.valid) {
       msg.className = 'discount-message error';
       msg.textContent = result.error;
@@ -342,7 +354,7 @@
     }
 
     // Apply discount
-    appliedDiscount = { code: result.code, percent: result.percent };
+    appliedDiscount = { code: result.code, percent: result.percent, email: result.email || null };
     msg.className = 'discount-message success';
     msg.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Discount applied!';
 
@@ -382,7 +394,7 @@
   }
 
   /* ── Place order ── */
-  function placeOrder(cartItems) {
+  async function placeOrder(cartItems) {
     if (!validate()) {
       showToast('Please fill in all required fields.', 'error');
       return;
@@ -405,51 +417,73 @@
     };
 
     // Small delay for UX
-    setTimeout(() => {
-      try {
-        const order = Orders.create(customerData, cartItems);
+    await new Promise(r => setTimeout(r, 900));
 
-        // Apply discount to the order if one was used
-        if (appliedDiscount) {
-          const subtotal = order.subtotal;
-          const discountAmt = subtotal * (appliedDiscount.percent / 100);
-          order.discount = {
-            code: appliedDiscount.code,
-            percent: appliedDiscount.percent,
-            amount: parseFloat(discountAmt.toFixed(2)),
-          };
-          order.total = parseFloat((subtotal - discountAmt).toFixed(2));
+    try {
+      // If discount is applied, re-validate on server before placing order
+      if (appliedDiscount && typeof EmailPopup !== 'undefined') {
+        const recheck = await EmailPopup.validateCode(appliedDiscount.code, customerData.email);
+        if (!recheck.valid) {
+          btn.disabled = false;
+          btn.classList.remove('btn-loading');
+          btn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+            Place Order
+          `;
+          // Remove the invalid discount from UI
+          appliedDiscount = null;
+          document.getElementById('discountAppliedRow').classList.remove('active');
+          const msg = document.getElementById('discountMessage');
+          msg.className = 'discount-message error';
+          msg.textContent = recheck.error || 'Discount code is no longer valid.';
+          renderTotals();
+          showToast('Discount code is no longer valid. Please review your order.', 'error');
+          return;
+        }
+      }
 
-          // Update in localStorage
-          const allOrders = Orders.getAll();
-          const idx = allOrders.findIndex(o => o.id === order.id);
-          if (idx !== -1) {
-            allOrders[idx] = order;
-            localStorage.setItem('greenlife_orders', JSON.stringify(allOrders));
-          }
+      const order = Orders.create(customerData, cartItems);
 
-          // Mark discount code as used
-          if (typeof EmailPopup !== 'undefined') {
-            EmailPopup.markCodeUsed(appliedDiscount.code);
-          }
+      // Apply discount to the order if one was used
+      if (appliedDiscount) {
+        const subtotal = order.subtotal;
+        const discountAmt = subtotal * (appliedDiscount.percent / 100);
+        order.discount = {
+          code: appliedDiscount.code,
+          percent: appliedDiscount.percent,
+          amount: parseFloat(discountAmt.toFixed(2)),
+        };
+        order.total = parseFloat((subtotal - discountAmt).toFixed(2));
+
+        // Update in localStorage
+        const allOrders = Orders.getAll();
+        const idx = allOrders.findIndex(o => o.id === order.id);
+        if (idx !== -1) {
+          allOrders[idx] = order;
+          localStorage.setItem('greenlife_orders', JSON.stringify(allOrders));
         }
 
-        // Clear cart
-        localStorage.removeItem('greenlife_cart');
-        // Save order ID for confirmation page
-        sessionStorage.setItem('gl_last_order_id', order.id);
-        // Redirect to confirmation
-        window.location.href = 'confirmation.html';
-      } catch (err) {
-        btn.disabled = false;
-        btn.classList.remove('btn-loading');
-        btn.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
-          Place Order
-        `;
-        showToast('Something went wrong. Please try again.', 'error');
+        // Mark discount code as used — server + localStorage
+        if (typeof EmailPopup !== 'undefined') {
+          await EmailPopup.markCodeUsed(appliedDiscount.code, customerData.email, order.id);
+        }
       }
-    }, 900);
+
+      // Clear cart
+      localStorage.removeItem('greenlife_cart');
+      // Save order ID for confirmation page
+      sessionStorage.setItem('gl_last_order_id', order.id);
+      // Redirect to confirmation
+      window.location.href = 'confirmation.html';
+    } catch (err) {
+      btn.disabled = false;
+      btn.classList.remove('btn-loading');
+      btn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+        Place Order
+      `;
+      showToast('Something went wrong. Please try again.', 'error');
+    }
   }
 
   function sanitize(str) {

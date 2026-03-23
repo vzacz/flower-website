@@ -1,6 +1,7 @@
 /* ============================================================
    POST /api/signup-email
    Saves an email signup + discount code to Supabase.
+   One-time welcome discount per email — database is source of truth.
    Falls back gracefully if Supabase is not configured.
    ============================================================ */
 
@@ -53,16 +54,17 @@ module.exports = async function handler(req, res) {
     // Check for existing signup with this email
     const { data: existing } = await supabase
       .from('email_signups')
-      .select('email, discount_code')
+      .select('email, discount_code, used')
       .eq('email', cleanEmail)
       .limit(1);
 
     if (existing && existing.length > 0) {
-      // Email already signed up — return existing code
+      // Email already signed up — do NOT issue a new code
       return res.status(200).json({
-        success: true,
-        code: existing[0].discount_code,
-        message: 'Already signed up.',
+        success: false,
+        already_subscribed: true,
+        used: existing[0].used || false,
+        message: 'This email has already received the welcome offer.',
       });
     }
 
