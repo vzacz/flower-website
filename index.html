@@ -491,6 +491,7 @@
       <button class="admin-tab-btn" data-admin-tab="products">🌸 Products</button>
       <button class="admin-tab-btn" data-admin-tab="flowerList">🌿 Categories</button>
       <button class="admin-tab-btn" data-admin-tab="about">📄 About Page</button>
+      <button class="admin-tab-btn" data-admin-tab="contactMessages">📩 Contact Messages</button>
       <button class="admin-tab-btn" data-admin-tab="emailSignups">✉️ Email Signups</button>
     </div>
 
@@ -546,6 +547,34 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add
         </button>
+      </div>
+    </div>
+
+    <!-- Contact Messages Tab -->
+    <div class="admin-tab-content" id="adminTabContactMessages">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:500;color:var(--dark)">Contact Messages</h3>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span id="adminContactCount" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          <button class="btn btn-ghost btn-sm" id="adminExportContactsBtn" style="font-size:0.75rem;padding:6px 12px">Export CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="admin-table" id="adminContactsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Received</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminContactsBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No messages yet.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -709,7 +738,94 @@
 <script src="js/email-popup.js"></script>
 
 <script>
-  // Contact form demo handler
+  /* ── Contact form — saves to localStorage + renders in admin ── */
+  const ContactMessages = (() => {
+    const KEY = 'glf_contact_messages';
+
+    function getAll() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+    }
+    function saveAll(msgs) { localStorage.setItem(KEY, JSON.stringify(msgs)); }
+
+    function add(name, email, message) {
+      const msgs = getAll();
+      msgs.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name, email, message,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      });
+      saveAll(msgs);
+    }
+
+    function updateStatus(id, status) {
+      const msgs = getAll();
+      const m = msgs.find(x => x.id === id);
+      if (m) { m.status = status; saveAll(msgs); }
+    }
+
+    function remove(id) {
+      saveAll(getAll().filter(x => x.id !== id));
+    }
+
+    function escHtml(s) {
+      return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderAdmin() {
+      const tbody = document.getElementById('adminContactsBody');
+      const countEl = document.getElementById('adminContactCount');
+      if (!tbody) return;
+      const msgs = getAll();
+      if (countEl) countEl.textContent = msgs.length + ' message' + (msgs.length !== 1 ? 's' : '');
+      if (msgs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:32px">No messages yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = msgs.map(m => {
+        const date = new Date(m.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const statusBadge = m.status === 'new'
+          ? '<span class="admin-status-badge pending">New</span>'
+          : m.status === 'contacted'
+          ? '<span class="admin-status-badge" style="background:rgba(60,120,180,0.12);color:#2a6cb0">Contacted</span>'
+          : '<span class="admin-status-badge completed">Done</span>';
+        return '<tr>' +
+          '<td style="font-weight:500">' + escHtml(m.name) + '</td>' +
+          '<td>' + escHtml(m.email) + '</td>' +
+          '<td style="max-width:250px;white-space:pre-wrap;font-size:0.82rem;color:var(--text-light)">' + escHtml(m.message) + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td style="color:var(--text-muted);font-size:0.82rem;white-space:nowrap">' + date + '</td>' +
+          '<td style="white-space:nowrap">' +
+            '<select onchange="ContactMessages.updateStatus(\'' + m.id + '\',this.value);ContactMessages.renderAdmin()" style="font-size:0.75rem;padding:4px 8px;border:1px solid rgba(90,148,96,0.2);border-radius:4px;background:var(--white);cursor:pointer">' +
+              '<option value="new"' + (m.status==='new'?' selected':'') + '>New</option>' +
+              '<option value="contacted"' + (m.status==='contacted'?' selected':'') + '>Contacted</option>' +
+              '<option value="done"' + (m.status==='done'?' selected':'') + '>Done</option>' +
+            '</select>' +
+            ' <button onclick="if(confirm(\'Delete this message?\')){ContactMessages.remove(\'' + m.id + '\');ContactMessages.renderAdmin()}" style="font-size:0.72rem;padding:4px 8px;border:none;background:none;color:var(--text-muted);cursor:pointer" title="Delete">🗑</button>' +
+          '</td></tr>';
+      }).join('');
+    }
+
+    function exportCSV() {
+      const msgs = getAll();
+      if (msgs.length === 0) return;
+      const header = 'Name,Email,Message,Status,Received\n';
+      const rows = msgs.map(m =>
+        '"' + m.name.replace(/"/g,'""') + '","' + m.email + '","' + m.message.replace(/"/g,'""') + '",' + m.status + ',' + m.createdAt
+      ).join('\n');
+      const blob = new Blob([header + rows], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'greenlife-contact-messages-' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    return { getAll, add, updateStatus, remove, renderAdmin, exportCSV };
+  })();
+
+  // Contact form submit handler
   document.getElementById('contactForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('contactName').value.trim();
@@ -719,9 +835,14 @@
       Cart.showToast('Please fill in all fields.', 'error');
       return;
     }
+    ContactMessages.add(name, email, msg);
     this.reset();
     Cart.showToast('Message sent! We\'ll be in touch soon. 🌿', 'success');
   });
+
+  // Admin tab wiring
+  document.querySelector('[data-admin-tab="contactMessages"]')?.addEventListener('click', () => ContactMessages.renderAdmin());
+  document.getElementById('adminExportContactsBtn')?.addEventListener('click', () => ContactMessages.exportCSV());
 </script>
 </body>
 </html>
