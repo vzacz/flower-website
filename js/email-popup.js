@@ -118,17 +118,16 @@ const EmailPopup = (() => {
 
   /* ── Should we show the popup? ── */
   function shouldShow() {
-    const dismissed = localStorage.getItem(STORAGE_KEYS.popupDismissed);
-    if (!dismissed) return true;
-    const dismissedAt = localStorage.getItem(STORAGE_KEYS.popupDismissedAt);
-    if (!dismissedAt) return false;
-    const daysSince = (Date.now() - parseInt(dismissedAt, 10)) / (1000 * 60 * 60 * 24);
-    return daysSince > DISMISS_DAYS;
+    // Session-level: don't show again in this tab session
+    if (sessionStorage.getItem('glf_popup_shown')) return false;
+    // Long-term: check if user already submitted their email
+    const signups = getSignups();
+    if (signups.length > 0) return false;
+    return true;
   }
 
   function markDismissed() {
-    localStorage.setItem(STORAGE_KEYS.popupDismissed, 'true');
-    localStorage.setItem(STORAGE_KEYS.popupDismissedAt, String(Date.now()));
+    sessionStorage.setItem('glf_popup_shown', 'true');
   }
 
   /* ── Show / Hide popup ── */
