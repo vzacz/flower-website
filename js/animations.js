@@ -79,14 +79,14 @@ const Animations = (() => {
     canvas.width  = W;
     canvas.height = H;
 
-    // Leaf color palette — soft greens
+    // Leaf color palette — very light greens for white background
     const leafColors = [
-      'rgba(90,148,96,0.45)',
-      'rgba(61,140,68,0.35)',
-      'rgba(130,191,138,0.40)',
-      'rgba(78,145,84,0.30)',
-      'rgba(46,107,53,0.38)',
-      'rgba(110,175,117,0.32)',
+      'rgba(90,148,96,0.08)',
+      'rgba(61,140,68,0.06)',
+      'rgba(130,191,138,0.07)',
+      'rgba(78,145,84,0.05)',
+      'rgba(46,107,53,0.07)',
+      'rgba(110,175,117,0.06)',
     ];
 
     // Leaf shapes (simple botanical leaf paths)
@@ -123,21 +123,21 @@ const Animations = (() => {
       return {
         x: Math.random() * W,
         y: -20 - Math.random() * 100,
-        size: 6 + Math.random() * 10,
-        speedY: 0.4 + Math.random() * 0.7,
-        speedX: (Math.random() - 0.5) * 0.6,
+        size: 10 + Math.random() * 16,
+        speedY: 0.15 + Math.random() * 0.3,
+        speedX: (Math.random() - 0.5) * 0.25,
         angle: Math.random() * Math.PI * 2,
-        angleSpeed: (Math.random() - 0.5) * 0.018,
-        swayAmp: 12 + Math.random() * 20,
-        swayFreq: 0.006 + Math.random() * 0.008,
+        angleSpeed: (Math.random() - 0.5) * 0.008,
+        swayAmp: 18 + Math.random() * 30,
+        swayFreq: 0.003 + Math.random() * 0.004,
         swayOffset: Math.random() * Math.PI * 2,
         colorIdx: Math.floor(Math.random() * leafColors.length),
-        opacity: 0.35 + Math.random() * 0.45,
+        opacity: 0.5 + Math.random() * 0.5,
         t: Math.random() * 1000,
       };
     }
 
-    const LEAF_COUNT = Math.min(28, Math.floor(W / 45));
+    const LEAF_COUNT = Math.min(18, Math.floor(W / 65));
     const leaves = Array.from({ length: LEAF_COUNT }, makeLeaf);
     // Spread initial vertical positions so they don't all start at top
     leaves.forEach((leaf, i) => {
@@ -161,8 +161,8 @@ const Animations = (() => {
           leaf.y = -20 - Math.random() * 40;
           leaf.x = Math.random() * W;
           leaf.colorIdx = Math.floor(Math.random() * leafColors.length);
-          leaf.size = 6 + Math.random() * 10;
-          leaf.speedY = 0.4 + Math.random() * 0.7;
+          leaf.size = 10 + Math.random() * 16;
+          leaf.speedY = 0.15 + Math.random() * 0.3;
         }
 
         ctx.globalAlpha = leaf.opacity;
@@ -196,12 +196,12 @@ const Animations = (() => {
     if (!container) return;
 
     const shapes = [
-      `<svg viewBox="0 0 40 58" fill="none"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="#2E6B35" opacity="0.5"/><line x1="20" y1="56" x2="20" y2="14" stroke="#5A9460" stroke-width="1.5" opacity="0.35"/></svg>`,
-      `<svg viewBox="0 0 52 68" fill="none"><path d="M26 2C26 2 4 20 4 40C4 56 14 66 26 66C38 66 48 56 48 40C48 20 26 2 26 2Z" fill="#1A2E1C" opacity="0.4"/><line x1="26" y1="66" x2="26" y2="20" stroke="#4E9455" stroke-width="2" opacity="0.3"/></svg>`,
-      `<svg viewBox="0 0 24 38" fill="none"><path d="M12 1C12 1 2 12 2 23C2 33 7 37 12 37C17 37 22 33 22 23C22 12 12 1 12 1Z" fill="#3D8C44" opacity="0.45"/><line x1="12" y1="37" x2="12" y2="10" stroke="#6DB874" stroke-width="1" opacity="0.3"/></svg>`,
-      `<svg viewBox="0 0 20 28" fill="none"><path d="M10 1C10 1 1 9 1 17C1 23 5 27 10 27C15 27 19 23 19 17C19 9 10 1 10 1Z" fill="#5A9460" opacity="0.4"/></svg>`,
-      `<svg viewBox="0 0 40 58" fill="none"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="#2E6B35" opacity="0.35"/></svg>`,
-      `<svg viewBox="0 0 30 46" fill="none"><path d="M15 2C15 2 2 16 2 28C2 40 8 44 15 44C22 44 28 40 28 28C28 16 15 2 15 2Z" fill="#3D8C44" opacity="0.38"/><line x1="15" y1="44" x2="15" y2="15" stroke="#82BF8A" stroke-width="1.2" opacity="0.25"/></svg>`,
+      `<svg viewBox="0 0 40 58" fill="none"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="#5A9460" opacity="0.12"/><line x1="20" y1="56" x2="20" y2="14" stroke="#82BF8A" stroke-width="1.5" opacity="0.08"/></svg>`,
+      `<svg viewBox="0 0 52 68" fill="none"><path d="M26 2C26 2 4 20 4 40C4 56 14 66 26 66C38 66 48 56 48 40C48 20 26 2 26 2Z" fill="#3D8C44" opacity="0.10"/><line x1="26" y1="66" x2="26" y2="20" stroke="#6DB874" stroke-width="2" opacity="0.06"/></svg>`,
+      `<svg viewBox="0 0 24 38" fill="none"><path d="M12 1C12 1 2 12 2 23C2 33 7 37 12 37C17 37 22 33 22 23C22 12 12 1 12 1Z" fill="#5A9460" opacity="0.10"/><line x1="12" y1="37" x2="12" y2="10" stroke="#82BF8A" stroke-width="1" opacity="0.06"/></svg>`,
+      `<svg viewBox="0 0 20 28" fill="none"><path d="M10 1C10 1 1 9 1 17C1 23 5 27 10 27C15 27 19 23 19 17C19 9 10 1 10 1Z" fill="#6DB874" opacity="0.08"/></svg>`,
+      `<svg viewBox="0 0 40 58" fill="none"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="#3D8C44" opacity="0.09"/></svg>`,
+      `<svg viewBox="0 0 30 46" fill="none"><path d="M15 2C15 2 2 16 2 28C2 40 8 44 15 44C22 44 28 40 28 28C28 16 15 2 15 2Z" fill="#5A9460" opacity="0.10"/><line x1="15" y1="44" x2="15" y2="15" stroke="#82BF8A" stroke-width="1.2" opacity="0.06"/></svg>`,
     ];
 
     const positions = [
