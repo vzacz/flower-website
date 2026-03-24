@@ -3,7 +3,7 @@
    Adjusts position when email popup is visible.
    ───────────────────────────────────────────────────────── */
 (() => {
-  const PHONE = '16503055650';
+  const PHONE = '14154126225';
   const MESSAGE = encodeURIComponent("Hi, I'm interested in your flowers!");
   const WA_URL = `https://wa.me/${PHONE}?text=${MESSAGE}`;
 
