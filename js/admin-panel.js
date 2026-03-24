@@ -224,44 +224,136 @@
       <div class="embedded-order-modal-card">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
           <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:500;color:var(--dark)">Order Details</h3>
-          <button class="embedded-modal-close" id="embeddedModalClose" aria-label="Close">✕</button>
-        </div>
-
-        <div class="eom-section">
-          <div class="eom-section-title">Order Info</div>
-          <div class="eom-row"><span>Order ID</span><span style="font-family:var(--font-display);font-weight:500">${order.id}</span></div>
-          <div class="eom-row"><span>Status</span><span><span class="admin-status-badge ${isPending ? 'pending' : 'completed'}">${isPending ? '⏳ Pending' : '✓ Completed'}</span></span></div>
-          <div class="eom-row"><span>Date</span><span>${Orders.formatDate(order.createdAt)}</span></div>
-        </div>
-
-        <div class="eom-section">
-          <div class="eom-section-title">Customer</div>
-          <div class="eom-row"><span>Name</span><span>${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</span></div>
-          <div class="eom-row"><span>Email</span><span>${escapeHtml(c.email || '—')}</span></div>
-          <div class="eom-row"><span>Phone</span><span>${escapeHtml(c.phone || '—')}</span></div>
-          ${c.company ? `<div class="eom-row"><span>Company</span><span>${escapeHtml(c.company)}</span></div>` : ''}
-          ${c.address ? `<div class="eom-row"><span>Address</span><span>${escapeHtml(c.address)}${c.city ? ', ' + escapeHtml(c.city) : ''}</span></div>` : ''}
-          ${c.notes ? `<div class="eom-row"><span>Notes</span><span style="max-width:220px;text-align:right">${escapeHtml(c.notes)}</span></div>` : ''}
-        </div>
-
-        <div class="eom-section">
-          <div class="eom-section-title">Order Items</div>
-          ${itemsHTML}
-          <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:1px solid rgba(42,40,37,0.1);font-family:var(--font-display)">
-            <span style="font-size:1rem;color:var(--dark)">Total</span>
-            <span style="font-size:1.15rem;color:var(--leaf);font-weight:600">$${order.total.toFixed(2)}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button id="embeddedEditBtn" style="padding:5px 14px;border-radius:999px;font-size:0.72rem;font-weight:500;cursor:pointer;border:1px solid rgba(90,148,96,0.25);background:rgba(90,148,96,0.08);color:var(--sage-dark);font-family:var(--font-body);transition:background 0.15s"
+              onmouseover="this.style.background='rgba(90,148,96,0.18)'" onmouseout="this.style.background='rgba(90,148,96,0.08)'">✎ Edit</button>
+            <button class="embedded-modal-close" id="embeddedModalClose" aria-label="Close">✕</button>
           </div>
         </div>
 
-        ${isPending ? `
-        <div style="margin-bottom:16px">
-          <button class="admin-add-btn" style="width:100%;justify-content:center" id="embeddedCompleteBtn" data-complete-order="${order.id}">
-            Mark as Completed
-          </button>
-        </div>` : ''}
+        <!-- View Mode -->
+        <div id="eomViewMode">
+          <div class="eom-section">
+            <div class="eom-section-title">Order Info</div>
+            <div class="eom-row"><span>Order ID</span><span style="font-family:var(--font-display);font-weight:500">${order.id}</span></div>
+            <div class="eom-row"><span>Status</span><span><span class="admin-status-badge ${isPending ? 'pending' : 'completed'}">${isPending ? '⏳ Pending' : '✓ Completed'}</span></span></div>
+            <div class="eom-row"><span>Date</span><span>${Orders.formatDate(order.createdAt)}</span></div>
+          </div>
 
-        ${creditHTML}
-        ${refundHTML}
+          <div class="eom-section">
+            <div class="eom-section-title">Customer</div>
+            <div class="eom-row"><span>Name</span><span>${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</span></div>
+            <div class="eom-row"><span>Email</span><span>${escapeHtml(c.email || '—')}</span></div>
+            <div class="eom-row"><span>Phone</span><span>${escapeHtml(c.phone || '—')}</span></div>
+            ${c.company ? `<div class="eom-row"><span>Company</span><span>${escapeHtml(c.company)}</span></div>` : ''}
+            ${c.address ? `<div class="eom-row"><span>Address</span><span>${escapeHtml(c.address)}${c.city ? ', ' + escapeHtml(c.city) : ''}</span></div>` : ''}
+            ${c.notes ? `<div class="eom-row"><span>Notes</span><span style="max-width:220px;text-align:right">${escapeHtml(c.notes)}</span></div>` : ''}
+          </div>
+
+          <div class="eom-section">
+            <div class="eom-section-title">Order Items</div>
+            ${itemsHTML}
+            <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:1px solid rgba(42,40,37,0.1);font-family:var(--font-display)">
+              <span style="font-size:1rem;color:var(--dark)">Total</span>
+              <span style="font-size:1.15rem;color:var(--leaf);font-weight:600">$${order.total.toFixed(2)}</span>
+            </div>
+          </div>
+
+          ${isPending ? `
+          <div style="margin-bottom:16px">
+            <button class="admin-add-btn" style="width:100%;justify-content:center" id="embeddedCompleteBtn" data-complete-order="${order.id}">
+              Mark as Completed
+            </button>
+          </div>` : ''}
+
+          ${creditHTML}
+          ${refundHTML}
+        </div>
+
+        <!-- Edit Mode (hidden by default) -->
+        <div id="eomEditMode" style="display:none">
+          <div class="eom-section">
+            <div class="eom-section-title">Order Info</div>
+            <div class="eom-edit-row">
+              <label>Status</label>
+              <select id="eomEditStatus" style="width:100%;padding:8px 10px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.82rem;color:var(--dark);outline:none">
+                <option value="pending" ${isPending ? 'selected' : ''}>Pending</option>
+                <option value="completed" ${!isPending ? 'selected' : ''}>Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="eom-section">
+            <div class="eom-section-title">Customer</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="eom-edit-row">
+                <label>First Name</label>
+                <input type="text" id="eomEditFirstName" value="${escapeHtml(c.firstName)}" />
+              </div>
+              <div class="eom-edit-row">
+                <label>Last Name</label>
+                <input type="text" id="eomEditLastName" value="${escapeHtml(c.lastName)}" />
+              </div>
+            </div>
+            <div class="eom-edit-row">
+              <label>Email</label>
+              <input type="email" id="eomEditEmail" value="${escapeHtml(c.email || '')}" />
+            </div>
+            <div class="eom-edit-row">
+              <label>Phone</label>
+              <input type="text" id="eomEditPhone" value="${escapeHtml(c.phone || '')}" />
+            </div>
+            <div class="eom-edit-row">
+              <label>Company</label>
+              <input type="text" id="eomEditCompany" value="${escapeHtml(c.company || '')}" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="eom-edit-row">
+                <label>Address</label>
+                <input type="text" id="eomEditAddress" value="${escapeHtml(c.address || '')}" />
+              </div>
+              <div class="eom-edit-row">
+                <label>City</label>
+                <input type="text" id="eomEditCity" value="${escapeHtml(c.city || '')}" />
+              </div>
+            </div>
+            <div class="eom-edit-row">
+              <label>Notes</label>
+              <textarea id="eomEditNotes" rows="2" style="resize:vertical">${escapeHtml(c.notes || '')}</textarea>
+            </div>
+          </div>
+
+          <div class="eom-section">
+            <div class="eom-section-title">Order Items</div>
+            <div id="eomEditItems">
+              ${order.items.map((item, idx) => `
+                <div class="eom-edit-item" data-item-idx="${idx}" style="display:grid;grid-template-columns:1fr 80px 60px 30px;gap:8px;align-items:end;padding:8px 0;border-bottom:1px solid rgba(42,40,37,0.06)">
+                  <div class="eom-edit-row" style="margin:0">
+                    <label>Name</label>
+                    <input type="text" class="eom-item-name" value="${escapeHtml(item.name)}" />
+                  </div>
+                  <div class="eom-edit-row" style="margin:0">
+                    <label>Price</label>
+                    <input type="number" class="eom-item-price" value="${item.price}" min="0" step="0.01" />
+                  </div>
+                  <div class="eom-edit-row" style="margin:0">
+                    <label>Qty</label>
+                    <input type="number" class="eom-item-qty" value="${item.qty}" min="1" />
+                  </div>
+                  <button class="eom-remove-item" data-remove-idx="${idx}" title="Remove" style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;cursor:pointer;background:rgba(192,57,43,0.08);color:#C0392B;font-size:0.7rem;margin-bottom:2px;transition:background 0.15s"
+                    onmouseover="this.style.background='rgba(192,57,43,0.18)'" onmouseout="this.style.background='rgba(192,57,43,0.08)'">✕</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button id="eomSaveBtn" style="flex:1;padding:10px 20px;border-radius:999px;font-size:0.82rem;font-weight:500;cursor:pointer;border:none;background:var(--sage);color:#fff;font-family:var(--font-body);transition:background 0.2s"
+              onmouseover="this.style.background='var(--sage-dark)'" onmouseout="this.style.background='var(--sage)'">Save Changes</button>
+            <button id="eomCancelBtn" style="padding:10px 20px;border-radius:999px;font-size:0.82rem;font-weight:500;cursor:pointer;border:none;background:var(--cream-deep);color:var(--text-light);font-family:var(--font-body);transition:background 0.15s"
+              onmouseover="this.style.background='rgba(42,40,37,0.1)'" onmouseout="this.style.background='var(--cream-deep)'">Cancel</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -335,6 +427,96 @@
         showAdminToast('Refund removed.', 'info');
       });
     });
+
+    // Bind Edit button
+    const editBtn = document.getElementById('embeddedEditBtn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        document.getElementById('eomViewMode').style.display = 'none';
+        document.getElementById('eomEditMode').style.display = 'block';
+        editBtn.style.display = 'none';
+        // Scroll to top
+        const card = modal.querySelector('.embedded-order-modal-card');
+        if (card) card.scrollTop = 0;
+      });
+    }
+
+    // Bind Cancel edit
+    const cancelEditBtn = document.getElementById('eomCancelBtn');
+    if (cancelEditBtn) {
+      cancelEditBtn.addEventListener('click', () => {
+        openOrderDetail(orderId);
+      });
+    }
+
+    // Bind Save edit
+    const saveEditBtn = document.getElementById('eomSaveBtn');
+    if (saveEditBtn) {
+      saveEditBtn.addEventListener('click', () => {
+        handleSaveOrderEdit(orderId, order);
+      });
+    }
+
+    // Bind remove item buttons
+    modal.querySelectorAll('.eom-remove-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = btn.closest('.eom-edit-item');
+        if (row) row.remove();
+      });
+    });
+  }
+
+  /* ── Save order edits ── */
+  function handleSaveOrderEdit(orderId, originalOrder) {
+    const status = document.getElementById('eomEditStatus').value;
+
+    const customer = {
+      firstName: document.getElementById('eomEditFirstName').value.trim(),
+      lastName: document.getElementById('eomEditLastName').value.trim(),
+      email: document.getElementById('eomEditEmail').value.trim(),
+      phone: document.getElementById('eomEditPhone').value.trim(),
+      company: document.getElementById('eomEditCompany').value.trim(),
+      address: document.getElementById('eomEditAddress').value.trim(),
+      city: document.getElementById('eomEditCity').value.trim(),
+      notes: document.getElementById('eomEditNotes').value.trim(),
+    };
+
+    if (!customer.firstName || !customer.lastName) {
+      showAdminToast('First and last name are required.', 'error');
+      return;
+    }
+
+    // Collect items
+    const itemRows = document.querySelectorAll('.eom-edit-item');
+    const items = [];
+    itemRows.forEach((row, idx) => {
+      const name = row.querySelector('.eom-item-name').value.trim();
+      const price = parseFloat(row.querySelector('.eom-item-price').value) || 0;
+      const qty = parseInt(row.querySelector('.eom-item-qty').value) || 0;
+      if (name && price > 0 && qty > 0) {
+        const orig = originalOrder.items[idx] || {};
+        items.push({
+          id: orig.id || 'item-' + Date.now() + idx,
+          name: name,
+          category: orig.category || '',
+          price: price,
+          unit: orig.unit || 'each',
+          qty: qty,
+          image: orig.image || '',
+          subtotal: price * qty,
+        });
+      }
+    });
+
+    if (items.length === 0) {
+      showAdminToast('Order must have at least one item.', 'error');
+      return;
+    }
+
+    Orders.updateOrder(orderId, { status, customer, items });
+    renderOrdersTab();
+    openOrderDetail(orderId);
+    showAdminToast('Order updated!', 'success');
   }
 
   function handleEmbeddedEditCredit(creditId, orderId) {

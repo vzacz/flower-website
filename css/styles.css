@@ -3452,6 +3452,51 @@ ul, ol {
 }
 .eom-row > span:first-child { color: var(--text-light); }
 .eom-row > span:last-child { color: var(--dark); font-weight: 500; text-align: right; }
+
+/* Edit mode form fields */
+.eom-edit-row {
+  margin-bottom: 10px;
+}
+.eom-edit-row label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: 3px;
+  letter-spacing: 0.02em;
+}
+.eom-edit-row input,
+.eom-edit-row textarea,
+.eom-edit-row select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid rgba(42,40,37,0.12);
+  border-radius: 6px;
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.eom-edit-row input:focus,
+.eom-edit-row textarea:focus,
+.eom-edit-row select:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(74,124,89,0.1);
+}
+.eom-edit-row input::placeholder,
+.eom-edit-row textarea::placeholder {
+  color: var(--text-muted);
+}
+/* Hide number spinners in edit mode */
+.eom-edit-row input[type="number"]::-webkit-inner-spin-button,
+.eom-edit-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.eom-edit-row input[type="number"] { -moz-appearance: textfield; }
+
 .eom-credit-item {
   display: flex;
   align-items: flex-start;

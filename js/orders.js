@@ -192,5 +192,30 @@ const Orders = (() => {
     saveAll(demoOrders);
   }
 
-  return { getAll, create, getById, updateStatus, deleteOrder, getByStatus, getStats, formatDate, seedDemoIfEmpty, sanitize };
+  /* ── Update an entire order object ── */
+  function updateOrder(id, updates) {
+    const orders = getAll();
+    const idx = orders.findIndex(o => o.id === id);
+    if (idx === -1) return false;
+    // Merge customer fields
+    if (updates.customer) {
+      orders[idx].customer = { ...orders[idx].customer };
+      Object.keys(updates.customer).forEach(k => {
+        orders[idx].customer[k] = sanitize(updates.customer[k]);
+      });
+    }
+    // Merge top-level fields
+    if (updates.status !== undefined) orders[idx].status = updates.status;
+    if (updates.deliveryDate !== undefined) orders[idx].deliveryDate = updates.deliveryDate;
+    if (updates.items !== undefined) {
+      orders[idx].items = updates.items;
+      orders[idx].subtotal = updates.items.reduce((s, i) => s + (i.subtotal || i.price * i.qty), 0);
+      orders[idx].total = orders[idx].subtotal;
+    }
+    orders[idx].updatedAt = new Date().toISOString();
+    saveAll(orders);
+    return orders[idx];
+  }
+
+  return { getAll, create, getById, updateStatus, updateOrder, deleteOrder, getByStatus, getStats, formatDate, seedDemoIfEmpty, sanitize };
 })();
