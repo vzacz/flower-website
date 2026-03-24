@@ -263,6 +263,72 @@
   const cancelProductBtn = document.getElementById('adminCancelProductBtn');
   const saveProductBtn   = document.getElementById('adminSaveProductBtn');
 
+  /* ── Tier editor helpers ── */
+  function renderTierEditor(tiers) {
+    const editor = document.getElementById('adminTierEditor');
+    if (!editor) return;
+
+    const rows = (tiers && tiers.length > 0)
+      ? tiers
+      : [{min: 1, price: ''}];
+
+    editor.innerHTML = rows.map((tier, i) => {
+      const isBase = i === 0;
+      return `
+        <div class="admin-tier-row ${isBase ? 'admin-tier-row-base' : ''}" data-tier-index="${i}">
+          <div class="admin-tier-field">
+            <label>Min Qty</label>
+            <input type="number" class="admin-tier-min" value="${tier.min}" min="1" ${isBase ? 'readonly' : ''} />
+          </div>
+          <div class="admin-tier-field">
+            <label>Price ($)</label>
+            <input type="number" class="admin-tier-price" value="${tier.price}" min="0" step="0.01" />
+          </div>
+          ${isBase ? '<span class="admin-tier-base-label">Base price</span>' : `<button type="button" class="admin-tier-remove-btn" data-remove-tier="${i}" title="Remove tier">✕</button>`}
+        </div>`;
+    }).join('');
+
+    // Bind remove buttons
+    editor.querySelectorAll('[data-remove-tier]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const currentTiers = readTiersFromEditor();
+        const idx = parseInt(btn.dataset.removeTier);
+        currentTiers.splice(idx, 1);
+        renderTierEditor(currentTiers);
+      });
+    });
+  }
+
+  function readTiersFromEditor() {
+    const editor = document.getElementById('adminTierEditor');
+    if (!editor) return [];
+    const rows = editor.querySelectorAll('.admin-tier-row');
+    const tiers = [];
+    rows.forEach(row => {
+      const min = parseInt(row.querySelector('.admin-tier-min').value) || 1;
+      const price = parseFloat(row.querySelector('.admin-tier-price').value);
+      if (!isNaN(price) && price >= 0) {
+        tiers.push({min, price});
+      }
+    });
+    // Sort by min ascending
+    tiers.sort((a, b) => a.min - b.min);
+    return tiers;
+  }
+
+  // Add tier button
+  const tierAddBtn = document.getElementById('adminTierAddBtn');
+  if (tierAddBtn) {
+    tierAddBtn.addEventListener('click', () => {
+      const currentTiers = readTiersFromEditor();
+      // Suggest a reasonable next min qty
+      const lastMin = currentTiers.length > 0 ? currentTiers[currentTiers.length - 1].min : 1;
+      const nextMin = lastMin < 10 ? 10 : lastMin < 25 ? 25 : lastMin + 10;
+      currentTiers.push({min: nextMin, price: ''});
+      renderTierEditor(currentTiers);
+    });
+  }
+
   function openProductModal(product) {
     if (!productModal) return;
     const title      = document.getElementById('adminModalTitle');
@@ -300,6 +366,8 @@
         imgPreviewWrap.style.display = 'block';
       }
       if (deleteWrap) deleteWrap.style.display = 'block';
+      // Populate tier editor
+      renderTierEditor(product.tiers || [{min: 1, price: product.price}]);
     } else {
       title.textContent = 'Add New Product';
       idInput.value = '';
@@ -311,6 +379,35 @@
       imgInput.value = '';
       if (imgPreviewWrap) imgPreviewWrap.style.display = 'none';
       if (deleteWrap) deleteWrap.style.display = 'none';
+      // Empty tier editor with base row
+      renderTierEditor([{min: 1, price: ''}]);
+    }
+
+    // Sync base price field ↔ tier base price
+    const basePriceSync = () => {
+      const editor = document.getElementById('adminTierEditor');
+      if (!editor) return;
+      const firstRow = editor.querySelector('.admin-tier-row');
+      if (firstRow) {
+        const tierPriceInput = firstRow.querySelector('.admin-tier-price');
+        if (tierPriceInput) tierPriceInput.value = priceInput.value;
+      }
+    };
+    priceInput.removeEventListener('input', basePriceSync);
+    priceInput.addEventListener('input', basePriceSync);
+
+    // Also sync tier base → price field
+    const editor = document.getElementById('adminTierEditor');
+    if (editor) {
+      const firstRow = editor.querySelector('.admin-tier-row');
+      if (firstRow) {
+        const tierPriceInput = firstRow.querySelector('.admin-tier-price');
+        if (tierPriceInput) {
+          tierPriceInput.addEventListener('input', () => {
+            priceInput.value = tierPriceInput.value;
+          });
+        }
+      }
     }
 
     productModal.classList.add('open');
@@ -354,18 +451,41 @@
       const desc    = document.getElementById('adminProdDesc').value.trim();
       const image   = document.getElementById('adminProdImage').value.trim();
 
+      // Read tiers from editor
+      const tiers   = readTiersFromEditor();
+
       if (!name || !price || !unit) {
         showAdminToast('Please fill in Name, Price, and Unit.', 'error');
         return;
       }
 
+      // Ensure base tier price matches the main price
+      if (tiers.length > 0) {
+        tiers[0].min = 1;
+        tiers[0].price = price;
+      }
+
+      // Validate tier prices descend as qty increases
+      for (let i = 1; i < tiers.length; i++) {
+        if (tiers[i].price >= tiers[i - 1].price) {
+          showAdminToast(`Tier ${i + 1} price should be lower than tier ${i} price.`, 'error');
+          return;
+        }
+        if (tiers[i].min <= tiers[i - 1].min) {
+          showAdminToast(`Tier ${i + 1} min qty must be higher than tier ${i}.`, 'error');
+          return;
+        }
+      }
+
       const products = getAllProducts();
+      // Only include tiers if there's more than just the base
+      const tiersToSave = tiers.length > 1 ? tiers : (tiers.length === 1 ? [{min: 1, price}] : null);
 
       if (id) {
-        // Edit existing product (works for all products)
+        // Edit existing product
         const idx = products.findIndex(p => p.id === id);
         if (idx !== -1) {
-          products[idx] = { ...products[idx], name, category: cat, price, unit, description: desc, image };
+          products[idx] = { ...products[idx], name, category: cat, price, unit, description: desc, image, tiers: tiersToSave };
           saveAllProducts(products);
           showAdminToast('Product updated!', 'success');
         }
@@ -377,6 +497,7 @@
           description: desc || `Beautiful ${name} for your floral arrangements.`,
           image: image || 'flowers/Screenshot 2026-03-12 000052.png',
           badge: null,
+          tiers: tiersToSave,
         };
         products.push(newProduct);
         saveAllProducts(products);

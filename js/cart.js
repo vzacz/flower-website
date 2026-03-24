@@ -45,6 +45,7 @@ const Cart = (() => {
         price:    product.price,
         unit:     product.unit,
         image:    product.image,
+        tiers:    product.tiers || null,
         qty,
       });
     }
@@ -94,7 +95,15 @@ const Cart = (() => {
   /* ── Public: getters ── */
   function getItems() { return [...items]; }
   function getCount() { return items.reduce((sum, i) => sum + i.qty, 0); }
-  function getSubtotal() { return items.reduce((sum, i) => sum + i.price * i.qty, 0); }
+  function getItemPrice(item) {
+    if (!item.tiers || item.tiers.length === 0) return item.price;
+    let best = item.tiers[0].price;
+    for (const tier of item.tiers) {
+      if (item.qty >= tier.min) best = tier.price;
+    }
+    return best;
+  }
+  function getSubtotal() { return items.reduce((sum, i) => sum + getItemPrice(i) * i.qty, 0); }
   function isEmpty() { return items.length === 0; }
 
   /* ── Drawer ── */
@@ -202,12 +211,24 @@ const Cart = (() => {
 
     if (empty) empty.style.display = 'none';
 
-    list.innerHTML = items.map(item => `
+    list.innerHTML = items.map(item => {
+      const currentPrice = getItemPrice(item);
+      const isDiscounted = currentPrice < item.price;
+      const priceDisplay = isDiscounted
+        ? `<span class="cart-item-price-was">$${item.price.toFixed(2)}</span> <span class="cart-item-price-now">$${currentPrice.toFixed(2)}</span> ${item.unit}`
+        : `$${item.price.toFixed(2)} ${item.unit}`;
+      const lineTotal = (currentPrice * item.qty).toFixed(2);
+      const savingsLine = isDiscounted
+        ? `<div class="cart-item-savings">Volume price — you save $${((item.price - currentPrice) * item.qty).toFixed(2)}</div>`
+        : '';
+      return `
       <div class="cart-item" data-item-id="${item.id}">
         <img class="cart-item-img" src="${item.image}?w=144&q=75" alt="${item.name}" loading="lazy">
         <div class="cart-item-info">
           <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-price">$${item.price} ${item.unit}</div>
+          <div class="cart-item-price">${priceDisplay}</div>
+          ${savingsLine}
+          <div class="cart-item-line-total">Line total: $${lineTotal}</div>
         </div>
         <div class="cart-item-controls">
           <div class="cart-item-qty">
@@ -221,8 +242,8 @@ const Cart = (() => {
             </svg>
           </button>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   function renderTotals() {

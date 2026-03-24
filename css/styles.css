@@ -1253,6 +1253,183 @@ ul, ol {
   outline-offset: 2px;
 }
 
+/* ── Tier Pricing UI ─────────────────────────────────────── */
+
+.product-card-as-low-as {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--leaf);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+.tier-pricing-section {
+  margin-bottom: 14px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.tier-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(90,148,96,0.06);
+  border: 1px solid rgba(90,148,96,0.15);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--sage-dark);
+  transition: background var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth);
+}
+
+.tier-toggle-btn:hover {
+  background: rgba(90,148,96,0.12);
+  border-color: rgba(90,148,96,0.30);
+}
+
+.tier-toggle-btn:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+.tier-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tier-icon {
+  opacity: 0.7;
+}
+
+.tier-toggle-hint {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--leaf);
+  background: rgba(61,140,68,0.10);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+.tier-chevron {
+  transition: transform var(--duration-fast) var(--ease-spring);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.tier-toggle-btn.active .tier-chevron {
+  transform: rotate(180deg);
+}
+
+.tier-table-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tier-table-wrap.open {
+  max-height: 200px;
+}
+
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+  font-size: 0.78rem;
+}
+
+.tier-table thead th {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  padding: 4px 8px 4px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(90,148,96,0.12);
+}
+
+.tier-row {
+  transition: background var(--duration-fast) var(--ease-smooth);
+}
+
+.tier-row:hover {
+  background: rgba(90,148,96,0.05);
+}
+
+.tier-row td {
+  padding: 6px 8px 6px 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.tier-qty {
+  font-weight: 500;
+  color: var(--dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.tier-price {
+  font-weight: 600;
+  color: var(--dark);
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.tier-save-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--leaf);
+  background: rgba(61,140,68,0.10);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+}
+
+/* ── Cart item tier pricing states ─────────── */
+
+.cart-item-price-was {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  opacity: 0.6;
+}
+
+.cart-item-price-now {
+  color: var(--leaf);
+  font-weight: 600;
+}
+
+.cart-item-savings {
+  font-size: 0.7rem;
+  color: var(--leaf);
+  font-weight: 500;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cart-item-savings::before {
+  content: '✓';
+  font-size: 0.65rem;
+}
+
+.cart-item-line-total {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Cart Drawer ─────────────────────────────────────────── */
 .cart-backdrop {
   position: fixed;
@@ -3276,6 +3453,115 @@ ul, ol {
   font-weight: 500;
   color: var(--dark);
   margin-bottom: var(--space-lg);
+}
+
+/* ── Admin Tier Editor ── */
+
+.admin-tier-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-tier-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(90,148,96,0.04);
+  border: 1px solid rgba(90,148,96,0.12);
+  border-radius: var(--radius-sm);
+}
+
+.admin-tier-row-base {
+  border-color: rgba(90,148,96,0.25);
+  background: rgba(90,148,96,0.08);
+}
+
+.admin-tier-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-tier-field label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.admin-tier-field input {
+  width: 80px;
+  padding: 5px 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  background: var(--white);
+  color: var(--dark);
+}
+
+.admin-tier-field input:focus {
+  outline: none;
+  border-color: var(--sage);
+  box-shadow: 0 0 0 2px rgba(90,148,96,0.15);
+}
+
+.admin-tier-base-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--leaf);
+  background: rgba(61,140,68,0.10);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.admin-tier-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: rgba(192,57,43,0.08);
+  color: #c0392b;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.admin-tier-remove-btn:hover {
+  background: rgba(192,57,43,0.18);
+  transform: scale(1.08);
+}
+
+.admin-tier-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  margin-top: 6px;
+  border: 1.5px dashed rgba(90,148,96,0.30);
+  background: transparent;
+  color: var(--sage-dark);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-tier-add-btn:hover {
+  background: rgba(90,148,96,0.06);
+  border-color: rgba(90,148,96,0.50);
 }
 
 .admin-status-badge {
