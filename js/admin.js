@@ -203,6 +203,10 @@ function renderOrders(filter = 'all') {
     const statusClass = isPending ? 'status-pending' : 'status-completed';
     const statusLabel = isPending ? 'Pending' : 'Completed';
 
+    const deliveryDisplay = order.deliveryDate
+      ? (typeof DeliverySlots !== 'undefined' ? DeliverySlots.formatForDisplay(order.deliveryDate) : order.deliveryDate)
+      : '<span style="color:var(--text-muted)">—</span>';
+
     return `
       <tr>
         <td><span class="order-id-badge">${order.id}</span></td>
@@ -215,6 +219,9 @@ function renderOrders(filter = 'all') {
         </td>
         <td>
           <div style="font-family:var(--font-display);font-size:1rem;font-weight:500">$${order.total.toFixed(2)}</div>
+        </td>
+        <td>
+          <div style="font-size:0.82rem;color:var(--sage-dark);font-weight:500">${deliveryDisplay}</div>
         </td>
         <td>
           <span class="order-status-badge ${statusClass}">
@@ -252,6 +259,13 @@ function markComplete(id) {
 function deleteOrder(id) {
   if (!confirm('Delete this order? This cannot be undone.')) return;
   if (typeof Orders === 'undefined') return;
+
+  // Release the delivery slot if order had a delivery date
+  const order = Orders.getById(id);
+  if (order && order.deliveryDate && typeof DeliverySlots !== 'undefined') {
+    DeliverySlots.release(order.deliveryDate);
+  }
+
   Orders.deleteOrder(id);
   renderStats();
   renderOrders(currentFilter);
@@ -290,8 +304,16 @@ function viewOrder(id) {
         </span>
       </div>
       <div class="modal-detail-row">
-        <span class="modal-detail-label">Date</span>
+        <span class="modal-detail-label">Order Date</span>
         <span class="modal-detail-value">${Orders.formatDate(order.createdAt)}</span>
+      </div>
+      <div class="modal-detail-row">
+        <span class="modal-detail-label">Delivery Date</span>
+        <span class="modal-detail-value" style="color:var(--sage-dark);font-weight:500">${
+          order.deliveryDate
+            ? (typeof DeliverySlots !== 'undefined' ? DeliverySlots.formatForDisplay(order.deliveryDate) : order.deliveryDate)
+            : '—'
+        }</span>
       </div>
     </div>
 

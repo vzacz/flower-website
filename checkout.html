@@ -138,6 +138,60 @@
             <textarea class="form-textarea" id="notes" placeholder="Special instructions, preferred delivery time, stem lengths, etc." rows="3"></textarea>
           </div>
 
+          <!-- ── Delivery Date Picker ── -->
+          <div class="delivery-date-section" style="margin-top:var(--space-lg)">
+            <div class="form-section-title" style="margin-bottom:var(--space-sm)">
+              <div class="form-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              Choose Delivery Date <span style="color:#C0392B">*</span>
+            </div>
+
+            <div class="delivery-date-note">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              Delivery available Monday–Thursday only. Limited to 3 deliveries per day.
+            </div>
+
+            <!-- Calendar widget -->
+            <div class="delivery-calendar" id="deliveryCalendar">
+              <div class="cal-header">
+                <button type="button" class="cal-nav-btn" id="calPrev" aria-label="Previous month">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="cal-month-label" id="calMonthLabel"></div>
+                <button type="button" class="cal-nav-btn" id="calNext" aria-label="Next month">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+              <div class="cal-weekdays">
+                <div class="cal-wday">Sun</div>
+                <div class="cal-wday">Mon</div>
+                <div class="cal-wday">Tue</div>
+                <div class="cal-wday">Wed</div>
+                <div class="cal-wday">Thu</div>
+                <div class="cal-wday">Fri</div>
+                <div class="cal-wday">Sat</div>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+            </div>
+
+            <!-- Selected date display -->
+            <div class="delivery-selected" id="deliverySelected" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span id="deliverySelectedText"></span>
+            </div>
+
+            <!-- Error: no date selected -->
+            <span class="form-error" id="err-deliveryDate">Please select a delivery date.</span>
+            <!-- Error: date became unavailable -->
+            <div class="delivery-full-msg" id="deliveryFullMsg" style="display:none">
+              This delivery date is no longer available. Please choose another day.
+            </div>
+
+            <!-- Hidden input to store selected date -->
+            <input type="hidden" id="deliveryDate" value="" />
+          </div>
+
           <!-- No payment info collected -->
           <div style="display:flex;align-items:flex-start;gap:12px;padding:16px;background:var(--sage-pale);border-radius:var(--radius-md);border:1px solid rgba(122,158,126,0.2);margin-top:var(--space-md)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-dark)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -237,6 +291,7 @@
 <!-- Scripts -->
 <script src="js/delivery-banner.js"></script>
 <script src="js/orders.js"></script>
+<script src="js/delivery-slots.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/email-popup.js"></script>
 <script src="js/whatsapp-button.js"></script>
@@ -246,6 +301,10 @@
   /* ── Discount state ── */
   let appliedDiscount = null; // { code, percent }
   let currentItems = [];
+
+  /* ── Delivery calendar state ── */
+  let selectedDeliveryDate = null;
+  let calYear, calMonth;
 
   /* ── Load cart on checkout page ── */
   function init() {
@@ -261,6 +320,7 @@
     renderItems(items);
     renderTotals(items);
     initDiscount();
+    initDeliveryCalendar();
 
     document.getElementById('placeOrderBtn').addEventListener('click', () => placeOrder(items));
   }
@@ -389,6 +449,131 @@
     renderTotals();
   }
 
+  /* ── Delivery Calendar ── */
+  function initDeliveryCalendar() {
+    // Rebuild slot counts from actual orders on load
+    if (typeof DeliverySlots !== 'undefined') {
+      DeliverySlots.rebuildFromOrders();
+    }
+
+    // Start calendar at current month
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+
+    document.getElementById('calPrev').addEventListener('click', () => {
+      calMonth--;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      renderCalendar();
+    });
+
+    document.getElementById('calNext').addEventListener('click', () => {
+      calMonth++;
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+    });
+
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const monthNames = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+    document.getElementById('calMonthLabel').textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    const data = DeliverySlots.getMonthData(calYear, calMonth);
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Limit navigation: don't go before current month
+    const now = new Date();
+    const canGoPrev = calYear > now.getFullYear() || (calYear === now.getFullYear() && calMonth > now.getMonth());
+    document.getElementById('calPrev').disabled = !canGoPrev;
+
+    // Allow navigation up to MONTHS_AHEAD from now
+    const maxDate = DeliverySlots.getMaxDate();
+    const canGoNext = new Date(calYear, calMonth + 1, 1) <= maxDate;
+    document.getElementById('calNext').disabled = !canGoNext;
+
+    // Empty cells for days before the 1st
+    for (let i = 0; i < data.firstDayOfWeek; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day cal-empty';
+      grid.appendChild(empty);
+    }
+
+    // Day cells
+    data.days.forEach(day => {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cal-day';
+      cell.textContent = day.date;
+
+      if (!day.isAllowed) {
+        cell.classList.add('cal-disabled', 'cal-weekend');
+        cell.disabled = true;
+        cell.title = 'No delivery on this day';
+      } else if (day.isPast) {
+        cell.classList.add('cal-disabled', 'cal-past');
+        cell.disabled = true;
+        cell.title = 'Past date';
+      } else if (day.isFull) {
+        cell.classList.add('cal-disabled', 'cal-full');
+        cell.disabled = true;
+        cell.title = 'Fully booked (3/3 deliveries)';
+      } else {
+        cell.classList.add('cal-available');
+        // Show spots remaining as tooltip
+        cell.title = `${day.spotsLeft} spot${day.spotsLeft !== 1 ? 's' : ''} left`;
+
+        // Low availability indicator
+        if (day.spotsLeft === 1) {
+          cell.classList.add('cal-low');
+        }
+
+        cell.addEventListener('click', () => selectDeliveryDate(day.dateStr));
+      }
+
+      // Highlight selected date
+      if (selectedDeliveryDate === day.dateStr) {
+        cell.classList.add('cal-selected');
+      }
+
+      grid.appendChild(cell);
+    });
+  }
+
+  function selectDeliveryDate(dateStr) {
+    // Re-check availability at selection time
+    if (!DeliverySlots.isAvailable(dateStr)) {
+      document.getElementById('deliveryFullMsg').style.display = '';
+      selectedDeliveryDate = null;
+      document.getElementById('deliveryDate').value = '';
+      document.getElementById('deliverySelected').style.display = 'none';
+      renderCalendar();
+      return;
+    }
+
+    // Clear any full-date message
+    document.getElementById('deliveryFullMsg').style.display = 'none';
+
+    selectedDeliveryDate = dateStr;
+    document.getElementById('deliveryDate').value = dateStr;
+
+    // Show selected date
+    const display = document.getElementById('deliverySelected');
+    display.style.display = '';
+    document.getElementById('deliverySelectedText').textContent =
+      'Delivery on ' + DeliverySlots.formatForDisplay(dateStr);
+
+    // Clear validation error
+    document.getElementById('err-deliveryDate').classList.remove('visible');
+    const section = document.querySelector('.delivery-date-section');
+    if (section) section.classList.remove('error');
+
+    renderCalendar();
+  }
+
   /* ── Validate form ── */
   function validate() {
     let valid = true;
@@ -413,6 +598,31 @@
         if (error) error.classList.remove('visible');
       }
     });
+
+    // Delivery date validation
+    const deliveryDate = document.getElementById('deliveryDate').value;
+    const dateSection = document.querySelector('.delivery-date-section');
+    const dateError = document.getElementById('err-deliveryDate');
+    const fullMsg = document.getElementById('deliveryFullMsg');
+
+    if (!deliveryDate) {
+      if (dateSection) dateSection.classList.add('error');
+      if (dateError) dateError.classList.add('visible');
+      valid = false;
+    } else if (typeof DeliverySlots !== 'undefined' && !DeliverySlots.isAvailable(deliveryDate)) {
+      // Date was valid when selected but is now full (race condition)
+      if (dateSection) dateSection.classList.add('error');
+      if (fullMsg) fullMsg.style.display = '';
+      selectedDeliveryDate = null;
+      document.getElementById('deliveryDate').value = '';
+      document.getElementById('deliverySelected').style.display = 'none';
+      renderCalendar();
+      valid = false;
+    } else {
+      if (dateSection) dateSection.classList.remove('error');
+      if (dateError) dateError.classList.remove('visible');
+      if (fullMsg) fullMsg.style.display = 'none';
+    }
 
     // Bay Area confirmation checkbox
     const bayCheck = document.getElementById('bayAreaConfirm');
@@ -476,7 +686,28 @@
         }
       }
 
-      const order = Orders.create(customerData, cartItems);
+      // Final availability check right before order creation
+      const chosenDate = document.getElementById('deliveryDate').value;
+      if (!chosenDate || !DeliverySlots.isAvailable(chosenDate)) {
+        btn.disabled = false;
+        btn.classList.remove('btn-loading');
+        btn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+          Place Order
+        `;
+        document.getElementById('deliveryFullMsg').style.display = '';
+        selectedDeliveryDate = null;
+        document.getElementById('deliveryDate').value = '';
+        document.getElementById('deliverySelected').style.display = 'none';
+        renderCalendar();
+        showToast('This delivery date is no longer available. Please choose another day.', 'error');
+        return;
+      }
+
+      const order = Orders.create(customerData, cartItems, chosenDate);
+
+      // Reserve the delivery slot
+      DeliverySlots.reserve(chosenDate);
 
       // Apply discount to the order if one was used
       if (appliedDiscount) {

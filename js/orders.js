@@ -36,7 +36,7 @@ const Orders = (() => {
   }
 
   /* ── Create a new order ── */
-  function create(customerData, cartItems) {
+  function create(customerData, cartItems, deliveryDate) {
     const orders = getAll();
 
     const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -45,6 +45,7 @@ const Orders = (() => {
       id: generateOrderId(),
       status: 'pending',
       createdAt: new Date().toISOString(),
+      deliveryDate: deliveryDate || null,
       customer: {
         firstName:   sanitize(customerData.firstName),
         lastName:    sanitize(customerData.lastName),

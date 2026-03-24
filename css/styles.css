@@ -4395,3 +4395,223 @@ body.has-delivery-banner .nav.scrolled {
 .bay-area-confirm.error .form-error {
   display: block;
 }
+
+/* ──────────────────────────────────────────────
+   DELIVERY DATE PICKER
+   ────────────────────────────────────────────── */
+
+.delivery-date-section {
+  position: relative;
+}
+
+.delivery-date-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--sage-pale);
+  border: 1px solid rgba(122,158,126,0.18);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: var(--sage-dark);
+  line-height: 1.5;
+  margin-bottom: var(--space-md);
+}
+
+.delivery-calendar {
+  background: var(--cream-card);
+  border: 1.5px solid rgba(42,40,37,0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  user-select: none;
+}
+
+.delivery-date-section.error .delivery-calendar {
+  border-color: #C0392B;
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+}
+
+/* Calendar header */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding: 0 4px;
+}
+
+.cal-month-label {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+}
+
+.cal-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid rgba(42,40,37,0.12);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cal-nav-btn:hover:not(:disabled) {
+  border-color: var(--sage);
+  color: var(--sage-dark);
+  background: var(--sage-pale);
+}
+
+.cal-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Weekday headers */
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.cal-wday {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* Day grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.cal-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--dark);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.cal-empty {
+  cursor: default;
+}
+
+/* Available days */
+.cal-available {
+  background: var(--sage-pale);
+  border-color: rgba(122,158,126,0.15);
+  color: var(--sage-dark);
+}
+
+.cal-available:hover {
+  background: rgba(122,158,126,0.25);
+  border-color: var(--sage);
+  transform: scale(1.05);
+}
+
+.cal-available:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 1px;
+}
+
+/* Low availability (1 spot left) */
+.cal-low {
+  background: #fff8e1;
+  border-color: rgba(201,165,90,0.25);
+  color: #8b6914;
+}
+
+.cal-low:hover {
+  background: #fff0c0;
+  border-color: #c9a55a;
+}
+
+/* Selected day */
+.cal-selected {
+  background: var(--sage-dark) !important;
+  border-color: var(--sage-dark) !important;
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(46,107,53,0.3);
+  transform: scale(1.08);
+}
+
+/* Disabled days — visible but clearly non-selectable */
+.cal-disabled {
+  color: rgba(42,40,37,0.38);
+  cursor: not-allowed;
+  background: rgba(42,40,37,0.03);
+}
+
+.cal-weekend {
+  color: rgba(42,40,37,0.32);
+  background: rgba(42,40,37,0.025);
+}
+
+.cal-full {
+  color: rgba(192,57,43,0.5);
+  text-decoration: line-through;
+  background: rgba(192,57,43,0.05);
+}
+
+/* Selected date display */
+.delivery-selected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-top: var(--space-sm);
+  background: rgba(122,158,126,0.08);
+  border: 1px solid rgba(122,158,126,0.2);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--sage-dark);
+}
+
+/* Full date error message */
+.delivery-full-msg {
+  padding: 10px 14px;
+  margin-top: var(--space-sm);
+  background: #fdf0ef;
+  border: 1px solid rgba(192,57,43,0.2);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  color: #a94442;
+  line-height: 1.5;
+}
+
+/* Validation error for delivery date */
+.delivery-date-section #err-deliveryDate {
+  display: none;
+  margin-top: 6px;
+}
+
+.delivery-date-section.error #err-deliveryDate,
+.delivery-date-section #err-deliveryDate.visible {
+  display: block;
+}
