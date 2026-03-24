@@ -56,6 +56,18 @@
     <div class="checkout-grid" id="checkoutGrid">
       <!-- ── Left: Customer Form ── -->
       <div>
+        <!-- Delivery Area Warning -->
+        <div class="checkout-delivery-warning">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#856404" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <div class="checkout-delivery-warning-text">
+            Orders outside the San Francisco Bay Area may be cancelled. Please ensure your delivery address is within our service area.
+          </div>
+        </div>
+
         <!-- Customer Details -->
         <div class="checkout-form-section" style="margin-bottom:var(--space-lg)">
           <div class="form-section-title">
@@ -136,6 +148,17 @@
               </div>
             </div>
           </div>
+
+          <!-- Bay Area delivery confirmation checkbox -->
+          <label class="bay-area-confirm" id="bayAreaConfirmWrap">
+            <input type="checkbox" id="bayAreaConfirm" required />
+            <div>
+              <div class="bay-area-confirm-label">
+                I confirm my delivery address is within the Bay Area. <span>*</span>
+              </div>
+              <div class="form-error" id="err-bayArea">Please confirm your delivery address is within the Bay Area.</div>
+            </div>
+          </label>
         </div>
       </div>
 
@@ -212,6 +235,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- Scripts -->
+<script src="js/delivery-banner.js"></script>
 <script src="js/orders.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/email-popup.js"></script>
@@ -390,6 +414,16 @@
       }
     });
 
+    // Bay Area confirmation checkbox
+    const bayCheck = document.getElementById('bayAreaConfirm');
+    const bayWrap = document.getElementById('bayAreaConfirmWrap');
+    if (bayCheck && !bayCheck.checked) {
+      bayWrap.classList.add('error');
+      valid = false;
+    } else if (bayWrap) {
+      bayWrap.classList.remove('error');
+    }
+
     return valid;
   }
 
@@ -511,6 +545,15 @@
       });
     }
   });
+
+  // Clear error on Bay Area checkbox change
+  const bayCheck = document.getElementById('bayAreaConfirm');
+  if (bayCheck) {
+    bayCheck.addEventListener('change', () => {
+      const wrap = document.getElementById('bayAreaConfirmWrap');
+      if (wrap) wrap.classList.remove('error');
+    });
+  }
 
   document.addEventListener('DOMContentLoaded', init);
 })();

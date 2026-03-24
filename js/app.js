@@ -843,6 +843,16 @@ function renderProductCard(product) {
             </button>
           </div>
         </div>
+        <div class="delivery-notice-card">
+          <div class="delivery-notice-card-line">
+            <span style="flex-shrink:0">📍</span>
+            <span>We currently deliver only within the San Francisco Bay Area (San Jose, Richmond, Concord, and surrounding cities).</span>
+          </div>
+          <div class="delivery-notice-card-line delivery-notice-card-warning">
+            <span style="flex-shrink:0">🚫</span>
+            <span>If you are outside this area, please contact us before placing an order.</span>
+          </div>
+        </div>
       </div>
     </article>
   `;
