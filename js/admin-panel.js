@@ -66,6 +66,7 @@
     renderProductsTab();
     renderFlowerListTab();
     renderAboutTab();
+    renderFaqTab();
   }
 
   function closeAdmin() {
@@ -117,6 +118,7 @@
       if (tab === 'orders') renderOrdersTab();
       if (tab === 'flowerList') renderFlowerListTab();
       if (tab === 'about') renderAboutTab();
+      if (tab === 'faq') renderFaqTab();
     });
   });
 
@@ -1087,7 +1089,273 @@
   }
 
   /* ══════════════════════════════════════════════
-     10.  UTILITY
+     10.  FAQ TAB
+     ══════════════════════════════════════════════ */
+  const FAQ_STORAGE_KEY = 'gl_faq_data';
+
+  const DEFAULT_FAQ_DATA = [
+    {
+      id: 'cat-ordering', name: 'Ordering & Delivery', icon: 'calendar',
+      items: [
+        { id: 'faq-1', question: 'When are orders placed?', answer: 'Wholesale flower orders are typically scheduled weekly on Thursdays.' },
+        { id: 'faq-2', question: 'What days do you deliver?', answer: 'We deliver Monday through Thursday, depending on availability.' },
+        { id: 'faq-3', question: 'Can my delivery date become unavailable?', answer: 'Yes. Each delivery date has limited availability. Once a date is fully booked, it can no longer be selected at checkout.' },
+        { id: 'faq-4', question: 'How do I choose my delivery date?', answer: 'You can select an available delivery date during checkout using the delivery calendar.' }
+      ]
+    },
+    {
+      id: 'cat-payment', name: 'Orders & Payment', icon: 'shield',
+      items: [
+        { id: 'faq-5', question: 'Do I need to pay online?', answer: 'No. This is a wholesale order request. Payment is handled separately by our team upon order confirmation. No credit card is required at checkout.' },
+        { id: 'faq-6', question: 'Is there a minimum order?', answer: 'We offer wholesale pricing with tiered volume discounts. Browse our collection to see per-unit pricing, and feel free to contact us for bulk order inquiries.' },
+        { id: 'faq-7', question: 'How will I know my order was received?', answer: 'After placing your order, you will see a confirmation page with your order details. Our team will also reach out via email or phone to confirm your order and arrange delivery.' }
+      ]
+    }
+  ];
+
+  function getFaqData() {
+    try {
+      const raw = localStorage.getItem(FAQ_STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    const data = JSON.parse(JSON.stringify(DEFAULT_FAQ_DATA));
+    localStorage.setItem(FAQ_STORAGE_KEY, JSON.stringify(data));
+    return data;
+  }
+
+  function saveFaqData(data) {
+    localStorage.setItem(FAQ_STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function faqGenId() {
+    return 'faq-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function renderFaqTab() {
+    const container = document.getElementById('adminFaqContainer');
+    if (!container) return;
+
+    const data = getFaqData();
+
+    if (data.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:0.85rem">No FAQ categories yet. Click "Add Category" to get started.</div>';
+      return;
+    }
+
+    container.innerHTML = data.map(cat => `
+      <div data-faq-cat="${cat.id}" style="margin-bottom:20px;border:1px solid rgba(90,148,96,0.12);border-radius:10px;overflow:hidden;background:#fff">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(90,148,96,0.06);border-bottom:1px solid rgba(90,148,96,0.1)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--leaf)">${escapeHtml(cat.name)}</span>
+            <span style="font-size:0.7rem;color:var(--text-muted)">${cat.items.length} item${cat.items.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="admin-edit-btn" data-faq-rename-cat="${cat.id}" style="font-size:0.72rem;padding:4px 10px">Rename</button>
+            <button class="admin-delete-btn" data-faq-delete-cat="${cat.id}" style="font-size:0.72rem;padding:4px 10px">Delete</button>
+          </div>
+        </div>
+        <div data-faq-items="${cat.id}">
+          ${cat.items.length === 0
+            ? '<div style="padding:18px;text-align:center;font-size:0.82rem;color:var(--text-muted)">No questions yet.</div>'
+            : cat.items.map((item, idx) => `
+              <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid rgba(90,148,96,0.06)" data-faq-item="${item.id}">
+                <div style="color:var(--text-muted);font-size:0.75rem;padding-top:2px;cursor:grab" title="Drag to reorder"
+                     draggable="true"
+                     ondragstart="event.dataTransfer.setData('text/plain','${cat.id}:${idx}');event.dataTransfer.effectAllowed='move'"
+                     ondragover="event.preventDefault()"
+                     ondrop="window._faqDrop(event,'${cat.id}',${idx})">⋮⋮</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:var(--font-display);font-size:0.9rem;font-weight:500;color:var(--dark);margin-bottom:3px">${escapeHtml(item.question)}</div>
+                  <div style="font-size:0.8rem;color:var(--text-light);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escapeHtml(item.answer)}</div>
+                </div>
+                <div style="display:flex;gap:4px;flex-shrink:0">
+                  <button class="admin-edit-btn" data-faq-edit="${cat.id}:${item.id}" style="font-size:0.72rem;padding:4px 10px">Edit</button>
+                  <button class="admin-delete-btn" data-faq-delete="${cat.id}:${item.id}" style="font-size:0.72rem;padding:4px 10px">Delete</button>
+                </div>
+              </div>
+            `).join('')
+          }
+        </div>
+        <div style="padding:10px 16px;border-top:1px dashed rgba(90,148,96,0.12)">
+          <button class="admin-edit-btn" data-faq-add-item="${cat.id}" style="font-size:0.75rem;padding:5px 14px;border-style:dashed">+ Add Question</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Bind events
+    container.querySelectorAll('[data-faq-rename-cat]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const catId = btn.dataset.faqRenameCat;
+        const data = getFaqData();
+        const cat = data.find(c => c.id === catId);
+        if (!cat) return;
+        const name = prompt('Category name:', cat.name);
+        if (name && name.trim()) {
+          cat.name = name.trim();
+          saveFaqData(data);
+          renderFaqTab();
+          showAdminToast('Category renamed.', 'success');
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-faq-delete-cat]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Delete this entire category and all its questions?')) return;
+        let data = getFaqData();
+        data = data.filter(c => c.id !== btn.dataset.faqDeleteCat);
+        saveFaqData(data);
+        renderFaqTab();
+        showAdminToast('Category deleted.', 'info');
+      });
+    });
+
+    container.querySelectorAll('[data-faq-edit]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [catId, itemId] = btn.dataset.faqEdit.split(':');
+        faqEditItem(catId, itemId);
+      });
+    });
+
+    container.querySelectorAll('[data-faq-delete]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Delete this question?')) return;
+        const [catId, itemId] = btn.dataset.faqDelete.split(':');
+        const data = getFaqData();
+        const cat = data.find(c => c.id === catId);
+        if (cat) {
+          cat.items = cat.items.filter(i => i.id !== itemId);
+          saveFaqData(data);
+          renderFaqTab();
+          showAdminToast('Question deleted.', 'info');
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-faq-add-item]').forEach(btn => {
+      btn.addEventListener('click', () => faqAddItemForm(btn.dataset.faqAddItem));
+    });
+  }
+
+  function faqEditItem(catId, itemId) {
+    const data = getFaqData();
+    const cat = data.find(c => c.id === catId);
+    if (!cat) return;
+    const item = cat.items.find(i => i.id === itemId);
+    if (!item) return;
+
+    const row = document.querySelector(`[data-faq-item="${itemId}"]`);
+    if (!row) return;
+
+    row.innerHTML = `
+      <div style="width:100%">
+        <div style="margin-bottom:8px">
+          <label class="form-label" style="font-size:0.72rem">Question</label>
+          <input class="form-input" type="text" id="faqEditQ-${itemId}" value="${escapeHtml(item.question)}" style="font-size:0.85rem" />
+        </div>
+        <div style="margin-bottom:8px">
+          <label class="form-label" style="font-size:0.72rem">Answer</label>
+          <textarea class="form-input form-textarea" id="faqEditA-${itemId}" rows="3" style="font-size:0.85rem">${escapeHtml(item.answer)}</textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="faqSaveEdit-${itemId}" style="font-size:0.78rem;padding:6px 16px">Save</button>
+          <button class="btn btn-ghost" id="faqCancelEdit-${itemId}" style="font-size:0.78rem;padding:6px 16px">Cancel</button>
+        </div>
+      </div>
+    `;
+    row.style.padding = '14px 16px';
+
+    document.getElementById('faqEditQ-' + itemId).focus();
+
+    document.getElementById('faqSaveEdit-' + itemId).addEventListener('click', () => {
+      const q = document.getElementById('faqEditQ-' + itemId).value.trim();
+      const a = document.getElementById('faqEditA-' + itemId).value.trim();
+      if (!q || !a) return;
+      item.question = q;
+      item.answer = a;
+      saveFaqData(data);
+      renderFaqTab();
+      showAdminToast('Question updated.', 'success');
+    });
+
+    document.getElementById('faqCancelEdit-' + itemId).addEventListener('click', () => renderFaqTab());
+  }
+
+  function faqAddItemForm(catId) {
+    const itemsContainer = document.querySelector(`[data-faq-items="${catId}"]`);
+    if (!itemsContainer) return;
+
+    const existing = itemsContainer.querySelector('.faq-add-form');
+    if (existing) { existing.remove(); return; }
+
+    const form = document.createElement('div');
+    form.className = 'faq-add-form';
+    form.style.cssText = 'padding:14px 16px;background:rgba(90,148,96,0.04);border-bottom:1px solid rgba(90,148,96,0.1)';
+    form.innerHTML = `
+      <div style="margin-bottom:8px">
+        <label class="form-label" style="font-size:0.72rem">Question</label>
+        <input class="form-input" type="text" id="faqNewQ-${catId}" placeholder="Enter the question..." style="font-size:0.85rem" />
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="form-label" style="font-size:0.72rem">Answer</label>
+        <textarea class="form-input form-textarea" id="faqNewA-${catId}" rows="3" placeholder="Enter the answer..." style="font-size:0.85rem"></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" id="faqSaveNew-${catId}" style="font-size:0.78rem;padding:6px 16px">Add Question</button>
+        <button class="btn btn-ghost" id="faqCancelNew-${catId}" style="font-size:0.78rem;padding:6px 16px">Cancel</button>
+      </div>
+    `;
+    itemsContainer.appendChild(form);
+    document.getElementById('faqNewQ-' + catId).focus();
+
+    document.getElementById('faqSaveNew-' + catId).addEventListener('click', () => {
+      const q = document.getElementById('faqNewQ-' + catId).value.trim();
+      const a = document.getElementById('faqNewA-' + catId).value.trim();
+      if (!q || !a) return;
+      const data = getFaqData();
+      const cat = data.find(c => c.id === catId);
+      if (cat) {
+        cat.items.push({ id: faqGenId(), question: q, answer: a });
+        saveFaqData(data);
+        renderFaqTab();
+        showAdminToast('Question added.', 'success');
+      }
+    });
+
+    document.getElementById('faqCancelNew-' + catId).addEventListener('click', () => form.remove());
+  }
+
+  // Drag-drop reorder
+  window._faqDrop = function(e, targetCatId, targetIdx) {
+    e.preventDefault();
+    const [sourceCatId, sourceIdxStr] = e.dataTransfer.getData('text/plain').split(':');
+    const sourceIdx = parseInt(sourceIdxStr, 10);
+    if (sourceCatId !== targetCatId || sourceIdx === targetIdx) return;
+    const data = getFaqData();
+    const cat = data.find(c => c.id === targetCatId);
+    if (!cat) return;
+    const [moved] = cat.items.splice(sourceIdx, 1);
+    cat.items.splice(targetIdx, 0, moved);
+    saveFaqData(data);
+    renderFaqTab();
+  };
+
+  // Add Category button
+  const faqAddCatBtn = document.getElementById('adminFaqAddCatBtn');
+  if (faqAddCatBtn) {
+    faqAddCatBtn.addEventListener('click', () => {
+      const name = prompt('New category name:');
+      if (!name || !name.trim()) return;
+      const data = getFaqData();
+      data.push({ id: 'cat-' + Date.now().toString(36), name: name.trim(), icon: 'folder', items: [] });
+      saveFaqData(data);
+      renderFaqTab();
+      showAdminToast('Category added.', 'success');
+    });
+  }
+
+  /* ══════════════════════════════════════════════
+     11.  UTILITY
      ══════════════════════════════════════════════ */
   function escapeHtml(str) {
     if (!str) return '';

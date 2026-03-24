@@ -286,110 +286,11 @@
       </p>
     </div>
 
+    <div class="faq-container" id="faqDynamicContent">
+      <!-- FAQ content rendered by JS from localStorage, with hardcoded fallback -->
+    </div>
+
     <div class="faq-container">
-
-      <!-- ── Ordering & Delivery ── -->
-      <div class="faq-category">
-        <div class="faq-category-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <span class="faq-category-text">Ordering & Delivery</span>
-      </div>
-
-      <div class="faq-item" id="faq-order-schedule">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
-          When are orders placed?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-1">
-          <div class="faq-answer">
-            Wholesale flower orders are typically scheduled weekly on Thursdays.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item" id="faq-delivery-days">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
-          What days do you deliver?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-2">
-          <div class="faq-answer">
-            We deliver Monday through Thursday, depending on availability.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item" id="faq-date-unavailable">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
-          Can my delivery date become unavailable?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-3">
-          <div class="faq-answer">
-            Yes. Each delivery date has limited availability. Once a date is fully booked, it can no longer be selected at checkout.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item" id="faq-choose-date">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
-          How do I choose my delivery date?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-4">
-          <div class="faq-answer">
-            You can select an available delivery date during checkout using the delivery calendar.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-section-divider"></div>
-
-      <!-- ── Orders & Payment ── -->
-      <div class="faq-category">
-        <div class="faq-category-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <span class="faq-category-text">Orders & Payment</span>
-      </div>
-
-      <div class="faq-item" id="faq-payment">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
-          Do I need to pay online?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-5">
-          <div class="faq-answer">
-            No. This is a wholesale order request. Payment is handled separately by our team upon order confirmation. No credit card is required at checkout.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item" id="faq-wholesale">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
-          Is there a minimum order?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-6">
-          <div class="faq-answer">
-            We offer wholesale pricing with tiered volume discounts. Browse our collection to see per-unit pricing, and feel free to contact us for bulk order inquiries.
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item" id="faq-confirmation">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-7">
-          How will I know my order was received?
-          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="faq-answer-wrapper" id="faq-answer-7">
-          <div class="faq-answer">
-            After placing your order, you will see a confirmation page with your order details. Our team will also reach out via email or phone to confirm your order and arrange delivery.
-          </div>
-        </div>
-      </div>
-
       <!-- CTA -->
       <div class="faq-cta">
         <h2 class="faq-cta-title">Still have questions?</h2>
@@ -471,38 +372,113 @@
 <script src="js/cart.js"></script>
 <script src="js/animations.js"></script>
 
-<!-- FAQ Accordion -->
+<!-- FAQ Dynamic Rendering + Accordion -->
 <script>
 (function() {
-  document.querySelectorAll('.faq-question').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var item = btn.closest('.faq-item');
-      var isOpen = item.classList.contains('open');
+  var FAQ_STORAGE_KEY = 'gl_faq_data';
 
-      // Close all items
-      document.querySelectorAll('.faq-item.open').forEach(function(openItem) {
-        openItem.classList.remove('open');
-        openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+  /* Default data (fallback if nothing in localStorage) */
+  var DEFAULT_FAQ = [
+    {
+      id: 'cat-ordering', name: 'Ordering & Delivery', icon: 'calendar',
+      items: [
+        { id: 'faq-order-schedule', question: 'When are orders placed?', answer: 'Wholesale flower orders are typically scheduled weekly on Thursdays.' },
+        { id: 'faq-delivery-days', question: 'What days do you deliver?', answer: 'We deliver Monday through Thursday, depending on availability.' },
+        { id: 'faq-date-unavailable', question: 'Can my delivery date become unavailable?', answer: 'Yes. Each delivery date has limited availability. Once a date is fully booked, it can no longer be selected at checkout.' },
+        { id: 'faq-choose-date', question: 'How do I choose my delivery date?', answer: 'You can select an available delivery date during checkout using the delivery calendar.' }
+      ]
+    },
+    {
+      id: 'cat-payment', name: 'Orders & Payment', icon: 'shield',
+      items: [
+        { id: 'faq-payment', question: 'Do I need to pay online?', answer: 'No. This is a wholesale order request. Payment is handled separately by our team upon order confirmation. No credit card is required at checkout.' },
+        { id: 'faq-wholesale', question: 'Is there a minimum order?', answer: 'We offer wholesale pricing with tiered volume discounts. Browse our collection to see per-unit pricing, and feel free to contact us for bulk order inquiries.' },
+        { id: 'faq-confirmation', question: 'How will I know my order was received?', answer: 'After placing your order, you will see a confirmation page with your order details. Our team will also reach out via email or phone to confirm your order and arrange delivery.' }
+      ]
+    }
+  ];
+
+  var iconSvg = {
+    calendar: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    shield: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+    folder: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'
+  };
+  var chevron = '<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>';
+
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  function getData() {
+    try {
+      var raw = localStorage.getItem(FAQ_STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return DEFAULT_FAQ;
+  }
+
+  function render() {
+    var container = document.getElementById('faqDynamicContent');
+    if (!container) return;
+
+    var data = getData();
+    var html = '';
+    var answerIdx = 0;
+
+    data.forEach(function(cat, catIdx) {
+      if (catIdx > 0) html += '<div class="faq-section-divider"></div>';
+
+      html += '<div class="faq-category">';
+      html += '<div class="faq-category-icon">' + (iconSvg[cat.icon] || iconSvg.folder) + '</div>';
+      html += '<span class="faq-category-text">' + escHtml(cat.name) + '</span>';
+      html += '</div>';
+
+      cat.items.forEach(function(item) {
+        answerIdx++;
+        html += '<div class="faq-item" id="' + item.id + '">';
+        html += '<button class="faq-question" aria-expanded="false" aria-controls="faq-answer-' + answerIdx + '">';
+        html += escHtml(item.question);
+        html += chevron;
+        html += '</button>';
+        html += '<div class="faq-answer-wrapper" id="faq-answer-' + answerIdx + '">';
+        html += '<div class="faq-answer">' + escHtml(item.answer) + '</div>';
+        html += '</div></div>';
       });
-
-      // Toggle clicked item
-      if (!isOpen) {
-        item.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
-      }
     });
-  });
 
-  // Open item if linked via hash
-  if (window.location.hash) {
-    var target = document.querySelector(window.location.hash);
-    if (target && target.classList.contains('faq-item')) {
-      target.classList.add('open');
-      var q = target.querySelector('.faq-question');
-      if (q) q.setAttribute('aria-expanded', 'true');
-      setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+    container.innerHTML = html;
+    bindAccordion();
+  }
+
+  function bindAccordion() {
+    document.querySelectorAll('.faq-question').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.faq-item');
+        var isOpen = item.classList.contains('open');
+
+        document.querySelectorAll('.faq-item.open').forEach(function(openItem) {
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Open item if linked via hash
+    if (window.location.hash) {
+      var target = document.querySelector(window.location.hash);
+      if (target && target.classList.contains('faq-item')) {
+        target.classList.add('open');
+        var q = target.querySelector('.faq-question');
+        if (q) q.setAttribute('aria-expanded', 'true');
+        setTimeout(function() { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+      }
     }
   }
+
+  render();
 })();
 </script>
 

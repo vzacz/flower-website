@@ -337,6 +337,192 @@
         gap: 8px;
       }
     }
+
+    /* ── FAQ Admin Editor ───────────────────────── */
+    .faq-admin-category {
+      margin-bottom: var(--space-xl);
+      border: 1px solid rgba(42,40,37,0.08);
+      border-radius: var(--radius-md);
+      background: var(--cream);
+      overflow: hidden;
+    }
+    .faq-admin-category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--cream-deep);
+      border-bottom: 1px solid rgba(42,40,37,0.08);
+      gap: 10px;
+    }
+    .faq-admin-category-name {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sage-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .faq-admin-category-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .faq-admin-cat-icon {
+      width: 24px; height: 24px;
+      background: var(--sage-pale);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sage-dark);
+    }
+    .faq-admin-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(42,40,37,0.05);
+      transition: background 0.15s;
+    }
+    .faq-admin-item:last-child { border-bottom: none; }
+    .faq-admin-item:hover { background: rgba(74,124,89,0.03); }
+    .faq-admin-item-drag {
+      cursor: grab;
+      color: var(--text-muted);
+      padding: 2px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .faq-admin-item-drag:active { cursor: grabbing; }
+    .faq-admin-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .faq-admin-item-q {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .faq-admin-item-a {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .faq-admin-item-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .faq-admin-btn-sm {
+      width: 28px; height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .faq-admin-btn-edit {
+      background: rgba(74,124,89,0.08);
+      color: var(--sage-dark);
+    }
+    .faq-admin-btn-edit:hover { background: rgba(74,124,89,0.18); transform: scale(1.08); }
+    .faq-admin-btn-delete {
+      background: rgba(192,57,43,0.06);
+      color: #C0392B;
+    }
+    .faq-admin-btn-delete:hover { background: rgba(192,57,43,0.16); transform: scale(1.08); }
+    .faq-admin-btn-add {
+      background: rgba(74,124,89,0.06);
+      color: var(--sage-dark);
+    }
+    .faq-admin-btn-add:hover { background: rgba(74,124,89,0.14); }
+
+    /* FAQ edit form (inline) */
+    .faq-admin-edit-form {
+      padding: 16px 18px;
+      background: rgba(74,124,89,0.04);
+      border-bottom: 1px solid rgba(42,40,37,0.08);
+    }
+    .faq-admin-edit-form label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+    .faq-admin-edit-form input,
+    .faq-admin-edit-form textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid rgba(42,40,37,0.12);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--dark);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
+    }
+    .faq-admin-edit-form input:focus,
+    .faq-admin-edit-form textarea:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(74,124,89,0.1);
+    }
+    .faq-admin-edit-form textarea {
+      min-height: 80px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .faq-admin-edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .faq-admin-empty {
+      text-align: center;
+      padding: var(--space-xl) var(--space-md);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    /* Add item button row */
+    .faq-admin-add-row {
+      padding: 10px 18px;
+      border-top: 1px dashed rgba(42,40,37,0.1);
+    }
+    .faq-admin-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: transparent;
+      color: var(--sage-dark);
+      border: 1px dashed rgba(74,124,89,0.3);
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .faq-admin-add-btn:hover {
+      background: rgba(74,124,89,0.06);
+      border-color: rgba(74,124,89,0.5);
+    }
   </style>
 </head>
 <body>
@@ -421,6 +607,21 @@
   <div class="admin-content">
     <div class="container">
 
+      <!-- ── Admin Tabs ── -->
+      <div class="admin-tabs" style="margin-bottom:0;border-radius:var(--radius-md) var(--radius-md) 0 0;overflow:hidden">
+        <button class="admin-tab-btn active" data-admin-tab="orders">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:6px;vertical-align:-2px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Orders
+        </button>
+        <button class="admin-tab-btn" data-admin-tab="faq">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right:6px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          FAQ
+        </button>
+      </div>
+
+      <!-- ═══ Orders Tab Content ═══ -->
+      <div class="admin-tab-content active" id="tabOrders">
+
       <!-- Stats -->
       <div class="admin-stats">
         <div class="admin-stat-card">
@@ -502,6 +703,25 @@
         </div>
       </div>
 
+      </div><!-- /tabOrders -->
+
+      <!-- ═══ FAQ Tab Content ═══ -->
+      <div class="admin-tab-content" id="tabFaq">
+        <div class="admin-orders-card" style="border-radius:0 0 var(--radius-md) var(--radius-md)">
+          <div class="admin-orders-header">
+            <h2 class="admin-orders-title">FAQ Manager</h2>
+            <button class="credit-add-btn" type="button" id="faqAddCategoryBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Category
+            </button>
+          </div>
+
+          <div id="faqEditorContainer">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div><!-- /tabFaq -->
+
     </div>
   </div>
 </div>
@@ -523,6 +743,7 @@
 <script src="js/orders.js"></script>
 <script src="js/delivery-slots.js"></script>
 <script src="js/store-credit.js"></script>
+<script src="js/faq-admin.js"></script>
 <script src="js/admin.js"></script>
 
 <script>
