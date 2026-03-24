@@ -69,6 +69,274 @@
       box-shadow: 0 0 0 3px rgba(122,158,126,0.12);
     }
     .admin-search::placeholder { color: var(--text-muted); }
+
+    /* ── Store Credit Section ───────────────────────── */
+    .credit-section {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 2px solid rgba(74,124,89,0.12);
+    }
+    .credit-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .credit-balance-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #EBFBEE;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(47,158,68,0.15);
+    }
+    .credit-balance-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #2F9E44;
+      font-weight: 500;
+    }
+    .credit-balance-amount {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2F9E44;
+    }
+
+    /* Add credit form */
+    .credit-add-form {
+      background: var(--cream);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1px solid rgba(42,40,37,0.08);
+      margin-bottom: var(--space-md);
+    }
+    .credit-form-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .credit-form-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+    .credit-form-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid rgba(42,40,37,0.12);
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--dark);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .credit-form-input:focus {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px rgba(74,124,89,0.1);
+    }
+    .credit-form-input::placeholder { color: var(--text-muted); }
+    /* Hide number input spinners */
+    .credit-form-input[type="number"]::-webkit-inner-spin-button,
+    .credit-form-input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .credit-form-input[type="number"] { -moz-appearance: textfield; }
+    .credit-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--sage);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .credit-add-btn:hover {
+      background: var(--sage-dark);
+      transform: scale(1.03);
+    }
+    .credit-add-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Credit history */
+    .credit-history {
+      margin-top: var(--space-sm);
+    }
+    .credit-history-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .credit-history-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(42,40,37,0.05);
+      font-size: 0.82rem;
+    }
+    .credit-history-item:last-child {
+      border-bottom: none;
+    }
+    .credit-this-order {
+      background: rgba(74,124,89,0.04);
+      margin: 0 -8px;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: var(--radius-sm);
+    }
+    .credit-history-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .credit-history-amount {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: #2F9E44;
+      font-size: 0.9rem;
+    }
+    .credit-history-note {
+      color: var(--text-light);
+      font-size: 0.78rem;
+    }
+    .credit-history-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .credit-history-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .credit-order-tag {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      background: rgba(74,124,89,0.1);
+      color: var(--sage-dark);
+      border-radius: var(--radius-full);
+      font-weight: 500;
+    }
+    .credit-order-ref {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+    /* Credit history action buttons */
+    .credit-history-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .credit-edit-btn,
+    .credit-delete-btn {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 0.7rem;
+      line-height: 1;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s, transform 0.15s;
+    }
+    .credit-history-item:hover .credit-edit-btn,
+    .credit-history-item:hover .credit-delete-btn {
+      opacity: 1;
+    }
+    .credit-edit-btn {
+      background: rgba(74,124,89,0.1);
+      color: var(--sage-dark);
+    }
+    .credit-edit-btn:hover {
+      background: rgba(74,124,89,0.2);
+      transform: scale(1.1);
+    }
+    .credit-delete-btn {
+      background: rgba(192,57,43,0.08);
+      color: #C0392B;
+    }
+    .credit-delete-btn:hover {
+      background: rgba(192,57,43,0.18);
+      transform: scale(1.1);
+    }
+
+    /* Inline edit form */
+    .credit-edit-inline {
+      width: 100%;
+      padding: 4px 0;
+    }
+    .credit-edit-fields {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .credit-edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 90px;
+    }
+    .credit-save-btn,
+    .credit-cancel-btn {
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-body);
+      transition: background 0.15s, transform 0.15s;
+    }
+    .credit-save-btn {
+      background: var(--sage);
+      color: #fff;
+    }
+    .credit-save-btn:hover { background: var(--sage-dark); transform: scale(1.03); }
+    .credit-cancel-btn {
+      background: var(--cream-deep);
+      color: var(--text-light);
+    }
+    .credit-cancel-btn:hover { background: rgba(42,40,37,0.1); }
+    .credit-edit-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    @media (max-width: 520px) {
+      .credit-form-row {
+        grid-template-columns: 1fr;
+      }
+      .credit-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -254,6 +522,7 @@
 <!-- Scripts -->
 <script src="js/orders.js"></script>
 <script src="js/delivery-slots.js"></script>
+<script src="js/store-credit.js"></script>
 <script src="js/admin.js"></script>
 
 <script>

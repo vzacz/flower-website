@@ -155,11 +155,21 @@
           <td style="font-size:0.8rem;color:var(--text-muted)">${dateStr}</td>
           <td><span class="admin-status-badge ${statusClass}">${statusLabel}</span></td>
           <td>
-            <button class="admin-delete-btn" data-delete-order="${order.id}">Delete</button>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="admin-view-btn" data-view-order="${order.id}">View</button>
+              <button class="admin-delete-btn" data-delete-order="${order.id}">Delete</button>
+            </div>
           </td>
         </tr>
       `;
     }).join('');
+
+    // Bind view buttons
+    tbody.querySelectorAll('[data-view-order]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openOrderDetail(btn.dataset.viewOrder);
+      });
+    });
 
     // Bind delete buttons
     tbody.querySelectorAll('[data-delete-order]').forEach(btn => {
@@ -172,6 +182,265 @@
         }
       });
     });
+  }
+
+  /* ══════════════════════════════════════════════
+     4b.  ORDER DETAIL + STORE CREDIT
+     ══════════════════════════════════════════════ */
+  function openOrderDetail(orderId) {
+    if (typeof Orders === 'undefined') return;
+    const order = Orders.getById(orderId);
+    if (!order) return;
+
+    const c = order.customer;
+    const isPending = order.status === 'pending';
+
+    // Build order items HTML
+    const itemsHTML = order.items.map(item =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.82rem;border-bottom:1px solid rgba(42,40,37,0.05)">
+        <span style="color:var(--text-light)">${escapeHtml(item.name)} (${escapeHtml(item.unit)}) × ${item.qty}</span>
+        <span style="color:var(--dark);font-weight:500">$${item.subtotal.toFixed(2)}</span>
+      </div>`
+    ).join('');
+
+    // Build store credit section
+    const creditHTML = buildCreditSection(order);
+
+    // Get or create the modal
+    let modal = document.getElementById('embeddedOrderModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'embeddedOrderModal';
+      modal.className = 'embedded-order-modal';
+      document.querySelector('.admin-panel').appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="embedded-order-modal-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+          <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:500;color:var(--dark)">Order Details</h3>
+          <button class="embedded-modal-close" id="embeddedModalClose" aria-label="Close">✕</button>
+        </div>
+
+        <div class="eom-section">
+          <div class="eom-section-title">Order Info</div>
+          <div class="eom-row"><span>Order ID</span><span style="font-family:var(--font-display);font-weight:500">${order.id}</span></div>
+          <div class="eom-row"><span>Status</span><span><span class="admin-status-badge ${isPending ? 'pending' : 'completed'}">${isPending ? '⏳ Pending' : '✓ Completed'}</span></span></div>
+          <div class="eom-row"><span>Date</span><span>${Orders.formatDate(order.createdAt)}</span></div>
+        </div>
+
+        <div class="eom-section">
+          <div class="eom-section-title">Customer</div>
+          <div class="eom-row"><span>Name</span><span>${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</span></div>
+          <div class="eom-row"><span>Email</span><span>${escapeHtml(c.email || '—')}</span></div>
+          <div class="eom-row"><span>Phone</span><span>${escapeHtml(c.phone || '—')}</span></div>
+          ${c.company ? `<div class="eom-row"><span>Company</span><span>${escapeHtml(c.company)}</span></div>` : ''}
+          ${c.address ? `<div class="eom-row"><span>Address</span><span>${escapeHtml(c.address)}${c.city ? ', ' + escapeHtml(c.city) : ''}</span></div>` : ''}
+          ${c.notes ? `<div class="eom-row"><span>Notes</span><span style="max-width:220px;text-align:right">${escapeHtml(c.notes)}</span></div>` : ''}
+        </div>
+
+        <div class="eom-section">
+          <div class="eom-section-title">Order Items</div>
+          ${itemsHTML}
+          <div style="display:flex;justify-content:space-between;padding:10px 0 0;margin-top:6px;border-top:1px solid rgba(42,40,37,0.1);font-family:var(--font-display)">
+            <span style="font-size:1rem;color:var(--dark)">Total</span>
+            <span style="font-size:1.15rem;color:var(--leaf);font-weight:600">$${order.total.toFixed(2)}</span>
+          </div>
+        </div>
+
+        ${isPending ? `
+        <div style="margin-bottom:16px">
+          <button class="admin-add-btn" style="width:100%;justify-content:center" id="embeddedCompleteBtn" data-complete-order="${order.id}">
+            Mark as Completed
+          </button>
+        </div>` : ''}
+
+        ${creditHTML}
+      </div>
+    `;
+
+    modal.classList.add('open');
+
+    // Auto-scroll modal card to bottom so store credit section is visible
+    setTimeout(() => {
+      const card = modal.querySelector('.embedded-order-modal-card');
+      if (card) card.scrollTop = card.scrollHeight;
+    }, 150);
+
+    // Bind close
+    document.getElementById('embeddedModalClose').addEventListener('click', () => {
+      modal.classList.remove('open');
+    });
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.remove('open');
+    });
+
+    // Bind complete button
+    const completeBtn = document.getElementById('embeddedCompleteBtn');
+    if (completeBtn) {
+      completeBtn.addEventListener('click', () => {
+        Orders.updateStatus(orderId, 'completed');
+        renderOrdersTab();
+        openOrderDetail(orderId);
+        showAdminToast('Order marked as completed!', 'success');
+      });
+    }
+
+    // Bind add credit button
+    const creditBtn = document.getElementById('embeddedCreditBtn');
+    if (creditBtn) {
+      creditBtn.addEventListener('click', () => {
+        handleEmbeddedAddCredit(orderId, c.email);
+      });
+    }
+
+    // Bind edit credit buttons
+    modal.querySelectorAll('[data-edit-credit]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        handleEmbeddedEditCredit(btn.dataset.editCredit, btn.dataset.orderId);
+      });
+    });
+
+    // Bind delete credit buttons
+    modal.querySelectorAll('[data-del-credit]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Remove this store credit? This cannot be undone.')) return;
+        StoreCredit.deleteCredit(btn.dataset.delCredit);
+        openOrderDetail(btn.dataset.orderId);
+        showAdminToast('Credit removed.', 'info');
+      });
+    });
+  }
+
+  function handleEmbeddedEditCredit(creditId, orderId) {
+    const credit = StoreCredit.getAll().find(c => c.id === creditId);
+    if (!credit) return;
+
+    const row = document.getElementById('emb-credit-' + creditId);
+    if (!row) return;
+
+    row.innerHTML = `
+      <div style="width:100%;padding:4px 0">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="min-width:80px">
+            <label style="display:block;font-size:0.65rem;font-weight:500;color:var(--text-light);margin-bottom:2px">Amount ($)</label>
+            <input type="number" id="embEditAmt-${creditId}" value="${credit.amount}" min="0.01" step="0.01"
+              style="width:100%;padding:7px 9px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.8rem;color:var(--dark);outline:none" />
+          </div>
+          <div style="flex:1">
+            <label style="display:block;font-size:0.65rem;font-weight:500;color:var(--text-light);margin-bottom:2px">Reason</label>
+            <input type="text" id="embEditNote-${creditId}" value="${escapeHtml(credit.note || '')}" maxlength="200"
+              style="width:100%;padding:7px 9px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.8rem;color:var(--dark);outline:none" />
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button id="embSaveCredit-${creditId}" style="padding:5px 14px;border-radius:999px;font-size:0.72rem;font-weight:500;cursor:pointer;border:none;background:var(--sage);color:#fff;font-family:var(--font-body)">Save</button>
+          <button id="embCancelCredit-${creditId}" style="padding:5px 14px;border-radius:999px;font-size:0.72rem;font-weight:500;cursor:pointer;border:none;background:var(--cream-deep);color:var(--text-light);font-family:var(--font-body)">Cancel</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('embEditAmt-' + creditId).focus();
+
+    document.getElementById('embSaveCredit-' + creditId).addEventListener('click', () => {
+      const amt = parseFloat(document.getElementById('embEditAmt-' + creditId).value);
+      if (!amt || amt <= 0) return;
+      const note = document.getElementById('embEditNote-' + creditId).value.trim();
+      StoreCredit.updateCredit(creditId, amt, note);
+      openOrderDetail(orderId);
+      showAdminToast('Credit updated!', 'success');
+    });
+
+    document.getElementById('embCancelCredit-' + creditId).addEventListener('click', () => {
+      openOrderDetail(orderId);
+    });
+  }
+
+  function buildCreditSection(order) {
+    if (typeof StoreCredit === 'undefined') return '';
+
+    const email = order.customer.email;
+    const balance = StoreCredit.getBalance(email);
+    const allCredits = StoreCredit.getByCustomer(email);
+
+    const historyHTML = allCredits.length > 0
+      ? allCredits.map(c => `
+          <div class="eom-credit-item ${c.orderId === order.id ? 'eom-credit-this' : ''}" id="emb-credit-${c.id}">
+            <div>
+              <span style="font-family:var(--font-display);font-weight:600;color:#2F9E44;font-size:0.88rem">+$${c.amount.toFixed(2)}</span>
+              <span style="font-size:0.75rem;color:var(--text-light);margin-left:8px">${escapeHtml(c.note) || 'No note'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:0.7rem;color:var(--text-muted)">${StoreCredit.formatDate(c.createdAt)}</span>
+              ${c.orderId === order.id
+                ? '<span style="font-size:0.62rem;padding:2px 7px;background:rgba(74,124,89,0.1);color:var(--sage-dark);border-radius:999px;font-weight:500">This order</span>'
+                : `<span style="font-size:0.62rem;color:var(--text-muted);font-family:monospace">${c.orderId}</span>`}
+              <button class="emb-credit-edit" data-edit-credit="${c.id}" data-order-id="${order.id}" title="Edit" style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:none;cursor:pointer;font-size:0.65rem;background:rgba(74,124,89,0.1);color:var(--sage-dark);opacity:0.5;transition:opacity 0.15s"
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">✎</button>
+              <button class="emb-credit-del" data-del-credit="${c.id}" data-order-id="${order.id}" title="Remove" style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:none;cursor:pointer;font-size:0.65rem;background:rgba(192,57,43,0.08);color:#C0392B;opacity:0.5;transition:opacity 0.15s"
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">✕</button>
+            </div>
+          </div>
+        `).join('')
+      : '<div style="font-size:0.78rem;color:var(--text-muted);padding:10px 0;text-align:center">No credits issued yet for this customer.</div>';
+
+    return `
+      <div class="eom-section" style="border-top:2px solid rgba(74,124,89,0.12);padding-top:16px;margin-top:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="eom-section-title" style="margin:0">Store Credit</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 12px;background:#EBFBEE;border-radius:999px;border:1px solid rgba(47,158,68,0.15)">
+            <span style="font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:#2F9E44;font-weight:500">Balance</span>
+            <span style="font-family:var(--font-display);font-size:0.95rem;font-weight:600;color:#2F9E44">$${balance.toFixed(2)}</span>
+          </div>
+        </div>
+
+        <div style="background:var(--cream-deep);border-radius:8px;padding:14px;border:1px solid rgba(42,40,37,0.06);margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;margin-bottom:10px">
+            <div>
+              <label style="display:block;font-size:0.7rem;font-weight:500;color:var(--text-light);margin-bottom:3px">Amount ($)</label>
+              <input type="number" id="embeddedCreditAmount" min="0.01" step="0.01" placeholder="0.00"
+                style="width:100%;padding:8px 10px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.82rem;color:var(--dark);outline:none" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.7rem;font-weight:500;color:var(--text-light);margin-bottom:3px">Reason</label>
+              <input type="text" id="embeddedCreditNote" placeholder="e.g. Damaged flowers" maxlength="200"
+                style="width:100%;padding:8px 10px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.82rem;color:var(--dark);outline:none" />
+            </div>
+          </div>
+          <button id="embeddedCreditBtn" type="button"
+            style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:var(--sage);color:#fff;border:none;border-radius:999px;font-family:var(--font-body);font-size:0.75rem;font-weight:500;cursor:pointer;transition:background 0.2s,transform 0.15s"
+            onmouseover="this.style.background='var(--sage-dark)'"
+            onmouseout="this.style.background='var(--sage)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Store Credit
+          </button>
+        </div>
+
+        <div>
+          <div style="font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Credit History</div>
+          ${historyHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  function handleEmbeddedAddCredit(orderId, email) {
+    if (typeof StoreCredit === 'undefined') return;
+    const amountInput = document.getElementById('embeddedCreditAmount');
+    const noteInput = document.getElementById('embeddedCreditNote');
+    const amount = parseFloat(amountInput.value);
+    const note = (noteInput.value || '').trim();
+
+    if (!amount || amount <= 0) {
+      amountInput.style.borderColor = '#C0392B';
+      amountInput.focus();
+      setTimeout(() => { amountInput.style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    StoreCredit.addCredit(email, orderId, amount, note);
+    openOrderDetail(orderId);
+    showAdminToast('Store credit added!', 'success');
   }
 
   /* ══════════════════════════════════════════════

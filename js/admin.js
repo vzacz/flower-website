@@ -363,9 +363,178 @@ function viewOrder(id) {
         Mark as Completed
       </button>
     </div>` : ''}
+
+    ${renderStoreCreditSection(order)}
   `;
 
   document.getElementById('orderModal').classList.add('open');
+
+  // Auto-scroll modal to bottom so store credit section is visible
+  setTimeout(() => {
+    const card = document.querySelector('.modal-card');
+    if (card) card.scrollTop = card.scrollHeight;
+  }, 150);
+}
+
+/* ── Store Credit Section for Order Detail Modal ── */
+function renderStoreCreditSection(order) {
+  if (typeof StoreCredit === 'undefined') return '';
+
+  const email = order.customer.email;
+  const balance = StoreCredit.getBalance(email);
+  const orderCredits = StoreCredit.getByOrder(order.id);
+  const allCredits = StoreCredit.getByCustomer(email);
+
+  const historyHTML = allCredits.length > 0
+    ? allCredits.map(c => `
+        <div class="credit-history-item ${c.orderId === order.id ? 'credit-this-order' : ''}" id="credit-row-${c.id}">
+          <div class="credit-history-left">
+            <span class="credit-history-amount">+$${c.amount.toFixed(2)}</span>
+            <span class="credit-history-note">${c.note || 'No note'}</span>
+          </div>
+          <div class="credit-history-right">
+            <span class="credit-history-date">${StoreCredit.formatDate(c.createdAt)}</span>
+            <div class="credit-history-actions">
+              ${c.orderId === order.id ? '<span class="credit-order-tag">This order</span>' : `<span class="credit-order-ref">${c.orderId}</span>`}
+              <button class="credit-edit-btn" onclick="handleEditCredit('${c.id}', '${order.id}')" title="Edit">✎</button>
+              <button class="credit-delete-btn" onclick="handleDeleteCredit('${c.id}', '${order.id}')" title="Remove">✕</button>
+            </div>
+          </div>
+        </div>
+      `).join('')
+    : '<div style="font-size:0.8rem;color:var(--text-muted);padding:12px 0;text-align:center">No credits issued yet for this customer.</div>';
+
+  return `
+    <div class="modal-section credit-section">
+      <div class="credit-section-header">
+        <div class="modal-section-title" style="margin-bottom:0">Store Credit</div>
+        <div class="credit-balance-badge">
+          <span class="credit-balance-label">Balance</span>
+          <span class="credit-balance-amount">$${balance.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div class="credit-add-form" id="creditAddForm">
+        <div class="credit-form-row">
+          <div class="credit-form-field credit-amount-field">
+            <label class="credit-form-label" for="creditAmount">Amount ($)</label>
+            <input
+              class="credit-form-input"
+              type="number"
+              id="creditAmount"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="credit-form-field credit-note-field">
+            <label class="credit-form-label" for="creditNote">Reason</label>
+            <input
+              class="credit-form-input"
+              type="text"
+              id="creditNote"
+              placeholder="e.g. Damaged flowers"
+              maxlength="200"
+            />
+          </div>
+        </div>
+        <button
+          class="credit-add-btn"
+          type="button"
+          onclick="handleAddCredit('${order.id}', '${email}')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Store Credit
+        </button>
+      </div>
+
+      <div class="credit-history" id="creditHistory">
+        <div class="credit-history-title">Credit History</div>
+        ${historyHTML}
+      </div>
+    </div>
+  `;
+}
+
+/* ── Handle adding store credit ── */
+function handleAddCredit(orderId, email) {
+  if (typeof StoreCredit === 'undefined') return;
+
+  const amountInput = document.getElementById('creditAmount');
+  const noteInput   = document.getElementById('creditNote');
+
+  const amount = parseFloat(amountInput.value);
+  const note   = (noteInput.value || '').trim();
+
+  if (!amount || amount <= 0) {
+    amountInput.style.borderColor = '#C0392B';
+    amountInput.focus();
+    setTimeout(() => { amountInput.style.borderColor = ''; }, 2000);
+    return;
+  }
+
+  StoreCredit.addCredit(email, orderId, amount, note);
+
+  // Re-render the modal to show updated credit
+  viewOrder(orderId);
+}
+
+/* ── Edit a store credit entry (inline) ── */
+function handleEditCredit(creditId, orderId) {
+  if (typeof StoreCredit === 'undefined') return;
+  const all = StoreCredit.getAll();
+  const credit = all.find(c => c.id === creditId);
+  if (!credit) return;
+
+  const row = document.getElementById('credit-row-' + creditId);
+  if (!row) return;
+
+  row.innerHTML = `
+    <div class="credit-edit-inline">
+      <div class="credit-edit-fields">
+        <div class="credit-edit-field">
+          <label class="credit-form-label">Amount ($)</label>
+          <input class="credit-form-input" type="number" id="editCreditAmount-${creditId}" value="${credit.amount}" min="0.01" step="0.01" />
+        </div>
+        <div class="credit-edit-field" style="flex:1">
+          <label class="credit-form-label">Reason</label>
+          <input class="credit-form-input" type="text" id="editCreditNote-${creditId}" value="${credit.note || ''}" maxlength="200" />
+        </div>
+      </div>
+      <div class="credit-edit-actions">
+        <button class="credit-save-btn" onclick="handleSaveCredit('${creditId}', '${orderId}')">Save</button>
+        <button class="credit-cancel-btn" onclick="viewOrder('${orderId}')">Cancel</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('editCreditAmount-' + creditId).focus();
+}
+
+/* ── Save edited credit ── */
+function handleSaveCredit(creditId, orderId) {
+  if (typeof StoreCredit === 'undefined') return;
+  const amountInput = document.getElementById('editCreditAmount-' + creditId);
+  const noteInput = document.getElementById('editCreditNote-' + creditId);
+
+  const amount = parseFloat(amountInput.value);
+  if (!amount || amount <= 0) {
+    amountInput.style.borderColor = '#C0392B';
+    amountInput.focus();
+    setTimeout(() => { amountInput.style.borderColor = ''; }, 2000);
+    return;
+  }
+
+  StoreCredit.updateCredit(creditId, amount, noteInput.value.trim());
+  viewOrder(orderId);
+}
+
+/* ── Delete a store credit entry ── */
+function handleDeleteCredit(creditId, orderId) {
+  if (!confirm('Remove this store credit? This cannot be undone.')) return;
+  if (typeof StoreCredit === 'undefined') return;
+  StoreCredit.deleteCredit(creditId);
+  viewOrder(orderId);
 }
 
 /* ── Close modal ── */
