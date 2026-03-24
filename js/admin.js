@@ -365,6 +365,7 @@ function viewOrder(id) {
     </div>` : ''}
 
     ${renderStoreCreditSection(order)}
+    ${renderRefundSection(order)}
   `;
 
   document.getElementById('orderModal').classList.add('open');
@@ -534,6 +535,121 @@ function handleDeleteCredit(creditId, orderId) {
   if (!confirm('Remove this store credit? This cannot be undone.')) return;
   if (typeof StoreCredit === 'undefined') return;
   StoreCredit.deleteCredit(creditId);
+  viewOrder(orderId);
+}
+
+/* ── Refund Section for Order Detail Modal ── */
+function renderRefundSection(order) {
+  if (typeof Refunds === 'undefined') return '';
+
+  const refunds = Refunds.getByOrder(order.id);
+  const totalRefunded = Refunds.getOrderTotal(order.id);
+  const customerName = `${order.customer.firstName} ${order.customer.lastName}`.trim();
+  const email = order.customer.email;
+
+  const historyHTML = refunds.length > 0
+    ? refunds.map(r => `
+        <div class="refund-history-item" id="refund-row-${r.id}">
+          <div class="refund-history-left">
+            <span class="refund-history-amount">-$${r.amount.toFixed(2)}</span>
+            <span class="refund-history-reason">${r.reason || 'No reason provided'}</span>
+          </div>
+          <div class="refund-history-right">
+            <span class="refund-history-date">${Refunds.formatDate(r.createdAt)}</span>
+            <div class="refund-history-actions">
+              <span class="refund-email-sent">Email sent</span>
+              <button class="refund-delete-btn" onclick="handleDeleteRefund('${r.id}', '${order.id}')" title="Remove">✕</button>
+            </div>
+          </div>
+        </div>
+      `).join('')
+    : '<div style="font-size:0.8rem;color:var(--text-muted);padding:12px 0;text-align:center">No refunds issued for this order.</div>';
+
+  return `
+    <div class="modal-section refund-section">
+      <div class="refund-section-header">
+        <div class="modal-section-title" style="margin-bottom:0">Refunds</div>
+        ${totalRefunded > 0 ? `
+        <div class="refund-total-badge">
+          <span class="refund-total-label">Refunded</span>
+          <span class="refund-total-amount">$${totalRefunded.toFixed(2)}</span>
+        </div>` : ''}
+      </div>
+
+      <div class="refund-add-form">
+        <div class="credit-form-row">
+          <div class="credit-form-field credit-amount-field">
+            <label class="credit-form-label" for="refundAmount">Refund Amount ($)</label>
+            <input
+              class="credit-form-input"
+              type="number"
+              id="refundAmount"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="credit-form-field credit-note-field">
+            <label class="credit-form-label" for="refundReason">Reason <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+            <input
+              class="credit-form-input"
+              type="text"
+              id="refundReason"
+              placeholder="e.g. Damaged flowers"
+              maxlength="200"
+            />
+          </div>
+        </div>
+        <button
+          class="refund-add-btn"
+          type="button"
+          onclick="handleAddRefund('${order.id}', '${email}', '${customerName.replace(/'/g, "\\'")}')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Record Refund & Send Email
+        </button>
+      </div>
+
+      <div class="refund-history">
+        <div class="refund-history-title">Refund History</div>
+        ${historyHTML}
+      </div>
+    </div>
+  `;
+}
+
+/* ── Handle adding a refund ── */
+function handleAddRefund(orderId, email, customerName) {
+  if (typeof Refunds === 'undefined') return;
+
+  const amountInput = document.getElementById('refundAmount');
+  const reasonInput = document.getElementById('refundReason');
+
+  const amount = parseFloat(amountInput.value);
+  const reason = (reasonInput.value || '').trim();
+
+  if (!amount || amount <= 0) {
+    amountInput.style.borderColor = '#C0392B';
+    amountInput.focus();
+    setTimeout(() => { amountInput.style.borderColor = ''; }, 2000);
+    return;
+  }
+
+  // Record the refund
+  Refunds.addRefund(orderId, email, customerName, amount, reason);
+
+  // Send email notification
+  Refunds.sendRefundEmail(customerName, email, amount, reason);
+
+  // Re-render the modal
+  viewOrder(orderId);
+}
+
+/* ── Delete a refund entry ── */
+function handleDeleteRefund(refundId, orderId) {
+  if (!confirm('Remove this refund record? This cannot be undone.')) return;
+  if (typeof Refunds === 'undefined') return;
+  Refunds.deleteRefund(refundId);
   viewOrder(orderId);
 }
 

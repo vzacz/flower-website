@@ -208,6 +208,9 @@
     // Build store credit section
     const creditHTML = buildCreditSection(order);
 
+    // Build refund section
+    const refundHTML = buildRefundSection(order);
+
     // Get or create the modal
     let modal = document.getElementById('embeddedOrderModal');
     if (!modal) {
@@ -258,6 +261,7 @@
         </div>` : ''}
 
         ${creditHTML}
+        ${refundHTML}
       </div>
     `;
 
@@ -310,6 +314,25 @@
         StoreCredit.deleteCredit(btn.dataset.delCredit);
         openOrderDetail(btn.dataset.orderId);
         showAdminToast('Credit removed.', 'info');
+      });
+    });
+
+    // Bind refund button
+    const refundBtn = document.getElementById('embeddedRefundBtn');
+    if (refundBtn) {
+      refundBtn.addEventListener('click', () => {
+        const customerName = `${c.firstName} ${c.lastName}`.trim();
+        handleEmbeddedAddRefund(orderId, c.email, customerName);
+      });
+    }
+
+    // Bind delete refund buttons
+    modal.querySelectorAll('[data-del-refund]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Remove this refund record? This cannot be undone.')) return;
+        Refunds.deleteRefund(btn.dataset.delRefund);
+        openOrderDetail(btn.dataset.orderId);
+        showAdminToast('Refund removed.', 'info');
       });
     });
   }
@@ -443,6 +466,96 @@
     StoreCredit.addCredit(email, orderId, amount, note);
     openOrderDetail(orderId);
     showAdminToast('Store credit added!', 'success');
+  }
+
+  /* ── Refund Section (separate from Store Credit) ── */
+  function buildRefundSection(order) {
+    if (typeof Refunds === 'undefined') return '';
+
+    const refunds = Refunds.getByOrder(order.id);
+    const totalRefunded = Refunds.getOrderTotal(order.id);
+
+    const historyHTML = refunds.length > 0
+      ? refunds.map(r => `
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(42,40,37,0.05);font-size:0.82rem">
+            <div>
+              <span style="font-family:var(--font-display);font-weight:600;color:#C0392B;font-size:0.88rem">-$${r.amount.toFixed(2)}</span>
+              <span style="font-size:0.75rem;color:var(--text-light);margin-left:8px">${escapeHtml(r.reason) || 'No reason provided'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+              <span style="font-size:0.7rem;color:var(--text-muted)">${Refunds.formatDate(r.createdAt)}</span>
+              <span style="font-size:0.62rem;padding:2px 7px;background:rgba(192,57,43,0.08);color:#C0392B;border-radius:999px;font-weight:500">Email sent</span>
+              <button data-del-refund="${r.id}" data-order-id="${order.id}" title="Remove" style="width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:none;cursor:pointer;font-size:0.65rem;background:rgba(192,57,43,0.08);color:#C0392B;opacity:0.5;transition:opacity 0.15s"
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">✕</button>
+            </div>
+          </div>
+        `).join('')
+      : '<div style="font-size:0.78rem;color:var(--text-muted);padding:10px 0;text-align:center">No refunds issued for this order.</div>';
+
+    return `
+      <div class="eom-section" style="border-top:2px solid rgba(192,57,43,0.1);padding-top:16px;margin-top:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="eom-section-title" style="margin:0">Refunds</div>
+          ${totalRefunded > 0 ? `
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 12px;background:#FFF5F5;border-radius:999px;border:1px solid rgba(192,57,43,0.12)">
+            <span style="font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:#C0392B;font-weight:500">Refunded</span>
+            <span style="font-family:var(--font-display);font-size:0.95rem;font-weight:600;color:#C0392B">$${totalRefunded.toFixed(2)}</span>
+          </div>` : ''}
+        </div>
+
+        <div style="background:var(--cream-deep);border-radius:8px;padding:14px;border:1px solid rgba(42,40,37,0.06);margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;margin-bottom:10px">
+            <div>
+              <label style="display:block;font-size:0.7rem;font-weight:500;color:var(--text-light);margin-bottom:3px">Amount ($)</label>
+              <input type="number" id="embeddedRefundAmount" min="0.01" step="0.01" placeholder="0.00"
+                style="width:100%;padding:8px 10px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.82rem;color:var(--dark);outline:none" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.7rem;font-weight:500;color:var(--text-light);margin-bottom:3px">Reason <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+              <input type="text" id="embeddedRefundReason" placeholder="e.g. Damaged flowers" maxlength="200"
+                style="width:100%;padding:8px 10px;border:1.5px solid rgba(42,40,37,0.12);border-radius:6px;background:#fff;font-family:var(--font-body);font-size:0.82rem;color:var(--dark);outline:none" />
+            </div>
+          </div>
+          <button id="embeddedRefundBtn" type="button"
+            style="display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#E74C3C;color:#fff;border:none;border-radius:999px;font-family:var(--font-body);font-size:0.75rem;font-weight:500;cursor:pointer;transition:background 0.2s,transform 0.15s"
+            onmouseover="this.style.background='#C0392B'"
+            onmouseout="this.style.background='#E74C3C'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Record Refund &amp; Send Email
+          </button>
+        </div>
+
+        <div>
+          <div style="font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Refund History</div>
+          ${historyHTML}
+        </div>
+      </div>
+    `;
+  }
+
+  function handleEmbeddedAddRefund(orderId, email, customerName) {
+    if (typeof Refunds === 'undefined') return;
+    const amountInput = document.getElementById('embeddedRefundAmount');
+    const reasonInput = document.getElementById('embeddedRefundReason');
+    const amount = parseFloat(amountInput.value);
+    const reason = (reasonInput.value || '').trim();
+
+    if (!amount || amount <= 0) {
+      amountInput.style.borderColor = '#C0392B';
+      amountInput.focus();
+      setTimeout(() => { amountInput.style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    // Record the refund
+    Refunds.addRefund(orderId, email, customerName, amount, reason);
+
+    // Send email notification
+    Refunds.sendRefundEmail(customerName, email, amount, reason);
+
+    // Re-render
+    openOrderDetail(orderId);
+    showAdminToast('Refund recorded! Email opened.', 'success');
   }
 
   /* ══════════════════════════════════════════════

@@ -338,6 +338,150 @@
       }
     }
 
+    /* ── Refund Section ────────────────────────── */
+    .refund-section {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 2px solid rgba(192,57,43,0.1);
+    }
+    .refund-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .refund-total-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #FFF5F5;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(192,57,43,0.12);
+    }
+    .refund-total-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #C0392B;
+      font-weight: 500;
+    }
+    .refund-total-amount {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      color: #C0392B;
+    }
+    .refund-add-form {
+      background: var(--cream);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1px solid rgba(42,40,37,0.08);
+      margin-bottom: var(--space-md);
+    }
+    .refund-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: #E74C3C;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-full);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .refund-add-btn:hover {
+      background: #C0392B;
+      transform: scale(1.03);
+    }
+    .refund-add-btn:active {
+      transform: scale(0.98);
+    }
+    .refund-history {
+      margin-top: var(--space-sm);
+    }
+    .refund-history-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .refund-history-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(42,40,37,0.05);
+      font-size: 0.82rem;
+    }
+    .refund-history-item:last-child { border-bottom: none; }
+    .refund-history-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .refund-history-amount {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: #C0392B;
+      font-size: 0.9rem;
+    }
+    .refund-history-reason {
+      color: var(--text-light);
+      font-size: 0.78rem;
+    }
+    .refund-history-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .refund-history-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .refund-history-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .refund-delete-btn {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 0.7rem;
+      line-height: 1;
+      background: rgba(192,57,43,0.08);
+      color: #C0392B;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s, transform 0.15s;
+    }
+    .refund-history-item:hover .refund-delete-btn { opacity: 1; }
+    .refund-delete-btn:hover {
+      background: rgba(192,57,43,0.18);
+      transform: scale(1.1);
+    }
+    .refund-email-sent {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      background: rgba(192,57,43,0.08);
+      color: #C0392B;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+    }
+
     /* ── FAQ Admin Editor ───────────────────────── */
     .faq-admin-category {
       margin-bottom: var(--space-xl);
@@ -743,6 +887,7 @@
 <script src="js/orders.js"></script>
 <script src="js/delivery-slots.js"></script>
 <script src="js/store-credit.js"></script>
+<script src="js/refunds.js"></script>
 <script src="js/faq-admin.js"></script>
 <script src="js/admin.js"></script>
 
