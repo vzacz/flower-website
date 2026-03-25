@@ -5,45 +5,29 @@
          For production, replace with a real backend + server auth.
    ============================================================ */
 
-/* ── Admin password (SHA-256 hash of "GreenLife2024!")
-      To change: hash your new password with SHA-256 and update below.
-      Default password: GreenLife2024!
-   ── */
-const ADMIN_PASSWORD_HASH = 'f4d4c34e7d3f9cb37db4e6b0fc2f64a5a9c8c3b1e2a7d0f6e8b5c4a3d2f1e9c';
-// Note: This is a simplified hash check. Real production should use server-side auth.
+/* ── Session management (now powered by Supabase Auth) ── */
 
-/* ── Simple hash function using Web Crypto API ── */
-async function sha256(message) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/* ── Session management ── */
-const SESSION_KEY = 'gl_admin_session';
-
-function isAuthenticated() {
-  const session = sessionStorage.getItem(SESSION_KEY);
-  return session === 'authenticated';
-}
-
-function setAuthenticated() {
-  sessionStorage.setItem(SESSION_KEY, 'authenticated');
+async function isAuthenticated() {
+  if (typeof DB !== 'undefined' && DB.getSession) {
+    const session = await DB.getSession();
+    return !!session;
+  }
+  return false;
 }
 
 function clearAuthenticated() {
-  sessionStorage.removeItem(SESSION_KEY);
+  if (typeof DB !== 'undefined' && DB.signOut) {
+    DB.signOut();
+  }
 }
 
 /* ── Current filter state ── */
 let currentFilter = 'all';
 
 /* ── Init admin page ── */
-function initAdmin() {
+async function initAdmin() {
   // Show correct view
-  if (isAuthenticated()) {
+  if (await isAuthenticated()) {
     showDashboard();
   } else {
     showLoginForm();
@@ -78,18 +62,24 @@ function initAdmin() {
   });
 }
 
-/* ── Login handler ── */
+/* ── Login handler (Supabase Auth) ── */
 async function handleLogin(e) {
   e.preventDefault();
-  const input = document.getElementById('adminPassword');
-  const error = document.getElementById('adminLoginError');
-  const btn   = document.getElementById('adminLoginSubmit');
+  const emailInput = document.getElementById('adminEmail');
+  const passInput  = document.getElementById('adminPassword');
+  const btn        = document.getElementById('adminLoginSubmit');
 
-  if (!input) return;
+  if (!passInput) return;
 
-  const password = input.value.trim();
+  const email    = emailInput ? emailInput.value.trim() : '';
+  const password = passInput.value.trim();
+
+  if (!email) {
+    showLoginError('Please enter your email.');
+    return;
+  }
   if (!password) {
-    showLoginError('Please enter a password.');
+    showLoginError('Please enter your password.');
     return;
   }
 
@@ -98,29 +88,24 @@ async function handleLogin(e) {
   btn.disabled = true;
 
   try {
-    const hash = await sha256(password);
+    if (typeof DB === 'undefined' || !DB.signIn) {
+      showLoginError('Database not connected. Please refresh.');
+      return;
+    }
 
-    // Also check against plain "admin123" for easy testing
-    const testHash = await sha256('admin123');
+    const { data, error } = await DB.signIn(email, password);
 
-    if (hash === ADMIN_PASSWORD_HASH || hash === testHash || password === 'GreenLife2024!') {
-      setAuthenticated();
-      showDashboard();
-      if (error) error.classList.remove('visible');
+    if (error) {
+      showLoginError('Incorrect email or password.');
+      passInput.value = '';
+      passInput.focus();
     } else {
-      showLoginError('Incorrect password. Please try again.');
-      input.value = '';
-      input.focus();
+      showDashboard();
+      const errorEl = document.getElementById('adminLoginError');
+      if (errorEl) errorEl.classList.remove('visible');
     }
   } catch (err) {
-    // Fallback: plain comparison (for environments without Web Crypto)
-    if (password === 'GreenLife2024!' || password === 'admin123') {
-      setAuthenticated();
-      showDashboard();
-    } else {
-      showLoginError('Incorrect password. Please try again.');
-      input.value = '';
-    }
+    showLoginError('Login failed. Please try again.');
   }
 
   btn.textContent = 'Enter Dashboard';

@@ -10,8 +10,6 @@
   /* ══════════════════════════════════════════════
      1.  LOGO 5-CLICK TRIGGER + PASSWORD PROMPT
      ══════════════════════════════════════════════ */
-  const ADMIN_ACCESS_CODE = '3456';
-
   (function initLogoTrigger() {
     const logo = document.getElementById('navLogo');
     if (!logo) return;
@@ -27,7 +25,7 @@
 
       if (clicks >= 5) {
         clicks = 0;
-        promptAdminPassword();
+        promptAdminLogin();
         return;
       }
 
@@ -40,14 +38,77 @@
     });
   })();
 
-  function promptAdminPassword() {
-    const entered = prompt('Enter admin password:');
-    if (entered === null) return; // cancelled
-    if (entered === ADMIN_ACCESS_CODE) {
-      openAdmin();
-    } else {
-      alert('Incorrect password.');
+  async function promptAdminLogin() {
+    // Check if already logged in
+    if (typeof DB !== 'undefined' && DB.getSession) {
+      const session = await DB.getSession();
+      if (session) {
+        openAdmin();
+        return;
+      }
     }
+    showAdminLoginModal();
+  }
+
+  function showAdminLoginModal() {
+    let modal = document.getElementById('adminLoginModal');
+    if (modal) { modal.style.display = 'flex'; return; }
+
+    modal = document.createElement('div');
+    modal.id = 'adminLoginModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)';
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:32px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
+        <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark);margin-bottom:4px">Admin Login</h3>
+        <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:20px">Sign in to manage your site</p>
+        <input id="adminLoginEmail" type="email" placeholder="Email" style="width:100%;padding:10px 14px;border:1.5px solid rgba(42,40,37,0.12);border-radius:8px;font-size:0.88rem;margin-bottom:10px;outline:none;font-family:var(--font-body);box-sizing:border-box" />
+        <input id="adminLoginPass" type="password" placeholder="Password" style="width:100%;padding:10px 14px;border:1.5px solid rgba(42,40,37,0.12);border-radius:8px;font-size:0.88rem;margin-bottom:10px;outline:none;font-family:var(--font-body);box-sizing:border-box" />
+        <p id="adminLoginModalError" style="color:#c0392b;font-size:0.78rem;margin-bottom:10px;display:none"></p>
+        <div style="display:flex;gap:8px">
+          <button id="adminLoginModalBtn" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--leaf);color:#fff;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:var(--font-body)">Sign In</button>
+          <button id="adminLoginModalCancel" style="padding:10px 16px;border:1.5px solid rgba(42,40,37,0.12);border-radius:8px;background:#fff;font-size:0.88rem;cursor:pointer;font-family:var(--font-body);color:var(--dark)">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    const emailInput = document.getElementById('adminLoginEmail');
+    const passInput  = document.getElementById('adminLoginPass');
+    const btn        = document.getElementById('adminLoginModalBtn');
+    const cancel     = document.getElementById('adminLoginModalCancel');
+    const errorEl    = document.getElementById('adminLoginModalError');
+
+    emailInput.focus();
+
+    async function doLogin() {
+      const email = emailInput.value.trim();
+      const pass  = passInput.value.trim();
+      if (!email || !pass) {
+        errorEl.textContent = 'Please enter email and password.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      const { data, error } = await DB.signIn(email, pass);
+      if (error) {
+        errorEl.textContent = 'Incorrect email or password.';
+        errorEl.style.display = 'block';
+        passInput.value = '';
+        passInput.focus();
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+      } else {
+        modal.style.display = 'none';
+        openAdmin();
+      }
+    }
+
+    btn.addEventListener('click', doLogin);
+    passInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') passInput.focus(); });
+    cancel.addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
   }
 
   /* ══════════════════════════════════════════════

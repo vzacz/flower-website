@@ -691,6 +691,18 @@
 
     <form id="adminLoginForm" novalidate>
       <div class="admin-form-group">
+        <label class="admin-form-label" for="adminEmail">Email</label>
+        <input
+          class="admin-form-input"
+          id="adminEmail"
+          type="email"
+          placeholder="Enter admin email"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="admin-form-group">
         <label class="admin-form-label" for="adminPassword">Password</label>
         <div class="password-wrap">
           <input
@@ -718,7 +730,6 @@
     <p class="admin-login-error" id="adminLoginError"></p>
 
     <p style="text-align:center;margin-top:var(--space-xl);font-size:0.72rem;color:rgba(250,246,240,0.25);line-height:1.6">
-      Default password: <code style="font-family:monospace;color:rgba(250,246,240,0.4)">GreenLife2024!</code><br>
       <a href="index.html" style="color:rgba(250,246,240,0.3);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(250,246,240,0.55)'" onmouseout="this.style.color='rgba(250,246,240,0.3)'">← Return to shop</a>
     </p>
   </div>

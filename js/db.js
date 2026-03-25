@@ -127,7 +127,25 @@ const DB = (() => {
     }
   }
 
-  return { init };
+  /* ── Auth helpers ── */
+  async function signIn(email, password) {
+    if (!client) return { data: null, error: { message: 'Database not connected' } };
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    return { data, error };
+  }
+
+  async function signOut() {
+    if (!client) return;
+    await client.auth.signOut();
+  }
+
+  async function getSession() {
+    if (!client) return null;
+    const { data } = await client.auth.getSession();
+    return data.session;
+  }
+
+  return { init, signIn, signOut, getSession };
 })();
 
 /* ── Auto-init when DOM is ready ── */
