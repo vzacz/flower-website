@@ -970,3 +970,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Init shop (only if grid exists)
   if (document.getElementById('productsGrid')) initShop();
 });
+
+/* ── Re-render when fresh data arrives from Supabase ── */
+document.addEventListener('db-synced', () => {
+  // Re-render category pills (may have changed in admin)
+  if (typeof FlowerList !== 'undefined') FlowerList.renderPanel();
+
+  // Re-render products with current category filter
+  if (document.getElementById('productsGrid')) {
+    const pillContainer = document.getElementById('flowerCategoryPills');
+    const activePill = pillContainer && pillContainer.querySelector('.category-pill.active');
+    const filter = activePill ? getCategoryFilter(activePill.dataset.flowerCategory) : 'roses';
+    renderProducts(filter);
+  }
+});

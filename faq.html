@@ -368,6 +368,11 @@
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- Supabase (cloud database) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/db.js"></script>
+
 <!-- Scripts -->
 <script src="js/cart.js"></script>
 <script src="js/animations.js"></script>
@@ -479,6 +484,9 @@
   }
 
   render();
+
+  // Re-render when fresh data arrives from Supabase
+  document.addEventListener('db-synced', render);
 })();
 </script>
 

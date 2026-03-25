@@ -661,6 +661,11 @@
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- ── Supabase (cloud database) ── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/db.js"></script>
+
 <!-- ── Scripts ── -->
 <script src="js/delivery-banner.js"></script>
 <script src="js/orders.js"></script>
@@ -673,7 +678,7 @@
   Animations.init();
 
   // Load dynamic About content from admin panel / localStorage
-  (function loadAboutContent() {
+  function loadAboutContent() {
     if (typeof AboutContent === 'undefined') return;
     const data = AboutContent.getAll();
 
@@ -702,7 +707,11 @@
       img2El.src = data.image2.includes('?') ? data.image2 : data.image2 + '?w=800&q=80&fit=crop&auto=format';
       if (data.image2Alt) img2El.alt = data.image2Alt;
     }
-  })();
+  }
+  loadAboutContent();
+
+  // Re-render when fresh data arrives from Supabase
+  document.addEventListener('db-synced', loadAboutContent);
 </script>
 <script src="js/whatsapp-button.js"></script>
 </body>

@@ -857,7 +857,7 @@
     // Bind remove buttons
     editor.querySelectorAll('[data-remove-tier]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const currentTiers = readTiersFromEditor();
+        const currentTiers = readTiersFromEditor(true);
         const idx = parseInt(btn.dataset.removeTier);
         currentTiers.splice(idx, 1);
         renderTierEditor(currentTiers);
@@ -865,20 +865,24 @@
     });
   }
 
-  function readTiersFromEditor() {
+  function readTiersFromEditor(includeEmpty) {
     const editor = document.getElementById('adminTierEditor');
     if (!editor) return [];
     const rows = editor.querySelectorAll('.admin-tier-row');
     const tiers = [];
     rows.forEach(row => {
       const min = parseInt(row.querySelector('.admin-tier-min').value) || 1;
-      const price = parseFloat(row.querySelector('.admin-tier-price').value);
-      if (!isNaN(price) && price >= 0) {
+      const priceVal = row.querySelector('.admin-tier-price').value;
+      const price = parseFloat(priceVal);
+      if (includeEmpty) {
+        // Keep all rows (even empty prices) so Add Tier doesn't discard them
+        tiers.push({min, price: isNaN(price) ? '' : price});
+      } else if (!isNaN(price) && price >= 0) {
         tiers.push({min, price});
       }
     });
     // Sort by min ascending
-    tiers.sort((a, b) => a.min - b.min);
+    tiers.sort((a, b) => (a.min || 0) - (b.min || 0));
     return tiers;
   }
 
@@ -886,7 +890,7 @@
   const tierAddBtn = document.getElementById('adminTierAddBtn');
   if (tierAddBtn) {
     tierAddBtn.addEventListener('click', () => {
-      const currentTiers = readTiersFromEditor();
+      const currentTiers = readTiersFromEditor(true); // keep empty rows
       // Suggest a reasonable next min qty
       const lastMin = currentTiers.length > 0 ? currentTiers[currentTiers.length - 1].min : 1;
       const nextMin = lastMin < 10 ? 10 : lastMin < 25 ? 25 : lastMin + 10;

@@ -667,3 +667,11 @@ function setEl(id, value) {
 
 /* ── Init on DOM ready ── */
 document.addEventListener('DOMContentLoaded', initAdmin);
+
+/* ── Re-render when fresh data arrives from Supabase ── */
+document.addEventListener('db-synced', () => {
+  if (isAuthenticated()) {
+    renderStats();
+    renderOrders(currentFilter);
+  }
+});
