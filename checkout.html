@@ -743,6 +743,25 @@
         }
       }
 
+      // Sync order to Notion (non-blocking — don't fail checkout if it errors)
+      try {
+        await fetch('/api/notion-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            customer: order.customer,
+            items: order.items,
+            subtotal: order.subtotal,
+            total: order.total,
+            discount: order.discount || null,
+            deliveryDate: order.deliveryDate,
+          }),
+        });
+      } catch (e) {
+        console.warn('Notion sync skipped:', e);
+      }
+
       // Send confirmation email before redirecting
       let emailStatus = 'skipped';
       if (typeof OrderEmail !== 'undefined') {
