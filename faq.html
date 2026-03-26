@@ -15,101 +15,317 @@
   <link rel="stylesheet" href="css/animations.css" />
 
   <style>
-    /* ── FAQ Page Styles ─────────────────────────────────────── */
+    /* ── FAQ Page Styles — ALIVE EDITION ──────────────────────── */
 
-    .faq-page {
-      padding-top: calc(var(--nav-height) + var(--space-3xl));
-      padding-bottom: var(--space-4xl);
-      min-height: 100vh;
+    /* Nav links white on dark hero */
+    .nav .nav-link { color: rgba(255,255,255,0.85) !important; }
+    .nav .nav-link:hover { color: #fff !important; }
+    .nav .nav-link::after { background: #fff !important; }
+    .nav .nav-link[style*="color:var(--sage-dark)"] { color: #fff !important; }
+    .nav .nav-cart-btn { color: rgba(255,255,255,0.9); }
+    .nav.scrolled .nav-link { color: var(--text) !important; }
+    .nav.scrolled .nav-link:hover { color: var(--dark) !important; }
+    .nav.scrolled .nav-link::after { background: var(--sage) !important; }
+    .nav.scrolled .nav-link[style*="color:var(--sage-dark)"] { color: var(--sage-dark) !important; }
+    .nav.scrolled .nav-cart-btn { color: var(--dark); }
+
+    /* Botanical Hero Banner */
+    .faq-hero {
+      position: relative;
+      padding: calc(var(--nav-height) + 80px) 0 100px;
+      overflow: hidden;
+      background: linear-gradient(165deg, #0d1f0e 0%, #142716 30%, #1a3420 60%, #0f2012 100%);
     }
 
-    .faq-header {
+    .faq-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 600px 400px at 20% 40%, rgba(82,168,90,0.25), transparent),
+        radial-gradient(ellipse 500px 500px at 80% 20%, rgba(61,140,68,0.12), transparent),
+        radial-gradient(ellipse 300px 300px at 60% 80%, rgba(109,184,116,0.08), transparent);
+      pointer-events: none;
+    }
+
+    /* ── Falling Leaves in Hero ─────────────────────────────── */
+    .faq-hero-botanical {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .faq-hero-botanical .falling-leaf {
+      will-change: top, transform, rotate;
+    }
+    .faq-hero-botanical .falling-leaf svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Floating particles in hero */
+    .faq-hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .faq-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(130, 191, 138, 0.4);
+      border-radius: 50%;
+      animation: particleFloat 8s ease-in-out infinite;
+    }
+
+    .faq-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; animation-duration: 7s; }
+    .faq-particle:nth-child(2) { top: 40%; left: 25%; animation-delay: 1.5s; animation-duration: 9s; width: 2px; height: 2px; }
+    .faq-particle:nth-child(3) { top: 15%; right: 20%; animation-delay: 3s; animation-duration: 11s; }
+    .faq-particle:nth-child(4) { top: 55%; right: 15%; animation-delay: 0.8s; animation-duration: 8s; width: 4px; height: 4px; }
+    .faq-particle:nth-child(5) { top: 70%; left: 40%; animation-delay: 2.5s; animation-duration: 10s; }
+    .faq-particle:nth-child(6) { top: 30%; left: 60%; animation-delay: 4s; animation-duration: 6s; width: 2px; height: 2px; }
+    .faq-particle:nth-child(7) { top: 80%; right: 30%; animation-delay: 1s; animation-duration: 12s; }
+    .faq-particle:nth-child(8) { top: 10%; left: 50%; animation-delay: 5s; animation-duration: 9s; width: 2px; height: 2px; }
+
+    @keyframes particleFloat {
+      0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+      20% { opacity: 1; }
+      50% { opacity: 0.6; transform: translateY(-40px) scale(1.5); }
+      80% { opacity: 1; }
+    }
+
+    /* Hero content */
+    .faq-hero-content {
+      position: relative;
+      z-index: 2;
       text-align: center;
-      margin-bottom: var(--space-3xl);
     }
 
     .faq-header-eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: var(--space-md);
+      gap: 14px;
+      margin-bottom: var(--space-lg);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease-out) 0.2s both;
     }
 
     .faq-header-eyebrow-line {
-      width: 32px;
+      width: 40px;
       height: 1px;
-      background: var(--sage);
+      background: linear-gradient(90deg, transparent, rgba(130,191,138,0.6), transparent);
     }
 
     .faq-header-title {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
       font-weight: 400;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--dark);
-      margin-bottom: var(--space-md);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: var(--space-lg);
+      opacity: 0;
+      animation: heroTitleIn 1s var(--ease-out) 0.4s both;
+    }
+
+    @keyframes heroTitleIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .faq-header-subtitle {
       font-family: var(--font-serif);
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 300;
-      color: var(--text-light);
-      max-width: 540px;
+      color: rgba(255,255,255,0.65);
+      max-width: 520px;
       margin: 0 auto;
-      line-height: 1.6;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease-out) 0.65s both;
+    }
+
+    /* Decorative scroll hint */
+    .faq-scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 48px;
+      opacity: 0;
+      animation: fadeIn 1s var(--ease-smooth) 1.2s both;
+    }
+
+    .faq-scroll-hint span {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .faq-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(130,191,138,0.5), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* Wave transition from hero to content */
+    .faq-hero-wave {
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      z-index: 3;
+    }
+
+    .faq-hero-wave svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* ── FAQ Content Area ─────────────────────────────────────── */
+    .faq-content-area {
+      padding-top: var(--space-3xl);
+      padding-bottom: var(--space-4xl);
+      min-height: 50vh;
+      position: relative;
+    }
+
+    /* Subtle background pattern */
+    .faq-content-area::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(82,168,90,0.04), transparent 70%);
+      pointer-events: none;
     }
 
     /* FAQ Container */
     .faq-container {
       max-width: 760px;
       margin: 0 auto;
+      position: relative;
     }
 
     /* Category Label */
     .faq-category {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: var(--space-lg);
       padding-bottom: var(--space-sm);
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    .faq-category.animate-in {
+      animation: categorySlideIn 0.6s var(--ease-out) both;
+    }
+
+    @keyframes categorySlideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .faq-category-icon {
-      width: 28px;
-      height: 28px;
-      background: var(--sage-pale);
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--sage-pale), rgba(130,191,138,0.2));
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--sage-dark);
       flex-shrink: 0;
+      transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
+    }
+
+    .faq-category:hover .faq-category-icon {
+      transform: scale(1.1) rotate(-5deg);
+      box-shadow: 0 4px 12px rgba(46,107,53,0.15);
     }
 
     .faq-category-text {
       font-family: var(--font-body);
       font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
+      font-weight: 600;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       color: var(--sage-dark);
     }
 
-    /* Accordion Items */
+    /* ── Accordion Items — Animated ───────────────────────────── */
     .faq-item {
       background: var(--cream-card);
       border-radius: var(--radius-md);
-      border: 1px solid rgba(74, 124, 89, 0.1);
+      border: 1px solid rgba(74, 124, 89, 0.08);
       margin-bottom: var(--space-md);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
       overflow: hidden;
-      transition: box-shadow var(--duration-base) var(--ease-smooth);
+      transition:
+        box-shadow 0.4s var(--ease-smooth),
+        transform 0.4s var(--ease-smooth),
+        border-color 0.4s var(--ease-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+      position: relative;
+    }
+
+    .faq-item.animate-in {
+      animation: faqItemIn 0.5s var(--ease-out) both;
+    }
+
+    @keyframes faqItemIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Green glow on left edge */
+    .faq-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--sage), var(--sage-light));
+      opacity: 0;
+      transition: opacity 0.3s var(--ease-smooth);
+      border-radius: 3px 0 0 3px;
     }
 
     .faq-item:hover {
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 8px 32px rgba(46,107,53,0.08), 0 2px 8px rgba(0,0,0,0.04);
+      transform: translateY(-2px);
+      border-color: rgba(74, 124, 89, 0.18);
+    }
+
+    .faq-item:hover::before {
+      opacity: 1;
+    }
+
+    .faq-item.open {
+      box-shadow: 0 8px 32px rgba(46,107,53,0.1), 0 2px 8px rgba(0,0,0,0.04);
+      border-color: rgba(74, 124, 89, 0.22);
+    }
+
+    .faq-item.open::before {
+      opacity: 1;
     }
 
     .faq-question {
@@ -118,7 +334,7 @@
       align-items: center;
       justify-content: space-between;
       gap: var(--space-md);
-      padding: 20px 24px;
+      padding: 22px 28px;
       background: none;
       border: none;
       cursor: pointer;
@@ -128,10 +344,12 @@
       font-weight: 500;
       color: var(--dark);
       line-height: 1.4;
-      transition: color var(--duration-fast) var(--ease-smooth);
+      transition: color 0.25s var(--ease-smooth), padding-left 0.3s var(--ease-smooth);
     }
 
-    .faq-question:hover {
+    .faq-item:hover .faq-question,
+    .faq-item.open .faq-question {
+      padding-left: 34px;
       color: var(--sage-dark);
     }
 
@@ -141,90 +359,257 @@
       border-radius: var(--radius-md);
     }
 
-    .faq-chevron {
-      width: 20px;
-      height: 20px;
+    .faq-chevron-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
-      color: var(--sage);
-      transition: transform var(--duration-base) var(--ease-smooth);
+      background: var(--sage-pale);
+      transition: background 0.3s var(--ease-smooth), transform 0.5s var(--ease-spring);
     }
 
-    .faq-item.open .faq-chevron {
+    .faq-item:hover .faq-chevron-wrap {
+      background: rgba(82,168,90,0.25);
+    }
+
+    .faq-item.open .faq-chevron-wrap {
+      background: var(--sage-dark);
       transform: rotate(180deg);
     }
 
+    .faq-chevron {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--sage-dark);
+      transition: color 0.3s var(--ease-smooth);
+    }
+
+    .faq-item.open .faq-chevron {
+      color: #fff;
+    }
+
     .faq-answer-wrapper {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height var(--duration-base) var(--ease-smooth);
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.45s var(--ease-out);
     }
 
     .faq-item.open .faq-answer-wrapper {
-      max-height: 300px;
+      grid-template-rows: 1fr;
+    }
+
+    .faq-answer-inner {
+      overflow: hidden;
     }
 
     .faq-answer {
-      padding: 0 24px 22px;
+      padding: 0 28px 24px 34px;
       font-family: var(--font-body);
-      font-size: 0.88rem;
-      line-height: 1.7;
+      font-size: 0.9rem;
+      line-height: 1.75;
       color: var(--text-light);
       border-top: 1px solid rgba(74, 124, 89, 0.08);
-      padding-top: 16px;
+      padding-top: 18px;
       margin-top: 0;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.35s var(--ease-out) 0.1s, transform 0.35s var(--ease-out) 0.1s;
     }
 
-    /* Section Divider */
+    .faq-item.open .faq-answer {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Section Divider — Animated */
     .faq-section-divider {
       height: 1px;
-      background: rgba(74, 124, 89, 0.1);
+      background: linear-gradient(90deg, transparent, rgba(74, 124, 89, 0.15), transparent);
       margin: var(--space-2xl) 0;
+      position: relative;
+      opacity: 0;
     }
 
-    /* CTA at bottom */
+    .faq-section-divider.animate-in {
+      animation: dividerExpand 0.8s var(--ease-out) both;
+    }
+
+    @keyframes dividerExpand {
+      from { opacity: 0; transform: scaleX(0); }
+      to { opacity: 1; transform: scaleX(1); }
+    }
+
+    .faq-section-divider::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      background: var(--sage-light);
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+
+    /* ── CTA — Elevated ──────────────────────────────────────── */
     .faq-cta {
       text-align: center;
       margin-top: var(--space-3xl);
-      padding: var(--space-2xl);
-      background: var(--sage-pale);
+      padding: var(--space-2xl) var(--space-xl);
+      background: linear-gradient(135deg, #0d1f0e, #1a3420, #142716);
       border-radius: var(--radius-xl);
-      border: 1px solid rgba(74, 124, 89, 0.12);
+      border: 1px solid rgba(130,191,138,0.15);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .faq-cta.animate-in {
+      animation: faqItemIn 0.7s var(--ease-out) both;
+    }
+
+    .faq-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 300px 200px at 30% 50%, rgba(82,168,90,0.2), transparent),
+        radial-gradient(ellipse 200px 200px at 70% 30%, rgba(61,140,68,0.08), transparent);
+      pointer-events: none;
+    }
+
+    /* Shimmer sweep across CTA */
+    .faq-cta::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+      animation: ctaSweep 5s ease-in-out infinite;
+    }
+
+    @keyframes ctaSweep {
+      0%, 100% { left: -100%; }
+      50% { left: 140%; }
     }
 
     .faq-cta-title {
       font-family: var(--font-display);
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 500;
-      color: var(--dark);
+      color: #fff;
       margin-bottom: var(--space-sm);
+      position: relative;
     }
 
     .faq-cta-text {
       font-family: var(--font-body);
-      font-size: 0.88rem;
-      color: var(--text-light);
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
       margin-bottom: var(--space-lg);
-      line-height: 1.6;
+      line-height: 1.65;
+      position: relative;
     }
 
     .faq-cta .btn {
       display: inline-flex;
+      position: relative;
+      background: linear-gradient(135deg, var(--sage), var(--sage-dark));
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+      transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
+      border: none;
+    }
+
+    .faq-cta .btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 24px rgba(46,107,53,0.3);
+    }
+
+    .faq-cta .btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* ── Stats bar under hero ────────────────────────────────── */
+    .faq-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: var(--space-xl) 0;
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease-out) 0.9s both;
+    }
+
+    .faq-stat {
+      text-align: center;
+    }
+
+    .faq-stat-number {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #fff;
+      display: block;
+      line-height: 1.2;
+    }
+
+    .faq-stat-label {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+
+    .faq-stat-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.18);
+      align-self: center;
     }
 
     /* Responsive */
     @media (max-width: 640px) {
+      .faq-hero {
+        padding: calc(var(--nav-height) + 48px) 0 72px;
+      }
       .faq-question {
-        padding: 16px 18px;
+        padding: 18px 20px;
         font-size: 0.95rem;
       }
+      .faq-item:hover .faq-question,
+      .faq-item.open .faq-question {
+        padding-left: 26px;
+      }
       .faq-answer {
-        padding: 0 18px 18px;
+        padding: 0 20px 18px 26px;
         padding-top: 14px;
         font-size: 0.84rem;
       }
-      .faq-page {
-        padding-top: calc(var(--nav-height) + var(--space-2xl));
+      .faq-content-area {
+        padding-top: var(--space-2xl);
         padding-bottom: var(--space-3xl);
+      }
+      .faq-stats {
+        gap: 24px;
+      }
+      .faq-stat-number {
+        font-size: 1.3rem;
+      }
+      .faq-scroll-hint {
+        display: none;
       }
     }
   </style>
@@ -238,7 +623,7 @@
 <div class="floating-bg" aria-hidden="true"></div>
 
 <!-- ── Navigation ── -->
-<nav class="nav scrolled" id="mainNav" role="navigation" aria-label="Main navigation">
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
   <div class="container nav-inner">
     <a href="index.html" class="nav-logo" aria-label="Green Life Flowers home" title="Green Life Flowers">
       <img src="brand_assets/green life logo.png" alt="Green Life Flowers logo" />
@@ -269,22 +654,117 @@
   </div>
 </nav>
 
-<!-- ── FAQ Page ── -->
-<main class="faq-page page-enter">
-  <div class="container">
+<!-- ── FAQ Hero ── -->
+<section class="faq-hero">
+  <!-- Hero falling leaves container -->
+  <div id="heroLeavesContainer" class="faq-hero-botanical" aria-hidden="true"></div>
 
-    <!-- Header -->
-    <div class="faq-header">
-      <div class="faq-header-eyebrow">
-        <div class="faq-header-eyebrow-line"></div>
-        <span class="label-caps" style="color:var(--sage-dark)">Help Center</span>
-        <div class="faq-header-eyebrow-line"></div>
-      </div>
-      <h1 class="faq-header-title">Frequently Asked Questions</h1>
-      <p class="faq-header-subtitle">
-        Everything you need to know about ordering, delivery, and working with Green Life Flowers.
-      </p>
+  <!-- Floating particles -->
+  <div class="faq-hero-particles">
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+    <div class="faq-particle"></div>
+  </div>
+
+  <div class="container faq-hero-content">
+    <div class="faq-header-eyebrow">
+      <div class="faq-header-eyebrow-line"></div>
+      <span class="label-caps" style="color:rgba(130,191,138,0.8)">Help Center</span>
+      <div class="faq-header-eyebrow-line"></div>
     </div>
+    <h1 class="faq-header-title">Frequently Asked<br>Questions</h1>
+    <p class="faq-header-subtitle">
+      Everything you need to know about ordering, delivery, and working with Green Life Flowers.
+    </p>
+
+    <!-- Stats -->
+    <div class="faq-stats">
+      <div class="faq-stat">
+        <span class="faq-stat-number" data-count="7">0</span>
+        <div class="faq-stat-label">Common Questions</div>
+      </div>
+      <div class="faq-stat-divider"></div>
+      <div class="faq-stat">
+        <span class="faq-stat-number" data-count="2">0</span>
+        <div class="faq-stat-label">Categories</div>
+      </div>
+      <div class="faq-stat-divider"></div>
+      <div class="faq-stat">
+        <span class="faq-stat-number">24h</span>
+        <div class="faq-stat-label">Response Time</div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="faq-scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="faq-scroll-line"></div>
+    </div>
+  </div>
+
+  <!-- Hero falling leaves script -->
+  <script>
+  (function(){
+    var c = document.getElementById('heroLeavesContainer');
+    if (!c) return;
+
+    var leafSVGs = [
+      '<svg viewBox="0 0 40 58"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 52 68"><path d="M26 2C26 2 4 20 4 40C4 56 14 66 26 66C38 66 48 56 48 40C48 20 26 2 26 2Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 24 38"><path d="M12 1C12 1 2 12 2 23C2 33 7 37 12 37C17 37 22 33 22 23C22 12 12 1 12 1Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 36 50"><ellipse cx="18" cy="25" rx="16" ry="23" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 30 46"><path d="M15 2C15 2 2 16 2 28C2 40 8 44 15 44C22 44 28 40 28 28C28 16 15 2 15 2Z" fill="COLOR" opacity="OP"/></svg>'
+    ];
+    var colors = ['#5A9460','#3D8C44','#82BF8A','#6DB874','#52A85A','#4E9455'];
+    var COUNT = 22;
+
+    for (var i = 0; i < COUNT; i++) {
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      var svg = leafSVGs[Math.floor(Math.random() * leafSVGs.length)];
+      var op = (0.15 + Math.random() * 0.25).toFixed(2);
+      svg = svg.replace('COLOR', color).replace('OP', op);
+
+      var el = document.createElement('div');
+      el.className = 'falling-leaf';
+      el.innerHTML = svg;
+
+      var size = 22 + Math.random() * 32;
+      var x = Math.random() * 100;
+      var dur = 10 + Math.random() * 6;
+      var swayDur = 3 + Math.random() * 3;
+      var sway = 40 + Math.random() * 60;
+      var rotStart = Math.random() * 360;
+      var rotEnd = rotStart + (Math.random() - 0.5) * 400;
+      var neg = -(i / COUNT * dur).toFixed(2);
+
+      el.style.cssText =
+        'position:absolute;top:-60px;left:' + x + '%;width:' + size + 'px;height:auto;opacity:1;' +
+        'animation:leafFall ' + dur + 's ' + neg + 's linear infinite,' +
+        'leafSway ' + swayDur + 's ' + neg + 's ease-in-out infinite alternate,' +
+        'leafSpin ' + (dur * 0.7) + 's ' + neg + 's linear infinite;' +
+        '--sway:' + sway + 'px;--rotate-start:' + rotStart + 'deg;--rotate-end:' + rotEnd + 'deg;';
+
+      c.appendChild(el);
+    }
+  })();
+  </script>
+
+  <!-- Wave transition -->
+  <div class="faq-hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="var(--cream)">
+      <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── FAQ Content ── -->
+<main class="faq-content-area">
+  <div class="container">
 
     <div class="faq-container" id="faqDynamicContent">
       <!-- FAQ content rendered by JS from localStorage, with hardcoded fallback -->
@@ -297,7 +777,7 @@
         <p class="faq-cta-text">
           Our team is happy to help with wholesale pricing, custom orders, or anything else.
         </p>
-        <a href="index.html#contact" class="btn btn-sage btn-lg">Get in Touch</a>
+        <a href="index.html#contact" class="btn">Get in Touch</a>
       </div>
 
     </div>
@@ -377,12 +857,11 @@
 <script src="js/cart.js"></script>
 <script src="js/animations.js"></script>
 
-<!-- FAQ Dynamic Rendering + Accordion -->
+<!-- FAQ Dynamic Rendering + Accordion + Animations -->
 <script>
 (function() {
   var FAQ_STORAGE_KEY = 'gl_faq_data';
 
-  /* Default data (fallback if nothing in localStorage) */
   var DEFAULT_FAQ = [
     {
       id: 'cat-ordering', name: 'Ordering & Delivery', icon: 'calendar',
@@ -408,7 +887,7 @@
     shield: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
     folder: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'
   };
-  var chevron = '<svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var chevron = '<div class="faq-chevron-wrap"><svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>';
 
   function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
@@ -440,17 +919,18 @@
         answerIdx++;
         html += '<div class="faq-item" id="' + item.id + '">';
         html += '<button class="faq-question" aria-expanded="false" aria-controls="faq-answer-' + answerIdx + '">';
-        html += escHtml(item.question);
+        html += '<span>' + escHtml(item.question) + '</span>';
         html += chevron;
         html += '</button>';
         html += '<div class="faq-answer-wrapper" id="faq-answer-' + answerIdx + '">';
-        html += '<div class="faq-answer">' + escHtml(item.answer) + '</div>';
+        html += '<div class="faq-answer-inner"><div class="faq-answer">' + escHtml(item.answer) + '</div></div>';
         html += '</div></div>';
       });
     });
 
     container.innerHTML = html;
     bindAccordion();
+    initScrollAnimations();
   }
 
   function bindAccordion() {
@@ -471,7 +951,6 @@
       });
     });
 
-    // Open item if linked via hash
     if (window.location.hash) {
       var target = document.querySelector(window.location.hash);
       if (target && target.classList.contains('faq-item')) {
@@ -483,9 +962,61 @@
     }
   }
 
-  render();
+  /* ── Scroll-triggered stagger animations ── */
+  function initScrollAnimations() {
+    var animatables = document.querySelectorAll('.faq-item, .faq-category, .faq-section-divider, .faq-cta');
+    if (!animatables.length) return;
 
-  // Re-render when fresh data arrives from Supabase
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          // Stagger delay based on position among siblings
+          var el = entry.target;
+          var siblings = el.parentElement.querySelectorAll('.faq-item, .faq-category, .faq-section-divider, .faq-cta');
+          var idx = Array.prototype.indexOf.call(siblings, el);
+          var delay = Math.min(idx * 80, 600);
+
+          setTimeout(function() {
+            el.classList.add('animate-in');
+          }, delay);
+
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    animatables.forEach(function(el) { observer.observe(el); });
+  }
+
+  /* ── Counter animation for stats ── */
+  function animateCounters() {
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      var target = parseInt(el.getAttribute('data-count'));
+      var duration = 1200;
+      var start = performance.now();
+
+      function tick(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Animate counters when hero stats are visible
+  var statsObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      animateCounters();
+      statsObs.disconnect();
+    }
+  }, { threshold: 0.5 });
+
+  var statsEl = document.querySelector('.faq-stats');
+  if (statsEl) statsObs.observe(statsEl);
+
+  render();
   document.addEventListener('db-synced', render);
 })();
 </script>
