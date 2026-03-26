@@ -5306,3 +5306,229 @@ body.has-delivery-banner .nav.scrolled {
 .delivery-date-section #err-deliveryDate.visible {
   display: block;
 }
+
+/* ── Cookie Consent Banner ───────────────────────────────── */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: var(--space-md) var(--space-lg);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  pointer-events: none;
+}
+.cookie-banner.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.cookie-banner.closing {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.cookie-banner-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  background: var(--dark);
+  border: 1px solid rgba(130,191,138,0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.25), 0 0 80px rgba(46,107,53,0.08);
+}
+
+.cookie-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  flex: 1;
+}
+
+.cookie-banner-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(130,191,138,0.12);
+  border-radius: 50%;
+  color: var(--sage-light);
+  margin-top: 2px;
+}
+
+.cookie-banner-text {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: rgba(240,236,230,0.75);
+  margin: 0;
+}
+
+.cookie-banner-link {
+  color: var(--sage-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--duration-fast) ease;
+}
+.cookie-banner-link:hover {
+  color: #fff;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.cookie-btn {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform var(--duration-fast) ease, opacity var(--duration-fast) ease, background var(--duration-fast) ease;
+}
+.cookie-btn:hover {
+  transform: translateY(-1px);
+}
+.cookie-btn:active {
+  transform: translateY(0);
+}
+
+.cookie-btn-accept {
+  background: var(--sage);
+  color: #fff;
+}
+.cookie-btn-accept:hover {
+  background: var(--sage-dark);
+}
+
+.cookie-btn-decline {
+  background: rgba(255,255,255,0.08);
+  color: rgba(240,236,230,0.7);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.cookie-btn-decline:hover {
+  background: rgba(255,255,255,0.14);
+  color: rgba(240,236,230,0.9);
+}
+
+/* Mobile: stack cookie banner vertically */
+@media (max-width: 680px) {
+  .cookie-banner-inner {
+    flex-direction: column;
+    padding: var(--space-lg);
+    gap: var(--space-md);
+  }
+  .cookie-banner-actions {
+    width: 100%;
+  }
+  .cookie-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* ── Email Confirmation Status (Confirmation page) ───────── */
+.email-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  margin-bottom: var(--space-lg);
+}
+.email-status-sending {
+  background: var(--sage-pale);
+  border: 1px solid rgba(122,158,126,0.2);
+  color: var(--sage-dark);
+}
+.email-status-sent {
+  background: #e8f5e9;
+  border: 1px solid rgba(76,175,80,0.25);
+  color: #2e7d32;
+}
+.email-status-failed {
+  background: #fef3e6;
+  border: 1px solid rgba(201,165,90,0.25);
+  color: #8b6914;
+}
+.email-status svg {
+  flex-shrink: 0;
+}
+.email-status-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(90,148,96,0.2);
+  border-top-color: var(--sage-dark);
+  border-radius: 50%;
+  animation: emailSpin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes emailSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Privacy Page ─────────────────────────────────────────── */
+.privacy-page {
+  padding: calc(var(--nav-height) + var(--space-2xl)) 0 var(--space-3xl);
+}
+.privacy-content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.privacy-content h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--dark);
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.02em;
+}
+.privacy-content .privacy-updated {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2xl);
+}
+.privacy-content h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--dark);
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-sm);
+}
+.privacy-content p,
+.privacy-content li {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-light);
+  margin-bottom: var(--space-md);
+}
+.privacy-content ul {
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+.privacy-content li {
+  margin-bottom: var(--space-xs);
+}
+.privacy-content a {
+  color: var(--sage-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.privacy-content a:hover {
+  color: var(--dark);
+}

@@ -299,6 +299,7 @@
 <script src="js/delivery-slots.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/email-popup.js"></script>
+<script src="js/order-email.js"></script>
 <script src="js/whatsapp-button.js"></script>
 
 <script>
@@ -739,6 +740,18 @@
         }
       }
 
+      // Send confirmation email before redirecting
+      let emailStatus = 'skipped';
+      if (typeof OrderEmail !== 'undefined') {
+        try {
+          const emailResult = await OrderEmail.sendConfirmation(order);
+          emailStatus = emailResult.success ? 'sent' : (emailResult.reason || 'failed');
+        } catch {
+          emailStatus = 'failed';
+        }
+      }
+      sessionStorage.setItem('gl_email_status', emailStatus);
+
       // Clear cart
       localStorage.removeItem('greenlife_cart');
       // Save order ID for confirmation page
@@ -795,6 +808,7 @@
 })();
 </script>
 
+<script src="js/cookie-consent.js"></script>
 <script src="js/animations.js"></script>
 <script>
   if (typeof Animations !== 'undefined') Animations.init();

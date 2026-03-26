@@ -95,6 +95,12 @@
       </div>
     </div>
 
+    <!-- Email status indicator -->
+    <div id="emailStatus" class="email-status email-status-sending" style="display:none">
+      <div class="email-status-spinner"></div>
+      <span>Sending confirmation email...</span>
+    </div>
+
     <!-- What's next -->
     <div style="background:var(--gold-pale);border:1px solid rgba(201,165,90,0.2);border-radius:var(--radius-lg);padding:var(--space-lg);text-align:left;margin-bottom:var(--space-xl)">
       <div style="font-family:var(--font-display);font-size:0.95rem;font-weight:500;color:var(--dark);margin-bottom:var(--space-sm)">What happens next?</div>
@@ -164,6 +170,9 @@
         }
       }
 
+      // Show email status
+      showEmailStatus();
+
       // Clean up session
       sessionStorage.removeItem('gl_last_order_id');
     } else {
@@ -173,6 +182,27 @@
     // Petal rain animation
     launchPetals();
   });
+
+  function showEmailStatus() {
+    const statusEl = document.getElementById('emailStatus');
+    const emailResult = sessionStorage.getItem('gl_email_status');
+    sessionStorage.removeItem('gl_email_status');
+
+    if (!statusEl) return;
+
+    if (emailResult === 'sent') {
+      statusEl.className = 'email-status email-status-sent';
+      statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg><span>Confirmation email sent! Check your inbox.</span>';
+      statusEl.style.display = '';
+    } else if (emailResult === 'not_configured') {
+      // EmailJS not set up yet — don't show anything alarming
+      statusEl.style.display = 'none';
+    } else if (emailResult === 'failed' || emailResult === 'send_failed') {
+      statusEl.className = 'email-status email-status-failed';
+      statusEl.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>We couldn\'t send a confirmation email, but your order is placed. We\'ll be in touch!</span>';
+      statusEl.style.display = '';
+    }
+  }
 
   function launchPetals() {
     const container = document.getElementById('petalRain');
@@ -195,6 +225,7 @@
 })();
 </script>
 <script src="js/whatsapp-button.js"></script>
+<script src="js/cookie-consent.js"></script>
 <script src="js/animations.js"></script>
 <script>
   if (typeof Animations !== 'undefined') Animations.init();
