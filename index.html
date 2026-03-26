@@ -14,6 +14,20 @@
 
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/animations.css" />
+
+  <style>
+    /* Nav on dark hero — glowing border (only before scroll) */
+    .nav:not(.scrolled) {
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 20px rgba(255,255,255,0.08), 0 1px 8px rgba(130,191,138,0.1);
+    }
+    .nav:not(.scrolled) .nav-link { color: rgba(240,236,230,0.8) !important; }
+    .nav:not(.scrolled) .nav-link:hover { color: #f4f0eb !important; }
+    .nav:not(.scrolled) .nav-link::after { background: rgba(130,191,138,0.6) !important; }
+    .nav:not(.scrolled) .nav-cart-btn { color: rgba(240,236,230,0.85); }
+    .scroll-mouse { border-color: rgba(130,191,138,0.25); }
+    .scroll-mouse-dot { background: rgba(130,191,138,0.5); }
+  </style>
 </head>
 <body>
 
@@ -125,21 +139,85 @@
      HERO SECTION
      ══════════════════════════════════════════════ -->
 <section class="hero" id="home" aria-label="Hero">
-  <div class="hero-bg">
-    <img
-      src="flowers/Screenshot 2026-03-12 000052.png"
-      alt=""
-      loading="eager"
-      fetchpriority="high"
-    />
-  </div>
-  <div class="hero-overlay"></div>
-  <div class="hero-overlay-texture"></div>
 
-  <!-- Botanical leaf accents on hero text side -->
-  <div aria-hidden="true" style="position:absolute;top:0;left:0;width:48%;bottom:0;pointer-events:none;overflow:hidden;z-index:0">
-    <svg viewBox="0 0 120 180" width="100" height="150" style="position:absolute;top:12%;left:2%;opacity:0.06;transform:rotate(-25deg)"><path d="M60 5C60 5 10 50 10 95C10 140 35 175 60 175C85 175 110 140 110 95C110 50 60 5 60 5Z" fill="#5a9460"/><line x1="60" y1="175" x2="60" y2="40" stroke="#82bf8a" stroke-width="2.5" opacity="0.4"/></svg>
-    <svg viewBox="0 0 60 90" width="65" height="98" style="position:absolute;bottom:15%;left:6%;opacity:0.05;transform:rotate(20deg)"><path d="M30 3C30 3 3 25 3 50C3 72 16 87 30 87C44 87 57 72 57 50C57 25 30 3 30 3Z" fill="#3D8C44"/></svg>
+  <!-- Floating petals — scattered around the hero -->
+  <div class="hero-petals" aria-hidden="true">
+    <!-- Rose petals — bigger, bolder -->
+    <div class="hero-petal" style="top:8%;left:4%;--size:90px;--rot:-25deg;--delay:0s;--dur:18s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#e8b4b4" opacity="0.3"/></svg>
+    </div>
+    <div class="hero-petal" style="top:18%;right:6%;--size:110px;--rot:15deg;--delay:2s;--dur:22s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#d9a0a0" opacity="0.22"/></svg>
+    </div>
+    <div class="hero-petal" style="top:60%;left:7%;--size:80px;--rot:40deg;--delay:4s;--dur:20s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#ecc4b4" opacity="0.28"/></svg>
+    </div>
+    <div class="hero-petal" style="top:72%;right:9%;--size:95px;--rot:-35deg;--delay:1s;--dur:16s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#d9a0a0" opacity="0.2"/></svg>
+    </div>
+    <div class="hero-petal" style="top:38%;left:2%;--size:65px;--rot:60deg;--delay:3s;--dur:24s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#f0d0c5" opacity="0.25"/></svg>
+    </div>
+    <div class="hero-petal" style="top:45%;right:3%;--size:100px;--rot:-50deg;--delay:5s;--dur:19s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#e8b4b4" opacity="0.18"/></svg>
+    </div>
+    <!-- Extra petals closer to center -->
+    <div class="hero-petal" style="top:28%;left:18%;--size:55px;--rot:10deg;--delay:1.5s;--dur:21s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#e8b4b4" opacity="0.15"/></svg>
+    </div>
+    <div class="hero-petal" style="top:55%;right:20%;--size:48px;--rot:-18deg;--delay:3.5s;--dur:17s">
+      <svg viewBox="0 0 60 70" fill="none"><path d="M30 5 C15 5 3 20 3 38 C3 56 15 65 30 65 C45 65 57 56 57 38 C57 20 45 5 30 5Z" fill="#d9a0a0" opacity="0.12"/></svg>
+    </div>
+
+    <!-- Green leaves — bigger -->
+    <div class="hero-leaf" style="top:15%;left:12%;--size:120px;--rot:-20deg;--delay:0.5s;--dur:25s">
+      <svg viewBox="0 0 80 50" fill="none"><path d="M5 25 C5 10 20 2 40 2 C60 2 75 10 75 25 C75 40 60 48 40 48 C20 48 5 40 5 25Z" fill="#5a9460" opacity="0.14"/><line x1="5" y1="25" x2="75" y2="25" stroke="#82BF8A" stroke-width="0.5" opacity="0.2"/></svg>
+    </div>
+    <div class="hero-leaf" style="top:50%;right:11%;--size:105px;--rot:30deg;--delay:2s;--dur:22s">
+      <svg viewBox="0 0 80 50" fill="none"><path d="M5 25 C5 10 20 2 40 2 C60 2 75 10 75 25 C75 40 60 48 40 48 C20 48 5 40 5 25Z" fill="#3D8C44" opacity="0.12"/><line x1="5" y1="25" x2="75" y2="25" stroke="#3D8C44" stroke-width="0.5" opacity="0.18"/></svg>
+    </div>
+    <div class="hero-leaf" style="top:80%;left:14%;--size:90px;--rot:-45deg;--delay:3.5s;--dur:20s">
+      <svg viewBox="0 0 80 50" fill="none"><path d="M5 25 C5 10 20 2 40 2 C60 2 75 10 75 25 C75 40 60 48 40 48 C20 48 5 40 5 25Z" fill="#5a9460" opacity="0.1"/><line x1="5" y1="25" x2="75" y2="25" stroke="#82BF8A" stroke-width="0.5" opacity="0.15"/></svg>
+    </div>
+    <div class="hero-leaf" style="top:5%;right:16%;--size:85px;--rot:55deg;--delay:1.5s;--dur:23s">
+      <svg viewBox="0 0 80 50" fill="none"><path d="M5 25 C5 10 20 2 40 2 C60 2 75 10 75 25 C75 40 60 48 40 48 C20 48 5 40 5 25Z" fill="#82BF8A" opacity="0.1"/><line x1="5" y1="25" x2="75" y2="25" stroke="#82BF8A" stroke-width="0.5" opacity="0.14"/></svg>
+    </div>
+    <div class="hero-leaf" style="top:68%;right:22%;--size:70px;--rot:-10deg;--delay:4.5s;--dur:26s">
+      <svg viewBox="0 0 80 50" fill="none"><path d="M5 25 C5 10 20 2 40 2 C60 2 75 10 75 25 C75 40 60 48 40 48 C20 48 5 40 5 25Z" fill="#5a9460" opacity="0.08"/><line x1="5" y1="25" x2="75" y2="25" stroke="#82BF8A" stroke-width="0.5" opacity="0.12"/></svg>
+    </div>
+
+    <!-- Pollen dots — bigger -->
+    <div class="hero-dot" style="top:30%;left:22%;--delay:0s"></div>
+    <div class="hero-dot" style="top:15%;right:25%;--delay:1.2s"></div>
+    <div class="hero-dot" style="top:70%;left:8%;--delay:2.4s"></div>
+    <div class="hero-dot" style="top:60%;right:18%;--delay:0.8s"></div>
+    <div class="hero-dot" style="top:85%;right:30%;--delay:3s"></div>
+    <div class="hero-dot" style="top:45%;left:5%;--delay:1.8s"></div>
+    <div class="hero-dot" style="top:25%;right:35%;--delay:2.2s"></div>
+    <div class="hero-dot" style="top:78%;left:25%;--delay:0.4s"></div>
+  </div>
+
+  <!-- Decorative stem — right side -->
+  <div class="hero-stem" aria-hidden="true">
+    <svg viewBox="0 0 180 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M90 490 C90 490 88 400 92 340 C96 280 80 240 85 200 C90 160 78 120 82 80 C86 40 90 10 90 10" stroke="#82BF8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M90 320 C90 320 60 290 45 270 C30 250 25 230 35 220 C45 210 60 225 70 245 C80 265 90 290 90 320" stroke="#82BF8A" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <path d="M90 220 C90 220 120 195 135 180 C150 165 155 145 145 138 C135 131 120 145 110 165 C100 185 90 205 90 220" stroke="#82BF8A" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <path d="M90 140 C90 140 65 120 55 105 C45 90 42 72 50 66 C58 60 68 72 75 90 C82 108 90 128 90 140" stroke="#82BF8A" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <!-- Flower bud at top -->
+      <path d="M90 18 C85 12 78 8 78 3 C78 -2 84 -2 90 5 C96 -2 102 -2 102 3 C102 8 95 12 90 18Z" fill="#e8b4b4" opacity="0.25"/>
+      <path d="M90 18 C83 14 75 15 73 10 C71 5 77 3 84 8 C78 2 80 -4 85 -3 C90 -2 90 5 90 18Z" fill="#d9a0a0" opacity="0.2"/>
+    </svg>
+  </div>
+
+  <!-- Stem — left side -->
+  <div class="hero-stem" style="right:auto;left:6%;opacity:0.12;transform:translateY(-50%) scaleX(-1)" aria-hidden="true">
+    <svg viewBox="0 0 180 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M90 490 C90 490 92 380 88 320 C84 260 95 220 90 170 C85 120 92 60 90 10" stroke="#82BF8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M90 280 C90 280 115 255 130 240 C145 225 148 205 138 198 C128 191 115 205 105 225 C95 245 90 265 90 280" stroke="#82BF8A" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <path d="M90 170 C90 170 60 150 50 135 C40 120 38 102 48 96 C58 90 65 102 72 120 C79 138 90 158 90 170" stroke="#82BF8A" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <path d="M90 18 C85 12 78 8 78 3 C78 -2 84 -2 90 5 C96 -2 102 -2 102 3 C102 8 95 12 90 18Z" fill="#e8b4b4" opacity="0.2"/>
+    </svg>
   </div>
 
   <div class="container">
@@ -147,20 +225,18 @@
       <div class="hero-eyebrow">
         <div class="hero-eyebrow-line"></div>
         <span class="hero-eyebrow-text">Premium Wholesale Flowers</span>
+        <div class="hero-eyebrow-line" style="background:linear-gradient(90deg, rgba(130,191,138,0.5), transparent)"></div>
       </div>
       <h1 class="hero-title">
-        Nature's Finest<br><em>Blooms,</em><br>Delivered.
+        <span class="hero-line hero-line-1">Nature's Finest</span>
+        <span class="hero-line hero-line-2"><em>Blooms,</em></span>
+        <span class="hero-line hero-line-3">Delivered.</span>
       </h1>
       <p class="hero-subtitle">
         Curated wholesale flowers for florists, event planners, and anyone who appreciates beauty in full bloom.
       </p>
       <div class="hero-actions">
-        <a href="shop.html" class="btn btn-primary btn-lg btn-glow">
-          Shop the Collection
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-          </svg>
-        </a>
+        <a href="shop.html" class="btn btn-primary btn-lg">Shop the Collection</a>
         <a href="#contact" class="btn btn-outline">Get in Touch</a>
       </div>
     </div>
@@ -647,20 +723,101 @@
   }
 </style>
 
+<!-- ── Delivery Route Illustration ── -->
+<div style="background:linear-gradient(180deg,#1A2E1C 0%,#1E3A21 50%,#1A2E1C 100%);padding:80px 0;position:relative;overflow:hidden" aria-hidden="true">
+  <!-- Animated delivery route -->
+  <div style="max-width:900px;margin:0 auto;padding:0 40px;position:relative">
+    <!-- Route line — dashed, animated -->
+    <svg width="100%" height="120" viewBox="0 0 900 120" fill="none" style="display:block" preserveAspectRatio="none">
+      <!-- Dashed route path -->
+      <path d="M0 60 C150 60 200 20 350 20 C500 20 450 100 600 100 C750 100 800 60 900 60" stroke="rgba(130,191,138,0.25)" stroke-width="2" stroke-dasharray="8 6" fill="none">
+        <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <!-- Glow trail -->
+      <path d="M0 60 C150 60 200 20 350 20 C500 20 450 100 600 100 C750 100 800 60 900 60" stroke="rgba(130,191,138,0.08)" stroke-width="12" fill="none" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Delivery truck — animated along the route -->
+    <div style="position:absolute;top:0;left:0;width:100%;height:120px">
+      <div style="position:absolute;animation:truckDrive 8s ease-in-out infinite;will-change:left,top">
+        <svg width="48" height="36" viewBox="0 0 48 36" fill="none" style="filter:drop-shadow(0 2px 8px rgba(130,191,138,0.3))">
+          <!-- Truck body -->
+          <rect x="0" y="6" width="30" height="20" rx="3" fill="#2E6B35" stroke="rgba(130,191,138,0.4)" stroke-width="1"/>
+          <!-- Cab -->
+          <path d="M30 10 L38 10 L42 18 L42 26 L30 26 Z" fill="#1A2E1C" stroke="rgba(130,191,138,0.4)" stroke-width="1"/>
+          <!-- Windshield -->
+          <path d="M31 12 L36 12 L39 18 L31 18 Z" fill="rgba(130,191,138,0.2)"/>
+          <!-- Wheels -->
+          <circle cx="10" cy="28" r="4" fill="#1A2E1C" stroke="rgba(130,191,138,0.5)" stroke-width="1.5"/>
+          <circle cx="36" cy="28" r="4" fill="#1A2E1C" stroke="rgba(130,191,138,0.5)" stroke-width="1.5"/>
+          <!-- Flower on truck -->
+          <circle cx="15" cy="14" r="5" fill="rgba(232,180,180,0.5)"/>
+          <circle cx="15" cy="14" r="2.5" fill="rgba(255,200,200,0.6)"/>
+          <line x1="15" y1="19" x2="15" y2="24" stroke="#82BF8A" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Milestone dots along route -->
+    <div style="position:absolute;top:0;left:0;width:100%;height:120px;pointer-events:none">
+      <!-- Farm -->
+      <div style="position:absolute;left:5%;top:48px;text-align:center">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(130,191,138,0.15);border:1.5px solid rgba(130,191,138,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        </div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(130,191,138,0.5)">Farm</span>
+      </div>
+      <!-- Packed -->
+      <div style="position:absolute;left:38%;top:8px;text-align:center">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(130,191,138,0.15);border:1.5px solid rgba(130,191,138,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        </div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(130,191,138,0.5)">Packed</span>
+      </div>
+      <!-- En Route -->
+      <div style="position:absolute;left:65%;top:88px;text-align:center">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(130,191,138,0.15);border:1.5px solid rgba(130,191,138,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="2" stroke-linecap="round"><path d="M1 6l7-2 7 2 7-2v16l-7 2-7-2-7 2z"/><line x1="8" y1="4" x2="8" y2="20"/><line x1="15" y1="6" x2="15" y2="22"/></svg>
+        </div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(130,191,138,0.5)">En Route</span>
+      </div>
+      <!-- Delivered -->
+      <div style="position:absolute;right:5%;top:48px;text-align:center">
+        <div style="width:32px;height:32px;border-radius:50%;background:rgba(82,168,90,0.2);border:1.5px solid rgba(130,191,138,0.5);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;box-shadow:0 0 16px rgba(130,191,138,0.2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(130,191,138,0.7)">Delivered</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tagline -->
+  <p style="text-align:center;margin-top:48px;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.2rem;font-weight:300;font-style:italic;color:rgba(232,242,233,0.35);letter-spacing:0.08em">
+    From farm to your door — freshness guaranteed
+  </p>
+</div>
+
+<style>
+  @keyframes truckDrive {
+    0% { left: 2%; top: 42px; }
+    25% { left: 30%; top: 4px; }
+    50% { left: 55%; top: 4px; }
+    75% { left: 72%; top: 82px; }
+    100% { left: 88%; top: 42px; }
+  }
+</style>
+
 <!-- Section divider — Green Life branded -->
 <div style="background:linear-gradient(165deg,#1E3A21 0%,#243528 40%,#1A2E1C 100%);padding:28px 0;display:flex;align-items:center;justify-content:center" aria-hidden="true">
   <div style="display:flex;align-items:center;gap:18px;width:100%;max-width:800px;padding:0 40px">
     <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(130,191,138,0.4))"></div>
-    <!-- Left leaves -->
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(-30deg)">
       <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/>
     </svg>
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(-15deg)">
       <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
     </svg>
-    <!-- Green Life text -->
     <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-weight:300;font-style:italic;color:rgba(232,242,233,0.45);letter-spacing:0.15em;white-space:nowrap">Green Life</span>
-    <!-- Right leaves -->
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(15deg) scaleX(-1)">
       <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
     </svg>
