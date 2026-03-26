@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <title>Delivery Schedule — Green Life Flowers</title>
+  <meta name="description" content="See our weekly delivery schedule. Green Life Flowers delivers Monday through Thursday across the Bay Area. Orders placed by Thursday for next week's delivery." />
+  <meta name="theme-color" content="#f9fafb" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+
+  <style>
+    /* ── Nav on dark hero ──────────────────────────────────────── */
+    .nav .nav-link { color: rgba(255,255,255,0.85) !important; }
+    .nav .nav-link:hover { color: #fff !important; }
+    .nav .nav-link::after { background: #fff !important; }
+    .nav .nav-link[style*="color:var(--sage-dark)"] { color: #fff !important; }
+    .nav .nav-cart-btn { color: rgba(255,255,255,0.9); }
+    .nav.scrolled .nav-link { color: var(--text) !important; }
+    .nav.scrolled .nav-link:hover { color: var(--dark) !important; }
+    .nav.scrolled .nav-link::after { background: var(--sage) !important; }
+    .nav.scrolled .nav-link[style*="color:var(--sage-dark)"] { color: var(--sage-dark) !important; }
+    .nav.scrolled .nav-cart-btn { color: var(--dark); }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .sched-hero {
+      position: relative;
+      padding: calc(var(--nav-height) + 10px) 0 20px;
+      overflow: hidden;
+      background: linear-gradient(165deg, #0d1f0e 0%, #142716 30%, #1a3420 60%, #0f2012 100%);
+    }
+    .sched-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 600px 400px at 20% 40%, rgba(82,168,90,0.25), transparent),
+        radial-gradient(ellipse 500px 500px at 80% 20%, rgba(61,140,68,0.12), transparent),
+        radial-gradient(ellipse 300px 300px at 60% 80%, rgba(109,184,116,0.08), transparent);
+      pointer-events: none;
+    }
+
+    /* ── Falling Leaves in Hero ─────────────────────────────── */
+    .sched-hero-botanical {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .sched-hero-botanical .falling-leaf {
+      will-change: top, transform, rotate;
+    }
+    .sched-hero-botanical .falling-leaf svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Floating particles in hero */
+    .sched-hero-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .sched-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(130, 191, 138, 0.4);
+      border-radius: 50%;
+      animation: schedParticleFloat 8s ease-in-out infinite;
+    }
+    .sched-particle:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; animation-duration: 7s; }
+    .sched-particle:nth-child(2) { top: 40%; left: 25%; animation-delay: 1.5s; animation-duration: 9s; width: 2px; height: 2px; }
+    .sched-particle:nth-child(3) { top: 15%; right: 20%; animation-delay: 3s; animation-duration: 11s; }
+    .sched-particle:nth-child(4) { top: 55%; right: 15%; animation-delay: 0.8s; animation-duration: 8s; width: 4px; height: 4px; }
+    .sched-particle:nth-child(5) { top: 70%; left: 40%; animation-delay: 2.5s; animation-duration: 10s; }
+    .sched-particle:nth-child(6) { top: 30%; left: 60%; animation-delay: 4s; animation-duration: 6s; width: 2px; height: 2px; }
+    .sched-particle:nth-child(7) { top: 80%; right: 30%; animation-delay: 1s; animation-duration: 12s; }
+    .sched-particle:nth-child(8) { top: 10%; left: 50%; animation-delay: 5s; animation-duration: 9s; width: 2px; height: 2px; }
+
+    @keyframes schedParticleFloat {
+      0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+      20% { opacity: 1; }
+      50% { opacity: 0.6; transform: translateY(-40px) scale(1.5); }
+      80% { opacity: 1; }
+    }
+
+    /* Hero content — animated entrances */
+    .sched-hero-content {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+    }
+    .sched-hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: var(--space-lg);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease-out) 0.2s both;
+    }
+    .sched-hero-eyebrow-line {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(130,191,138,0.6), transparent);
+    }
+    .sched-hero-eyebrow-text {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(130,191,138,0.8);
+    }
+    .sched-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: schedHeroTitleIn 1s var(--ease-out) 0.4s both;
+    }
+    @keyframes schedHeroTitleIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .sched-hero-sub {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.65);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease-out) 0.65s both;
+    }
+
+    /* Stats row in hero */
+    .sched-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      padding: 12px 0;
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease-out) 0.9s both;
+    }
+    .sched-stat { text-align: center; }
+    .sched-stat-number {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #fff;
+      display: block;
+      line-height: 1.2;
+    }
+    .sched-stat-label {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 4px;
+    }
+    .sched-stat-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.18);
+      align-self: center;
+    }
+
+    /* Scroll hint */
+    .sched-scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      opacity: 0;
+      animation: fadeIn 1s var(--ease-smooth) 1.2s both;
+    }
+    .sched-scroll-hint span {
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+    .sched-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(130,191,138,0.5), transparent);
+      animation: schedScrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes schedScrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* Wave transition */
+    .sched-hero-wave {
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      z-index: 3;
+    }
+    .sched-hero-wave svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Grain */
+    .sched-hero-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ── Weekly Timeline Section ────────────────────────────────── */
+    .sched-timeline-section {
+      background: var(--cream);
+      padding: var(--space-xl) 0 var(--space-2xl);
+      position: relative;
+    }
+
+    .sched-section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto var(--space-lg);
+    }
+    .sched-section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .sched-section-sub {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* Day cards — horizontal on desktop, vertical on mobile */
+    .sched-week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+    }
+
+    .sched-day-card {
+      background: var(--cream-card);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: transform var(--duration-base) var(--ease-smooth),
+                  box-shadow var(--duration-base) var(--ease-smooth),
+                  border-color var(--duration-base) var(--ease-smooth);
+    }
+    .sched-day-card.animate-in {
+      animation: schedCardIn 0.5s var(--ease-out) both;
+    }
+    @keyframes schedCardIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .sched-day-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    /* Delivery day — green accent */
+    .sched-day-card.delivery {
+      border-color: rgba(90,148,96,0.25);
+      background: linear-gradient(180deg, #f6fbf6 0%, #ffffff 100%);
+    }
+    .sched-day-card.delivery:hover {
+      border-color: rgba(90,148,96,0.45);
+      box-shadow: 0 8px 32px rgba(90,148,96,0.12), 0 24px 64px rgba(0,0,0,0.05);
+    }
+    .sched-day-card.delivery .sched-day-indicator {
+      background: var(--sage);
+      box-shadow: 0 0 12px rgba(90,148,96,0.35);
+    }
+
+    /* Order day — gold/amber accent */
+    .sched-day-card.order-day {
+      border-color: rgba(180,140,40,0.25);
+      background: linear-gradient(180deg, #fdfbf4 0%, #ffffff 100%);
+    }
+    .sched-day-card.order-day:hover {
+      border-color: rgba(180,140,40,0.45);
+      box-shadow: 0 8px 32px rgba(180,140,40,0.12), 0 24px 64px rgba(0,0,0,0.05);
+    }
+    .sched-day-card.order-day .sched-day-indicator {
+      background: #b48c28;
+      box-shadow: 0 0 12px rgba(180,140,40,0.35);
+    }
+
+    /* Off day */
+    .sched-day-card.off {
+      opacity: 0.55;
+      background: var(--cream-deep);
+    }
+
+    .sched-day-name {
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .sched-day-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      background: var(--cream-deep);
+      border: 1.5px solid rgba(0,0,0,0.08);
+    }
+
+    .sched-day-label {
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .sched-day-card.delivery .sched-day-label { color: var(--sage-dark); }
+    .sched-day-card.order-day .sched-day-label { color: #8a6d1b; }
+    .sched-day-card.off .sched-day-label { color: var(--text-muted); }
+
+    .sched-day-icon {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── How It Works ──────────────────────────────────────────── */
+    .sched-how-section {
+      background: linear-gradient(180deg, #1A2E1C 0%, #162019 50%, #1A2E1C 100%);
+      padding: var(--space-3xl) 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .sched-how-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 500px 400px at 20% 50%, rgba(82,168,90,0.08), transparent),
+        radial-gradient(ellipse 400px 400px at 80% 30%, rgba(61,140,68,0.06), transparent);
+      pointer-events: none;
+    }
+    .sched-how-grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+    }
+
+    .sched-how-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+    }
+
+    .sched-how-header {
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+    }
+    .sched-how-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 500;
+      color: #f4f0eb;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .sched-how-sub {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(232,242,233,0.4);
+    }
+
+    /* Timeline steps */
+    .sched-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Vertical line connecting steps */
+    .sched-steps::before {
+      content: '';
+      position: absolute;
+      left: 28px;
+      top: 32px;
+      bottom: 32px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(130,191,138,0.15), rgba(130,191,138,0.35), rgba(130,191,138,0.15));
+      border-radius: 2px;
+    }
+
+    .sched-step {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      padding: 24px 0;
+      position: relative;
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    .sched-step.animate-in {
+      animation: schedStepIn 0.6s var(--ease-out) both;
+    }
+    @keyframes schedStepIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .sched-step-dot {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: 50%;
+      background: rgba(130,191,138,0.08);
+      border: 1.5px solid rgba(130,191,138,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sched-step-body {
+      padding-top: 6px;
+    }
+    .sched-step-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: #f4f0eb;
+      margin-bottom: 6px;
+    }
+    .sched-step-text {
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(232,242,233,0.5);
+      line-height: 1.7;
+    }
+    .sched-step-highlight {
+      color: var(--sage-light);
+      font-weight: 500;
+    }
+
+    /* ── Key Info Cards ────────────────────────────────────────── */
+    .sched-info-section {
+      background: var(--cream);
+      padding: var(--space-3xl) 0;
+    }
+    .sched-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+    }
+    .sched-info-card {
+      background: var(--cream-card);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: transform var(--duration-base) var(--ease-smooth),
+                  box-shadow var(--duration-base) var(--ease-smooth);
+    }
+    .sched-info-card.animate-in {
+      animation: schedCardIn 0.5s var(--ease-out) both;
+    }
+    .sched-info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-card-hover);
+    }
+    .sched-info-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--sage-pale);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .sched-info-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+    .sched-info-text {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+
+    /* ── CTA Banner ────────────────────────────────────────────── */
+    .sched-cta {
+      background: linear-gradient(165deg, #0d1f0e 0%, #1a3420 50%, #0f2012 100%);
+      padding: 80px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .sched-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 600px 300px at 50% 50%, rgba(82,168,90,0.12), transparent);
+      pointer-events: none;
+    }
+    .sched-cta-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+    }
+    .sched-cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 500;
+      color: #f4f0eb;
+      margin-bottom: 12px;
+    }
+    .sched-cta-text {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(232,242,233,0.45);
+      margin-bottom: 32px;
+    }
+    .sched-cta-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Legend ─────────────────────────────────────────────────── */
+    .sched-legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-top: var(--space-xl);
+      padding: 0 var(--container-pad);
+    }
+    .sched-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .sched-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .sched-legend-dot.delivery { background: var(--sage); box-shadow: 0 0 8px rgba(90,148,96,0.3); }
+    .sched-legend-dot.order { background: #b48c28; box-shadow: 0 0 8px rgba(180,140,40,0.3); }
+    .sched-legend-dot.off { background: var(--cream-deep); border: 1.5px solid rgba(0,0,0,0.1); }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sched-week-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .sched-info-grid {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+      }
+    }
+    @media (max-width: 640px) {
+      .sched-hero {
+        padding: calc(var(--nav-height) + 48px) 0 72px;
+      }
+      .sched-stats { gap: 24px; }
+      .sched-stat-number { font-size: 1.3rem; }
+      .sched-scroll-hint { display: none; }
+    }
+    @media (max-width: 600px) {
+      .sched-week-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .sched-day-card {
+        padding: 20px 12px;
+      }
+      .sched-steps::before {
+        left: 22px;
+      }
+      .sched-step {
+        gap: 20px;
+      }
+      .sched-step-dot {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     CART BACKDROP + DRAWER
+     ══════════════════════════════════════════════ -->
+<div class="cart-backdrop" id="cartBackdrop" role="presentation"></div>
+
+<aside class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Shopping cart" aria-modal="true">
+  <div class="cart-drawer-header">
+    <div>
+      <h2 class="cart-drawer-title">Your Cart</h2>
+      <span class="cart-item-count-label" data-cart-item-count-label>0 items</span>
+    </div>
+    <button class="cart-close-btn" data-close-cart aria-label="Close cart">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="cart-empty-state" id="cartEmpty">
+    <div class="cart-empty-icon">🌷</div>
+    <div class="cart-empty-title">Your cart is empty</div>
+    <p class="cart-empty-text">Add some beautiful blooms to get started.</p>
+    <button class="btn btn-ghost btn-sm" data-continue-shopping>Browse Flowers</button>
+  </div>
+  <div class="cart-items-list" id="cartItemsList" role="list"></div>
+  <div class="cart-drawer-footer">
+    <div class="cart-summary-row">
+      <span>Subtotal</span>
+      <span data-cart-subtotal>$0.00</span>
+    </div>
+    <div class="cart-summary-row total">
+      <span>Estimated Total</span>
+      <span data-cart-total>$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" data-go-checkout>
+      Proceed to Order
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </button>
+    <button class="cart-continue-btn" data-continue-shopping>← Continue Shopping</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════
+     NAVIGATION
+     ══════════════════════════════════════════════ -->
+<nav class="nav" id="mainNav" role="navigation" aria-label="Main navigation">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo" id="navLogo" aria-label="Green Life Flowers home" title="Green Life Flowers">
+      <img src="brand_assets/green life logo.png" alt="Green Life Flowers logo" />
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="shop.html" class="nav-link">Shop</a></li>
+      <li><a href="about.html" class="nav-link">About Us</a></li>
+      <li><a href="schedule.html" class="nav-link" style="color:var(--sage-dark)">Schedule</a></li>
+      <li><a href="faq.html" class="nav-link">FAQ</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="nav-cart-btn" data-open-cart aria-label="Open shopping cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span>Cart</span>
+        <span class="cart-count" data-cart-count style="display:none">0</span>
+      </button>
+      <button class="nav-mobile-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════ -->
+<section class="sched-hero" aria-label="Delivery schedule hero">
+  <!-- Falling leaves container (JS-generated) -->
+  <div id="schedLeavesContainer" class="sched-hero-botanical" aria-hidden="true"></div>
+
+  <!-- Floating particles -->
+  <div class="sched-hero-particles">
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+    <div class="sched-particle"></div>
+  </div>
+
+  <div class="sched-hero-grain" aria-hidden="true"></div>
+
+  <div class="container sched-hero-content">
+    <div class="sched-hero-eyebrow">
+      <div class="sched-hero-eyebrow-line"></div>
+      <span class="sched-hero-eyebrow-text">Delivery Schedule</span>
+      <div class="sched-hero-eyebrow-line"></div>
+    </div>
+    <h1 class="sched-hero-title">Know When<br>We Deliver</h1>
+    <p class="sched-hero-sub">We deliver fresh flowers Monday through Thursday across the Bay Area. Plan your orders around our weekly schedule so you never miss a delivery.</p>
+
+    <!-- Stats -->
+    <div class="sched-stats">
+      <div class="sched-stat">
+        <span class="sched-stat-number" data-count="4">0</span>
+        <div class="sched-stat-label">Delivery Days</div>
+      </div>
+      <div class="sched-stat-divider"></div>
+      <div class="sched-stat">
+        <span class="sched-stat-number">Thu</span>
+        <div class="sched-stat-label">Order Day</div>
+      </div>
+      <div class="sched-stat-divider"></div>
+      <div class="sched-stat">
+        <span class="sched-stat-number">Bay Area</span>
+        <div class="sched-stat-label">Coverage</div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="sched-scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="sched-scroll-line"></div>
+    </div>
+  </div>
+
+  <!-- Falling leaves script -->
+  <script>
+  (function(){
+    var c = document.getElementById('schedLeavesContainer');
+    if (!c) return;
+
+    var leafSVGs = [
+      '<svg viewBox="0 0 40 58"><path d="M20 2C20 2 4 15 4 31C4 46 12 56 20 56C28 56 36 46 36 31C36 15 20 2 20 2Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 52 68"><path d="M26 2C26 2 4 20 4 40C4 56 14 66 26 66C38 66 48 56 48 40C48 20 26 2 26 2Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 24 38"><path d="M12 1C12 1 2 12 2 23C2 33 7 37 12 37C17 37 22 33 22 23C22 12 12 1 12 1Z" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 36 50"><ellipse cx="18" cy="25" rx="16" ry="23" fill="COLOR" opacity="OP"/></svg>',
+      '<svg viewBox="0 0 30 46"><path d="M15 2C15 2 2 16 2 28C2 40 8 44 15 44C22 44 28 40 28 28C28 16 15 2 15 2Z" fill="COLOR" opacity="OP"/></svg>'
+    ];
+    var colors = ['#5A9460','#3D8C44','#82BF8A','#6DB874','#52A85A','#4E9455'];
+    var COUNT = 22;
+
+    for (var i = 0; i < COUNT; i++) {
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      var svg = leafSVGs[Math.floor(Math.random() * leafSVGs.length)];
+      var op = (0.15 + Math.random() * 0.25).toFixed(2);
+      svg = svg.replace('COLOR', color).replace('OP', op);
+
+      var el = document.createElement('div');
+      el.className = 'falling-leaf';
+      el.innerHTML = svg;
+
+      var size = 22 + Math.random() * 32;
+      var x = Math.random() * 100;
+      var dur = 10 + Math.random() * 6;
+      var swayDur = 3 + Math.random() * 3;
+      var sway = 40 + Math.random() * 60;
+      var rotStart = Math.random() * 360;
+      var rotEnd = rotStart + (Math.random() - 0.5) * 400;
+      var neg = -(i / COUNT * dur).toFixed(2);
+
+      el.style.cssText =
+        'position:absolute;top:-60px;left:' + x + '%;width:' + size + 'px;height:auto;opacity:1;' +
+        'animation:leafFall ' + dur + 's ' + neg + 's linear infinite,' +
+        'leafSway ' + swayDur + 's ' + neg + 's ease-in-out infinite alternate,' +
+        'leafSpin ' + (dur * 0.7) + 's ' + neg + 's linear infinite;' +
+        '--sway:' + sway + 'px;--rotate-start:' + rotStart + 'deg;--rotate-end:' + rotEnd + 'deg;';
+
+      c.appendChild(el);
+    }
+  })();
+  </script>
+
+  <!-- Wave transition -->
+  <div class="sched-hero-wave">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="var(--cream)">
+      <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     WEEKLY CALENDAR
+     ══════════════════════════════════════════════ -->
+<section class="sched-timeline-section reveal" aria-label="Weekly delivery schedule">
+  <div class="sched-section-header">
+    <div class="section-eyebrow" style="justify-content:center;margin-bottom:20px">
+      <div class="section-eyebrow-line"></div>
+      <span class="label-caps">Weekly Overview</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="sched-section-title">Our Week at a Glance</h2>
+    <p class="sched-section-sub">Deliveries run Monday through Thursday. Orders are placed every Thursday for the following week.</p>
+  </div>
+
+  <div class="sched-week-grid">
+    <!-- Monday -->
+    <div class="sched-day-card delivery">
+      <div class="sched-day-name">Mon</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/><polyline points="16 8 20 8 23 11 23 16 20 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">Delivery Day</div>
+    </div>
+
+    <!-- Tuesday -->
+    <div class="sched-day-card delivery">
+      <div class="sched-day-name">Tue</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/><polyline points="16 8 20 8 23 11 23 16 20 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">Delivery Day</div>
+    </div>
+
+    <!-- Wednesday -->
+    <div class="sched-day-card delivery">
+      <div class="sched-day-name">Wed</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13" rx="2"/><polyline points="16 8 20 8 23 11 23 16 20 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">Delivery Day</div>
+    </div>
+
+    <!-- Thursday -->
+    <div class="sched-day-card order-day">
+      <div class="sched-day-name">Thu</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a6d1b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">Delivery Day<br>&amp; Order Day</div>
+    </div>
+
+    <!-- Friday -->
+    <div class="sched-day-card off">
+      <div class="sched-day-name">Fri</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.75" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">No Delivery</div>
+    </div>
+
+    <!-- Saturday -->
+    <div class="sched-day-card off">
+      <div class="sched-day-name">Sat</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.75" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">No Delivery</div>
+    </div>
+
+    <!-- Sunday -->
+    <div class="sched-day-card off">
+      <div class="sched-day-name">Sun</div>
+      <div class="sched-day-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.75" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+      </div>
+      <div class="sched-day-indicator"></div>
+      <div class="sched-day-label">No Delivery</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="sched-legend">
+    <div class="sched-legend-item">
+      <div class="sched-legend-dot delivery"></div>
+      <span>Delivery Day</span>
+    </div>
+    <div class="sched-legend-item">
+      <div class="sched-legend-dot order"></div>
+      <span>Flower Ordering Day</span>
+    </div>
+    <div class="sched-legend-item">
+      <div class="sched-legend-dot off"></div>
+      <span>No Delivery</span>
+    </div>
+  </div>
+</section>
+
+<!-- Section divider — Green Life branded -->
+<div style="background:linear-gradient(180deg,#1A2E1C 0%,#1E3A21 50%,#1A2E1C 100%);padding:28px 0;display:flex;align-items:center;justify-content:center" aria-hidden="true">
+  <div style="display:flex;align-items:center;gap:18px;width:100%;max-width:800px;padding:16px 40px;border:2px solid rgba(255,255,255,0.3);border-radius:60px;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);box-shadow:0 0 20px rgba(255,255,255,0.08),0 0 60px rgba(255,255,255,0.05),0 0 120px rgba(255,255,255,0.03)">
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(130,191,138,0.4))"></div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(-30deg)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/>
+    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(-15deg)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
+    </svg>
+    <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-weight:300;font-style:italic;color:rgba(232,242,233,0.45);letter-spacing:0.15em;white-space:nowrap">Green Life</span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(15deg) scaleX(-1)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
+    </svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(30deg) scaleX(-1)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/>
+    </svg>
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(130,191,138,0.4),transparent)"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     HOW IT WORKS — TIMELINE
+     ══════════════════════════════════════════════ -->
+<section class="sched-how-section reveal" aria-label="How ordering works">
+  <div class="sched-how-grain" aria-hidden="true"></div>
+  <div class="sched-how-content">
+    <div class="sched-how-header">
+      <div class="section-eyebrow" style="justify-content:center;margin-bottom:20px">
+        <div class="section-eyebrow-line" style="background:var(--sage-light)"></div>
+        <span class="label-caps" style="color:var(--sage-light)">How It Works</span>
+        <div class="section-eyebrow-line" style="background:var(--sage-light)"></div>
+      </div>
+      <h2 class="sched-how-title">From Order to Your Door</h2>
+      <p class="sched-how-sub">Our simple weekly cycle keeps your flowers fresh and your schedule predictable.</p>
+    </div>
+
+    <div class="sched-steps">
+      <!-- Step 1 -->
+      <div class="sched-step">
+        <div class="sched-step-dot">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+        </div>
+        <div class="sched-step-body">
+          <h3 class="sched-step-title">Place Your Order</h3>
+          <p class="sched-step-text">Browse our shop and submit your wholesale order anytime during the week. Orders are collected on a rolling basis.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="sched-step">
+        <div class="sched-step-dot">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <div class="sched-step-body">
+          <h3 class="sched-step-title">Thursday — We Order the Flowers</h3>
+          <p class="sched-step-text">Every <span class="sched-step-highlight">Thursday</span>, we compile all orders and source the freshest blooms from our growers. This is our weekly ordering day.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="sched-step">
+        <div class="sched-step-dot">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+          </svg>
+        </div>
+        <div class="sched-step-body">
+          <h3 class="sched-step-title">Flowers Arrive &amp; Get Prepped</h3>
+          <p class="sched-step-text">Fresh-cut blooms arrive, are hydrated, quality-checked, and packed with care — ready for delivery the following week.</p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="sched-step">
+        <div class="sched-step-dot">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82BF8A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2"/><polyline points="16 8 20 8 23 11 23 16 20 16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </div>
+        <div class="sched-step-body">
+          <h3 class="sched-step-title">Monday–Thursday — Delivery</h3>
+          <p class="sched-step-text">Your flowers are delivered <span class="sched-step-highlight">Monday through Thursday</span> across the Bay Area. We'll coordinate timing that works for your business.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section divider — Green Life branded -->
+<div style="background:linear-gradient(180deg,#1A2E1C 0%,#152118 100%);padding:28px 0;display:flex;align-items:center;justify-content:center" aria-hidden="true">
+  <div style="display:flex;align-items:center;gap:18px;width:100%;max-width:800px;padding:16px 40px;border:2px solid rgba(255,255,255,0.3);border-radius:60px;background:rgba(255,255,255,0.03);backdrop-filter:blur(6px);box-shadow:0 0 20px rgba(255,255,255,0.08),0 0 60px rgba(255,255,255,0.05),0 0 120px rgba(255,255,255,0.03)">
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(130,191,138,0.4))"></div>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(-30deg)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/>
+    </svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(-15deg)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
+    </svg>
+    <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-weight:300;font-style:italic;color:rgba(232,242,233,0.45);letter-spacing:0.15em;white-space:nowrap">Green Life</span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(15deg) scaleX(-1)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/>
+    </svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(30deg) scaleX(-1)">
+      <path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/>
+    </svg>
+    <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(130,191,138,0.4),transparent)"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     KEY INFO CARDS
+     ══════════════════════════════════════════════ -->
+<section class="sched-info-section reveal" aria-label="Delivery details">
+  <div class="sched-section-header">
+    <div class="section-eyebrow" style="justify-content:center;margin-bottom:20px">
+      <div class="section-eyebrow-line"></div>
+      <span class="label-caps">Good to Know</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="sched-section-title">Delivery Details</h2>
+  </div>
+
+  <div class="sched-info-grid">
+    <!-- Card 1 -->
+    <div class="sched-info-card">
+      <div class="sched-info-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3 class="sched-info-title">Order Cutoff</h3>
+      <p class="sched-info-text">Place your order by <strong>Wednesday evening</strong> to be included in that week's Thursday flower order. Orders after that go to the following week.</p>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="sched-info-card">
+      <div class="sched-info-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <h3 class="sched-info-title">Bay Area Delivery</h3>
+      <p class="sched-info-text">We deliver across the Bay Area — San Francisco, Oakland, San Jose, and surrounding cities. Contact us to confirm your area.</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="sched-info-card">
+      <div class="sched-info-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E6B35" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h3 class="sched-info-title">Freshness Promise</h3>
+      <p class="sched-info-text">Flowers are ordered fresh every Thursday and delivered within days. No sitting in warehouses — straight from the farm to you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     CTA
+     ══════════════════════════════════════════════ -->
+<section class="sched-cta" aria-label="Call to action">
+  <div class="sched-cta-inner">
+    <h2 class="sched-cta-title">Ready to Place an Order?</h2>
+    <p class="sched-cta-text">Browse our full collection and get your wholesale order in before Thursday.</p>
+    <div class="sched-cta-actions">
+      <a href="shop.html" class="btn btn-primary btn-lg btn-glow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12c2-3 4-4 4-4s2 1 4 4"/><path d="M9 16c1.5-2 3-2.5 3-2.5s1.5.5 3 2.5"/></svg>
+        Shop All Flowers
+      </a>
+      <a href="index.html#contact" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.8)">Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════ -->
+<footer class="footer" id="footer" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div>
+        <div class="footer-brand-logo">
+          <img src="brand_assets/green life logo.png" alt="Green Life Flowers" />
+        </div>
+        <p class="footer-brand-text">
+          Premium wholesale flowers for florists, event planners, and businesses. Sustainably grown, beautifully delivered.
+        </p>
+        <div class="footer-social">
+          <a href="#" class="footer-social-link" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="footer-social-link" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" class="footer-social-link" aria-label="Pinterest">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.03-2.83.19-.77 1.28-5.43 1.28-5.43s-.33-.66-.33-1.63c0-1.53.89-2.67 1.99-2.67.94 0 1.4.71 1.4 1.56 0 .95-.61 2.37-.92 3.69-.26 1.1.55 2 1.63 2 1.96 0 3.28-2.5 3.28-5.46 0-2.26-1.53-3.99-4.33-3.99-3.15 0-5.12 2.35-5.12 4.97 0 .9.26 1.53.66 2.02.18.22.21.3.14.55-.05.18-.16.61-.2.78-.06.24-.25.33-.46.24-1.3-.54-1.91-1.98-1.91-3.6 0-2.66 2.24-5.84 6.68-5.84 3.59 0 5.96 2.6 5.96 5.39 0 3.69-2.04 6.45-5.03 6.45-1 0-1.96-.54-2.28-1.14l-.62 2.38c-.22.87-.81 1.96-1.21 2.62.91.28 1.87.43 2.87.43 5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop -->
+      <div>
+        <h3 class="footer-col-title">Shop</h3>
+        <ul class="footer-links">
+          <li><a href="shop.html" class="footer-link">Roses</a></li>
+        </ul>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <h3 class="footer-col-title">Info</h3>
+        <ul class="footer-links">
+          <li><a href="about.html" class="footer-link">About Us</a></li>
+          <li><a href="index.html#contact" class="footer-link">Contact Us</a></li>
+          <li><a href="faq.html" class="footer-link">Wholesale FAQ</a></li>
+          <li><a href="schedule.html" class="footer-link">Delivery Schedule</a></li>
+          <li><a href="#" class="footer-link">Care Guide</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h3 class="footer-col-title">Contact</h3>
+        <div class="footer-contact-item">
+          <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.15a16 16 0 006.93 6.93l1.51-1.51a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <span>1 (415) 412-6225</span>
+        </div>
+        <div class="footer-contact-item">
+          <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span>henryalanromero@hotmail.com</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <span>&copy; 2026 Green Life Flowers. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="privacy.html" class="footer-bottom-link">Privacy</a>
+        <a href="privacy.html" class="footer-bottom-link">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── Scripts ──────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/db.js"></script>
+
+<script src="js/delivery-banner.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/flower-list.js"></script>
+<script src="js/app.js"></script>
+<script src="js/store-credit.js"></script>
+<script src="js/refunds.js"></script>
+<script src="js/whatsapp-button.js"></script>
+<script src="js/cookie-consent.js"></script>
+
+<!-- Schedule page animations -->
+<script>
+(function(){
+  /* ── Scroll-triggered animate-in ── */
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        // Stagger delay for sibling cards
+        var parent = el.parentElement;
+        var siblings = parent ? Array.from(parent.children).filter(function(c) {
+          return c.classList.contains('sched-day-card') ||
+                 c.classList.contains('sched-info-card') ||
+                 c.classList.contains('sched-step');
+        }) : [];
+        var idx = siblings.indexOf(el);
+        if (idx > 0) {
+          el.style.animationDelay = (idx * 0.08) + 's';
+        }
+        el.classList.add('animate-in');
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  // Observe all animatable elements
+  document.querySelectorAll('.sched-day-card, .sched-info-card, .sched-step').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  /* ── Counter animation for stats ── */
+  function animateCounters() {
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      var target = parseInt(el.getAttribute('data-count'));
+      var duration = 1200;
+      var start = performance.now();
+
+      function tick(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Animate counters when stats section is visible
+  var statsObs = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting) {
+      animateCounters();
+      statsObs.disconnect();
+    }
+  }, { threshold: 0.5 });
+
+  var statsEl = document.querySelector('.sched-stats');
+  if (statsEl) statsObs.observe(statsEl);
+})();
+</script>
+</body>
+</html>
