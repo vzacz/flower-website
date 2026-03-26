@@ -195,12 +195,13 @@
       height: auto;
     }
 
-    /* ── FAQ Content Area ─────────────────────────────────────── */
+    /* ── FAQ Content Area — Dark Theme ───────────────────────── */
     .faq-content-area {
       padding-top: var(--space-3xl);
       padding-bottom: var(--space-4xl);
       min-height: 50vh;
       position: relative;
+      background: linear-gradient(180deg, #0f2012 0%, #132916 40%, #0d1f0e 100%);
     }
 
     /* Subtle background pattern */
@@ -211,7 +212,7 @@
       transform: translateX(-50%);
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle, rgba(82,168,90,0.04), transparent 70%);
+      background: radial-gradient(circle, rgba(82,168,90,0.08), transparent 70%);
       pointer-events: none;
     }
 
@@ -245,19 +246,19 @@
     .faq-category-icon {
       width: 32px;
       height: 32px;
-      background: linear-gradient(135deg, var(--sage-pale), rgba(130,191,138,0.2));
+      background: linear-gradient(135deg, rgba(130,191,138,0.2), rgba(82,168,90,0.1));
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--sage-dark);
+      color: #82BF8A;
       flex-shrink: 0;
       transition: transform 0.3s var(--ease-spring), box-shadow 0.3s var(--ease-smooth);
     }
 
     .faq-category:hover .faq-category-icon {
       transform: scale(1.1) rotate(-5deg);
-      box-shadow: 0 4px 12px rgba(46,107,53,0.15);
+      box-shadow: 0 4px 12px rgba(82,168,90,0.2);
     }
 
     .faq-category-text {
@@ -266,21 +267,22 @@
       font-weight: 600;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--sage-dark);
+      color: #82BF8A;
     }
 
     /* ── Accordion Items — Animated ───────────────────────────── */
     .faq-item {
-      background: var(--cream-card);
+      background: rgba(255,255,255,0.04);
       border-radius: var(--radius-md);
-      border: 1px solid rgba(74, 124, 89, 0.08);
+      border: 2px solid rgba(255,255,255,0.25);
       margin-bottom: var(--space-md);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.02);
+      box-shadow: 0 2px 16px rgba(82,168,90,0.1), 0 4px 24px rgba(0,0,0,0.2);
       overflow: hidden;
       transition:
         box-shadow 0.4s var(--ease-smooth),
         transform 0.4s var(--ease-smooth),
-        border-color 0.4s var(--ease-smooth);
+        border-color 0.4s var(--ease-smooth),
+        background 0.4s var(--ease-smooth);
       opacity: 0;
       transform: translateY(20px);
       position: relative;
@@ -310,9 +312,10 @@
     }
 
     .faq-item:hover {
-      box-shadow: 0 8px 32px rgba(46,107,53,0.08), 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: 0 8px 40px rgba(82,168,90,0.2), 0 4px 16px rgba(0,0,0,0.25);
       transform: translateY(-2px);
-      border-color: rgba(74, 124, 89, 0.18);
+      border-color: rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.06);
     }
 
     .faq-item:hover::before {
@@ -320,8 +323,9 @@
     }
 
     .faq-item.open {
-      box-shadow: 0 8px 32px rgba(46,107,53,0.1), 0 2px 8px rgba(0,0,0,0.04);
-      border-color: rgba(74, 124, 89, 0.22);
+      box-shadow: 0 8px 48px rgba(82,168,90,0.25), 0 4px 20px rgba(0,0,0,0.25);
+      border-color: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.07);
     }
 
     .faq-item.open::before {
@@ -342,7 +346,7 @@
       font-family: var(--font-display);
       font-size: 1.05rem;
       font-weight: 500;
-      color: var(--dark);
+      color: rgba(255,255,255,0.88);
       line-height: 1.4;
       transition: color 0.25s var(--ease-smooth), padding-left 0.3s var(--ease-smooth);
     }
@@ -350,7 +354,7 @@
     .faq-item:hover .faq-question,
     .faq-item.open .faq-question {
       padding-left: 34px;
-      color: var(--sage-dark);
+      color: #82BF8A;
     }
 
     .faq-question:focus-visible {
@@ -367,12 +371,12 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      background: var(--sage-pale);
+      background: rgba(130,191,138,0.15);
       transition: background 0.3s var(--ease-smooth), transform 0.5s var(--ease-spring);
     }
 
     .faq-item:hover .faq-chevron-wrap {
-      background: rgba(82,168,90,0.25);
+      background: rgba(130,191,138,0.25);
     }
 
     .faq-item.open .faq-chevron-wrap {
@@ -384,7 +388,7 @@
       width: 16px;
       height: 16px;
       flex-shrink: 0;
-      color: var(--sage-dark);
+      color: rgba(130,191,138,0.7);
       transition: color 0.3s var(--ease-smooth);
     }
 
@@ -411,8 +415,8 @@
       font-family: var(--font-body);
       font-size: 0.9rem;
       line-height: 1.75;
-      color: var(--text-light);
-      border-top: 1px solid rgba(74, 124, 89, 0.08);
+      color: rgba(255,255,255,0.55);
+      border-top: 1px solid rgba(130,191,138,0.12);
       padding-top: 18px;
       margin-top: 0;
       opacity: 0;
@@ -425,13 +429,20 @@
       transform: translateY(0);
     }
 
-    /* Section Divider — Animated */
+    /* Section Divider — Branded */
     .faq-section-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(74, 124, 89, 0.15), transparent);
       margin: var(--space-2xl) 0;
       position: relative;
       opacity: 0;
+    }
+
+    .faq-branded-divider {
+      height: auto;
+      background: none;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .faq-section-divider.animate-in {
@@ -439,21 +450,8 @@
     }
 
     @keyframes dividerExpand {
-      from { opacity: 0; transform: scaleX(0); }
+      from { opacity: 0; transform: scaleX(0.5); }
       to { opacity: 1; transform: scaleX(1); }
-    }
-
-    .faq-section-divider::after {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 6px;
-      height: 6px;
-      background: var(--sage-light);
-      border-radius: 50%;
-      opacity: 0.5;
     }
 
     /* ── CTA — Elevated ──────────────────────────────────────── */
@@ -463,7 +461,7 @@
       padding: var(--space-2xl) var(--space-xl);
       background: linear-gradient(135deg, #0d1f0e, #1a3420, #142716);
       border-radius: var(--radius-xl);
-      border: 1px solid rgba(130,191,138,0.15);
+      border: 2px solid rgba(255,255,255,0.25);
       position: relative;
       overflow: hidden;
       opacity: 0;
@@ -756,7 +754,7 @@
 
   <!-- Wave transition -->
   <div class="faq-hero-wave">
-    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="var(--cream)">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" fill="#0f2012">
       <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z"/>
     </svg>
   </div>
@@ -908,7 +906,7 @@
     var answerIdx = 0;
 
     data.forEach(function(cat, catIdx) {
-      if (catIdx > 0) html += '<div class="faq-section-divider"></div>';
+      if (catIdx > 0) html += '<div class="faq-section-divider faq-branded-divider" aria-hidden="true"><div style="display:flex;align-items:center;gap:18px;width:100%;max-width:800px;margin:0 auto;padding:0 40px"><div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(130,191,138,0.4))"></div><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(-30deg)"><path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/></svg><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(-15deg)"><path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/></svg><span style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:1.15rem;font-weight:300;font-style:italic;color:rgba(232,242,233,0.45);letter-spacing:0.15em;white-space:nowrap">Green Life</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.3;transform:rotate(15deg) scaleX(-1)"><path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#5A9460"/></svg><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;opacity:0.4;transform:rotate(30deg) scaleX(-1)"><path d="M12 2C12 2 4 7 4 12.5C4 16 7 19 10.5 19C11 19 11.5 18.9 12 18.8C12.5 18.9 13 19 13.5 19C17 19 20 16 20 12.5C20 7 12 2 12 2Z" fill="#82BF8A"/></svg><div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(130,191,138,0.4),transparent)"></div></div></div>';
 
       html += '<div class="faq-category">';
       html += '<div class="faq-category-icon">' + (iconSvg[cat.icon] || iconSvg.folder) + '</div>';
