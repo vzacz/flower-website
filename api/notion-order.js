@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
       'Status': {
         select: { name: 'new' },
       },
-      'Total Price': {
+      'Total Price ': {
         number: total || subtotal || 0,
       },
     };
@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
 
     // Add delivery date if available
     if (deliveryDate) {
-      properties['Delivery Date'] = {
+      properties['Delivery Date '] = {
         date: { start: deliveryDate },
       };
     }
@@ -68,7 +68,7 @@ module.exports = async function handler(req, res) {
     // Add quantity (total items)
     const totalQty = (items || []).reduce((sum, i) => sum + (i.qty || 0), 0);
     if (totalQty > 0) {
-      properties['Quantity (Dozens)'] = {
+      properties['Quantity (Dozens)\t'] = {
         number: totalQty,
       };
     }
