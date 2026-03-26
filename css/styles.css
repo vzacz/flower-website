@@ -1977,27 +1977,424 @@ ul, ol {
   margin-top: 2px;
 }
 
-/* ── Newsletter / CTA Section ────────────────────────────── */
-.cta-section {
-  background: linear-gradient(135deg, #f5f7f5 0%, #eef3ef 100%);
-  text-align: center;
-  padding: var(--space-4xl) 0;
+/* ── CTA Section — Dark Botanical ────────────────────────── */
+.cta-section-dark {
   position: relative;
   overflow: hidden;
+  padding: var(--space-4xl) 0;
+  text-align: center;
 }
 
-.cta-section .section-title {
-  font-size: clamp(2rem, 4vw, 3.2rem);
+.cta-dark-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
-.cta-text {
+.cta-dark-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, #0f1a10 0%, #152118 30%, #1a2e1c 55%, #1e3520 100%);
+}
+
+.cta-dark-radial {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cta-dark-radial--1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(90,148,96,0.15) 0%, transparent 70%);
+}
+
+.cta-dark-radial--2 {
+  width: 400px;
+  height: 400px;
+  bottom: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(61,140,68,0.12) 0%, transparent 70%);
+}
+
+.cta-dark-radial--3 {
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(130,191,138,0.06) 0%, transparent 60%);
+}
+
+.cta-dark-leaf {
+  position: absolute;
+  color: rgba(90,148,96,0.06);
+  pointer-events: none;
+}
+
+.cta-dark-leaf--1 {
+  width: 140px;
+  height: 210px;
+  top: 8%;
+  left: 3%;
+  transform: rotate(-30deg);
+}
+
+.cta-dark-leaf--2 {
+  width: 80px;
+  height: 120px;
+  bottom: 12%;
+  right: 5%;
+  transform: rotate(25deg);
+  color: rgba(61,140,68,0.05);
+}
+
+.cta-dark-leaf--3 {
+  width: 100px;
+  height: 150px;
+  top: 60%;
+  right: 15%;
+  transform: rotate(-15deg);
+  color: rgba(90,148,96,0.04);
+}
+
+.cta-dark-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px;
+  pointer-events: none;
+}
+
+.cta-dark-border-frame {
+  position: absolute;
+  inset: 24px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: var(--radius-xl);
+  pointer-events: none;
+  box-shadow: 0 0 30px rgba(255,255,255,0.1),
+              0 0 80px rgba(255,255,255,0.06),
+              0 0 140px rgba(255,255,255,0.03),
+              inset 0 0 30px rgba(255,255,255,0.05);
+}
+
+.cta-dark-inner {
+  padding: var(--space-2xl) 0;
+}
+
+.cta-dark-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: var(--space-lg);
+}
+
+.cta-dark-subtitle {
   font-family: var(--font-serif);
-  font-size: 1.1rem;
-  color: var(--text-light);
-  max-width: 480px;
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.7);
+  max-width: 520px;
   margin: 0 auto var(--space-xl);
   font-weight: 300;
-  line-height: 1.65;
+  line-height: 1.7;
+}
+
+.cta-dark-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Contact Section — Dark Botanical ────────────────────── */
+.contact-section-dark {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-3xl) 0 var(--space-4xl);
+}
+
+.contact-dark-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.contact-dark-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #1a2e1c 0%, #162019 50%, #111a12 100%);
+}
+
+.contact-dark-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.contact-dark-glow--1 {
+  width: 500px;
+  height: 500px;
+  top: -150px;
+  left: 15%;
+  background: radial-gradient(circle, rgba(90,148,96,0.1) 0%, transparent 70%);
+}
+
+.contact-dark-glow--2 {
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  right: 10%;
+  background: radial-gradient(circle, rgba(61,140,68,0.08) 0%, transparent 65%);
+}
+
+.contact-dark-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px;
+  pointer-events: none;
+}
+
+.contact-dark-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3xl);
+  align-items: start;
+}
+
+.contact-dark-info {
+  padding-top: var(--space-lg);
+}
+
+.contact-dark-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--space-lg);
+  text-align: left;
+}
+
+.contact-dark-subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  margin-bottom: var(--space-xl);
+  font-weight: 300;
+  text-align: left;
+  max-width: 400px;
+}
+
+.contact-dark-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-dark-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: background var(--duration-fast) var(--ease-smooth),
+              border-color var(--duration-fast) var(--ease-smooth),
+              transform var(--duration-fast) var(--ease-spring);
+  text-decoration: none;
+  color: inherit;
+}
+
+a.contact-dark-detail-item:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.35);
+  transform: translateX(4px);
+}
+
+.contact-dark-detail-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(90,148,96,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sage-light);
+  flex-shrink: 0;
+}
+
+.contact-dark-detail-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 2px;
+}
+
+.contact-dark-detail-value {
+  font-size: 0.92rem;
+  color: #ffffff;
+  font-weight: 400;
+}
+
+/* Contact form card — dark variant */
+.contact-dark-form-wrap {
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3),
+              0 0 30px rgba(255,255,255,0.1),
+              0 0 80px rgba(255,255,255,0.06),
+              0 0 140px rgba(255,255,255,0.03);
+}
+
+.contact-dark-label {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+.contact-dark-input {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+}
+
+.contact-dark-input::placeholder {
+  color: rgba(250,250,245,0.25) !important;
+}
+
+.contact-dark-input:focus {
+  border-color: var(--sage) !important;
+  box-shadow: 0 0 0 3px rgba(90,148,96,0.2) !important;
+  background: rgba(255,255,255,0.08) !important;
+}
+
+.contact-dark-submit {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.contact-dark-submit svg {
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.contact-dark-submit:hover svg {
+  transform: translateX(3px);
+}
+
+/* Contact section — animated botanicals */
+.contact-float-leaf {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+.contact-float-leaf--1 {
+  width: 90px; height: 135px;
+  top: 8%; right: 6%;
+  opacity: 0.06;
+  animation: contactLeaf1 20s ease-in-out infinite;
+}
+.contact-float-leaf--2 {
+  width: 55px; height: 82px;
+  bottom: 15%; left: 4%;
+  opacity: 0.05;
+  animation: contactLeaf2 24s ease-in-out infinite 4s;
+}
+.contact-float-leaf--3 {
+  width: 75px; height: 112px;
+  top: 50%; right: 18%;
+  opacity: 0.04;
+  animation: contactLeaf3 22s ease-in-out infinite 7s;
+}
+.contact-float-leaf--4 {
+  width: 45px; height: 67px;
+  top: 25%; left: 15%;
+  opacity: 0.05;
+  animation: contactLeaf4 18s ease-in-out infinite 2s;
+}
+
+.contact-float-petal {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+.contact-float-petal--1 {
+  width: 24px; height: 36px;
+  top: 20%; right: 12%;
+  opacity: 0.05;
+  animation: contactPetal1 15s linear infinite;
+}
+.contact-float-petal--2 {
+  width: 20px; height: 30px;
+  bottom: 25%; left: 20%;
+  opacity: 0.04;
+  animation: contactPetal2 18s linear infinite 5s;
+}
+
+.contact-sparkle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #82BF8A;
+  pointer-events: none;
+  z-index: 1;
+  animation: whySparklePulse 4s ease-in-out infinite;
+}
+.contact-sparkle--1 { top: 15%; left: 10%; animation-delay: 0.5s; }
+.contact-sparkle--2 { top: 45%; right: 8%; animation-delay: 1.5s; }
+.contact-sparkle--3 { bottom: 20%; left: 30%; animation-delay: 2.5s; }
+.contact-sparkle--4 { top: 70%; right: 25%; animation-delay: 3.5s; }
+
+@keyframes contactLeaf1 {
+  0%, 100% { transform: translate(0, 0) rotate(-15deg); opacity: 0.06; }
+  25% { transform: translate(-12px, -18px) rotate(-5deg); opacity: 0.08; }
+  50% { transform: translate(8px, -30px) rotate(-20deg); opacity: 0.05; }
+  75% { transform: translate(-5px, -10px) rotate(-10deg); opacity: 0.07; }
+}
+@keyframes contactLeaf2 {
+  0%, 100% { transform: translate(0, 0) rotate(20deg); opacity: 0.05; }
+  33% { transform: translate(18px, -15px) rotate(30deg); opacity: 0.07; }
+  66% { transform: translate(-6px, -28px) rotate(15deg); opacity: 0.04; }
+}
+@keyframes contactLeaf3 {
+  0%, 100% { transform: translate(0, 0) rotate(35deg); opacity: 0.04; }
+  25% { transform: translate(-10px, 12px) rotate(25deg); opacity: 0.06; }
+  50% { transform: translate(14px, 5px) rotate(40deg); opacity: 0.03; }
+  75% { transform: translate(3px, -8px) rotate(30deg); opacity: 0.05; }
+}
+@keyframes contactLeaf4 {
+  0%, 100% { transform: translate(0, 0) rotate(-25deg); opacity: 0.05; }
+  50% { transform: translate(10px, -20px) rotate(-10deg); opacity: 0.07; }
+}
+@keyframes contactPetal1 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.05; }
+  25% { transform: translate(10px, -15px) rotate(90deg); opacity: 0.07; }
+  50% { transform: translate(-4px, -25px) rotate(180deg); opacity: 0.04; }
+  75% { transform: translate(6px, -10px) rotate(270deg); opacity: 0.06; }
+  100% { transform: translate(0, 0) rotate(360deg); opacity: 0.05; }
+}
+@keyframes contactPetal2 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.04; }
+  50% { transform: translate(12px, -18px) rotate(-180deg); opacity: 0.06; }
+  100% { transform: translate(0, 0) rotate(-360deg); opacity: 0.04; }
 }
 
 /* ── Footer ──────────────────────────────────────────────── */
@@ -3187,6 +3584,12 @@ ul, ol {
   .admin-stats { grid-template-columns: repeat(2, 1fr); }
   .admin-orders-table { display: block; overflow-x: auto; }
   .form-row { grid-template-columns: 1fr; }
+  .contact-dark-grid { grid-template-columns: 1fr; gap: var(--space-xl); }
+  .contact-dark-title { text-align: center; }
+  .contact-dark-subtitle { text-align: center; max-width: 100%; }
+  .contact-dark-info { text-align: center; }
+  .contact-dark-info .section-eyebrow { justify-content: center; }
+  .cta-dark-actions { flex-direction: column; align-items: center; }
   .checkout-grid { grid-template-columns: 1fr; }
   .hero { grid-template-columns: 1fr; min-height: auto; padding-bottom: 0; }
   .hero-bg { position: relative; width: 100%; height: 50vh; min-height: 300px; clip-path: none; }
