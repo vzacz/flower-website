@@ -115,6 +115,29 @@ module.exports = async function handler(req, res) {
     }
 
     const result = await response.json();
+
+    // Send WhatsApp notification
+    const WA_PHONE = process.env.WHATSAPP_PHONE;
+    const WA_KEY = process.env.WHATSAPP_API_KEY;
+    if (WA_PHONE && WA_KEY) {
+      try {
+        const msg = [
+          `🌸 *New Order!* ${orderId}`,
+          `*Customer:* ${customerName}`,
+          customer.phone ? `*Phone:* ${customer.phone}` : '',
+          `*Items:* ${itemsSummary || 'N/A'}`,
+          `*Total:* $${(total || subtotal || 0).toFixed(2)}`,
+          deliveryDate ? `*Delivery:* ${deliveryDate}` : '',
+          customer.notes ? `*Notes:* ${customer.notes}` : '',
+        ].filter(Boolean).join('\n');
+
+        const waUrl = `https://api.callmebot.com/whatsapp.php?phone=${WA_PHONE}&text=${encodeURIComponent(msg)}&apikey=${WA_KEY}`;
+        await fetch(waUrl);
+      } catch (waErr) {
+        console.warn('WhatsApp notification failed:', waErr);
+      }
+    }
+
     return res.status(200).json({ success: true, notionPageId: result.id });
 
   } catch (err) {
