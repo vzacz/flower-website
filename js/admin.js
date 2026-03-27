@@ -140,10 +140,6 @@ function showDashboard() {
   if (loginPage) loginPage.style.display = 'none';
   if (dashboard) dashboard.classList.add('visible');
 
-  // Seed demo orders if empty
-  if (typeof Orders !== 'undefined') {
-    Orders.seedDemoIfEmpty();
-  }
 
   renderStats();
   renderOrders(currentFilter);

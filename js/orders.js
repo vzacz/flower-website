@@ -144,54 +144,6 @@ const Orders = (() => {
     }
   }
 
-  /* ── Seed demo orders for first-time admin view ── */
-  function seedDemoIfEmpty() {
-    if (getAll().length > 0) return;
-    const demoOrders = [
-      {
-        id: 'GLF-260301-4821',
-        status: 'completed',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        customer: {
-          firstName: 'Sarah',
-          lastName:  'Mitchell',
-          email:     'sarah.mitchell@bloom.co',
-          phone:     '(555) 201-4839',
-          company:   'Bloom & Co. Events',
-          address:   '142 Rosewood Lane',
-          city:      'Portland, OR',
-          notes:     'Please deliver before 10am for the morning ceremony.',
-        },
-        items: [
-          { id: 'rose-001', name: 'Classic Red Roses',    category: 'roses',   price: 45, unit: 'per dozen', qty: 6,  image: 'flowers/Screenshot 2026-03-12 000052.png', subtotal: 270 },
-          { id: 'peony-001', name: 'Blush Peonies',       category: 'peonies', price: 65, unit: 'per bunch',  qty: 4,  image: 'flowers/Screenshot 2026-03-12 000228.png',  subtotal: 260 },
-        ],
-        subtotal: 530, total: 530,
-      },
-      {
-        id: 'GLF-260305-7732',
-        status: 'pending',
-        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-        customer: {
-          firstName: 'James',
-          lastName:  'Torres',
-          email:     'james@petal.studio',
-          phone:     '(555) 388-2904',
-          company:   'Petal Studio',
-          address:   '88 Garden Street',
-          city:      'Seattle, WA',
-          notes:     'Wholesale order — need all stems trimmed to 50cm.',
-        },
-        items: [
-          { id: 'hydrangea-001', name: 'Powder Blue Hydrangeas', category: 'hydrangeas', price: 35, unit: 'per bunch', qty: 10, image: 'flowers/Screenshot 2026-03-12 004202.png', subtotal: 350 },
-          { id: 'tulip-002',     name: 'French Parrot Tulips',   category: 'tulips',     price: 32, unit: 'per bunch', qty: 8,  image: 'flowers/Screenshot 2026-03-12 001317.png', subtotal: 256 },
-        ],
-        subtotal: 606, total: 606,
-      },
-    ];
-    saveAll(demoOrders);
-  }
-
   /* ── Update an entire order object ── */
   function updateOrder(id, updates) {
     const orders = getAll();
@@ -217,5 +169,5 @@ const Orders = (() => {
     return orders[idx];
   }
 
-  return { getAll, create, getById, updateStatus, updateOrder, deleteOrder, getByStatus, getStats, formatDate, seedDemoIfEmpty, sanitize };
+  return { getAll, create, getById, updateStatus, updateOrder, deleteOrder, getByStatus, getStats, formatDate, sanitize };
 })();

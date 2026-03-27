@@ -58,8 +58,6 @@
 
   function openAdmin() {
     if (!overlay) return;
-    // Seed demo orders if empty
-    if (typeof Orders !== 'undefined') Orders.seedDemoIfEmpty();
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     renderOrdersTab();
