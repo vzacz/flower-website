@@ -13,7 +13,7 @@ const DEFAULT_FAQ_DATA = [
     name: 'Ordering & Delivery',
     icon: 'calendar',
     items: [
-      { id: 'faq-1', question: 'When are orders placed?', answer: 'Wholesale flower orders are typically scheduled weekly on Thursdays.' },
+      { id: 'faq-1', question: 'When are orders placed?', answer: 'You can place wholesale flower orders any day of the week.' },
       { id: 'faq-2', question: 'What days do you deliver?', answer: 'We deliver Monday through Thursday, depending on availability.' },
       { id: 'faq-3', question: 'Can my delivery date become unavailable?', answer: 'Yes. Each delivery date has limited availability. Once a date is fully booked, it can no longer be selected at checkout.' },
       { id: 'faq-4', question: 'How do I choose my delivery date?', answer: 'You can select an available delivery date during checkout using the delivery calendar.' }

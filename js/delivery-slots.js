@@ -1,7 +1,7 @@
 /* ============================================================
    GREEN LIFE FLOWERS — DELIVERY SLOT MANAGEMENT
    Tracks how many orders are booked per delivery date.
-   Enforces: Mon-Thu only, max orders per day (configurable).
+   Enforces: Mon-Thu delivery only, orders accepted any day. Max orders per day (configurable).
    Storage: localStorage (mirrors order data for fast lookups)
    ============================================================ */
 
