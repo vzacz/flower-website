@@ -1,185 +1,145 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/DashboardLayout';
-import { StatCard, Button } from '@/components/UIComponents';
-import {
-  Truck,
-  DollarSign,
-  FileText,
-  ShoppingCart,
-  TrendingUp,
-  Plus,
-} from 'lucide-react';
 import Link from 'next/link';
-
-interface DashboardData {
-  todayDeliveries: number;
-  weeklyRevenue: number;
-  outstandingInvoices: number;
-  outstandingAmount: number;
-  recentOrders: any[];
-}
+import DashboardLayout from '@/components/DashboardLayout';
+import { StatCard } from '@/components/UIComponents';
+import { DollarSign, FileText, Plus, TrendingUp, Users } from 'lucide-react';
+import { Customer, Invoice } from '@/types';
+import { getInvoices } from '@/lib/invoice-storage';
+import { getCustomers } from '@/lib/customer-storage';
 
 export default function Dashboard() {
-  const [data, setData] = useState<DashboardData>({
-    todayDeliveries: 8,
-    weeklyRevenue: 4235.50,
-    outstandingInvoices: 12,
-    outstandingAmount: 3450.75,
-    recentOrders: [
-      {
-        id: '1',
-        customer: 'Restaurant La Bella',
-        amount: 280.50,
-        date: new Date().toISOString(),
-        status: 'pending',
-      },
-      {
-        id: '2',
-        customer: 'Market Central',
-        amount: 450.00,
-        date: new Date(Date.now() - 86400000).toISOString(),
-        status: 'delivered',
-      },
-      {
-        id: '3',
-        customer: 'Fresh Foods Café',
-        amount: 180.25,
-        date: new Date(Date.now() - 172800000).toISOString(),
-        status: 'delivered',
-      },
-    ],
-  });
-
+  // Both stores live in localStorage, so they can only be read after mount.
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, fetch from Supabase
-    // For now, simulating data load
-    setTimeout(() => setLoading(false), 500);
+    setInvoices(getInvoices());
+    setCustomers(getCustomers());
+    setLoading(false);
   }, []);
+
+  const paid = invoices.filter((invoice) => invoice.status === 'paid');
+  const unpaid = invoices.filter((invoice) => invoice.status !== 'paid');
+
+  const paidRevenue = paid.reduce((sum, invoice) => sum + invoice.totalDue, 0);
+  const outstandingAmount = unpaid.reduce((sum, invoice) => sum + invoice.totalDue, 0);
+  const billed = invoices.reduce((sum, invoice) => sum + invoice.totalDue, 0);
+  const averageInvoice = invoices.length ? billed / invoices.length : 0;
+
+  const recentInvoices = [...invoices]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 5);
 
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        {/* Page Header */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-slate-400 mt-1">
-              Welcome back! Here's your business overview.
-            </p>
+            <p className="text-slate-400 mt-1">Your invoicing at a glance.</p>
           </div>
-          <Link href="/orders/new">
-            <Button variant="primary">
-              <Plus size={20} />
-              New Order
-            </Button>
+          <Link href="/" className="btn btn-primary">
+            <Plus size={20} />
+            New invoice
           </Link>
         </div>
 
-        {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
-            title="Today's Deliveries"
-            value={data.todayDeliveries}
-            icon={<Truck size={24} />}
-            subtitle="Active deliveries"
-            trend={12}
-          />
-          <StatCard
-            title="Weekly Revenue"
-            value={`$${data.weeklyRevenue.toFixed(2)}`}
+            title="Paid Revenue"
+            value={`$${paidRevenue.toFixed(2)}`}
             icon={<DollarSign size={24} />}
-            subtitle="Last 7 days"
-            trend={8}
+            subtitle={`${paid.length} paid invoice${paid.length !== 1 ? 's' : ''}`}
           />
           <StatCard
-            title="Outstanding Invoices"
-            value={data.outstandingInvoices}
+            title="Outstanding"
+            value={`$${outstandingAmount.toFixed(2)}`}
             icon={<FileText size={24} />}
-            subtitle={`$${data.outstandingAmount.toFixed(2)} due`}
-            trend={-3}
+            subtitle={`${unpaid.length} unpaid invoice${unpaid.length !== 1 ? 's' : ''}`}
           />
           <StatCard
-            title="Total Orders"
-            value="156"
-            icon={<ShoppingCart size={24} />}
-            subtitle="This month"
-            trend={5}
+            title="Total Invoices"
+            value={invoices.length}
+            icon={<TrendingUp size={24} />}
+            subtitle={`$${billed.toFixed(2)} billed`}
+          />
+          <StatCard
+            title="Customers"
+            value={customers.length}
+            icon={<Users size={24} />}
+            subtitle="In your customer list"
           />
         </div>
 
-        {/* Recent Orders */}
         <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-white">Recent Orders</h2>
-            <Link href="/orders">
-              <span className="text-emerald-500 hover:text-emerald-400 text-sm cursor-pointer">
-                View all →
-              </span>
+            <h2 className="text-xl font-bold text-white">Recent Invoices</h2>
+            <Link href="/invoices" className="text-emerald-500 hover:text-emerald-400 text-sm">
+              View all →
             </Link>
           </div>
 
           {loading ? (
             <div className="text-center py-8 text-slate-400">Loading...</div>
-          ) : data.recentOrders.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">No orders yet</div>
+          ) : recentInvoices.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-slate-400">No invoices yet.</p>
+              <Link href="/" className="mt-4 inline-block text-emerald-400 hover:text-emerald-300">
+                Pick a customer to create your first invoice →
+              </Link>
+            </div>
           ) : (
             <div className="space-y-4">
-              {data.recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex justify-between items-center p-4 bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors"
+              {recentInvoices.map((invoice) => (
+                <Link
+                  key={invoice.id}
+                  href={`/invoice/${invoice.customerId}?invoice=${invoice.id}`}
+                  className="flex justify-between items-center p-4 bg-slate-900 rounded-lg hover:bg-slate-700 transition-colors"
                 >
                   <div>
-                    <p className="font-medium text-white">{order.customer}</p>
+                    <p className="font-medium text-white">{invoice.customerName}</p>
                     <p className="text-xs text-slate-400 mt-1">
-                      {new Date(order.date).toLocaleDateString()}
+                      {invoice.invoiceNumber} • {invoice.date}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-lg font-bold text-emerald-500">
-                      ${order.amount.toFixed(2)}
+                      ${invoice.totalDue.toFixed(2)}
                     </span>
                     <span
                       className={`text-xs font-bold px-3 py-1 rounded-full ${
-                        order.status === 'delivered'
+                        invoice.status === 'paid'
                           ? 'bg-emerald-900 text-emerald-200'
-                          : 'bg-yellow-900 text-yellow-200'
+                          : 'bg-red-900 text-red-200'
                       }`}
                     >
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      {invoice.status.toUpperCase()}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-emerald-900/20 border border-emerald-700 rounded-lg p-6">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={20} className="text-emerald-500" />
-              <h3 className="font-bold text-white">Performance</h3>
-            </div>
-            <p className="text-2xl font-bold text-emerald-400">↑ 18%</p>
-            <p className="text-xs text-slate-400 mt-1">vs last month</p>
+            <h3 className="font-bold text-white mb-2">Average Invoice Value</h3>
+            <p className="text-2xl font-bold text-emerald-400">${averageInvoice.toFixed(2)}</p>
+            <p className="text-xs text-slate-400 mt-1">
+              Across {invoices.length} invoice{invoices.length !== 1 ? 's' : ''}
+            </p>
           </div>
 
           <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-6">
-            <h3 className="font-bold text-white mb-2">Average Order Value</h3>
-            <p className="text-2xl font-bold text-blue-400">$287.50</p>
-            <p className="text-xs text-slate-400 mt-1">Calculated from recent orders</p>
-          </div>
-
-          <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-6">
-            <h3 className="font-bold text-white mb-2">Customer Satisfaction</h3>
-            <p className="text-2xl font-bold text-purple-400">4.8/5</p>
-            <p className="text-xs text-slate-400 mt-1">From 24 reviews</p>
+            <h3 className="font-bold text-white mb-2">Collected</h3>
+            <p className="text-2xl font-bold text-blue-400">
+              {billed > 0 ? `${Math.round((paidRevenue / billed) * 100)}%` : '—'}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">Of everything billed so far</p>
           </div>
         </div>
       </div>

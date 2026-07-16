@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Home, Package, ShoppingCart, FileText, LogOut, Truck } from 'lucide-react';
+import { BarChart3, Home, FileText, LogOut } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 const Navigation = () => {
@@ -11,10 +11,7 @@ const Navigation = () => {
   const links = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { href: '/customers', label: 'Customers', icon: Package },
-    { href: '/orders', label: 'Orders', icon: ShoppingCart },
     { href: '/invoices', label: 'Invoices', icon: FileText },
-    { href: '/delivery-routes', label: 'Delivery Routes', icon: Truck },
   ];
 
   return (

@@ -7,6 +7,7 @@ import {
   addInvoiceItem,
   createNewInvoice,
   deleteInvoice,
+  getInvoiceById,
   getInvoicesByCustomerId,
   markInvoiceAsPaid,
   markInvoiceAsUnpaid,
@@ -15,16 +16,8 @@ import {
   updateInvoiceItem,
 } from '@/lib/invoice-storage';
 import { generateInvoicePDF, downloadInvoicePDF } from '@/lib/pdf-generator';
-
-const CUSTOMERS: Record<string, { name: string; city: string; address?: string }> = {
-  '1': { name: 'El Chaparral', city: 'San Jose', address: '123 Main Street' },
-  '2': { name: 'Mi Ranchito Sunnyvale', city: 'Sunnyvale', address: '456 Sunnyvale Ave' },
-  '3': { name: 'Mi Ranchito Market San Jose', city: 'San Jose', address: '789 Market Blvd' },
-  '4': { name: 'Olala Campbell', city: 'Campbell', address: '101 Orchard Lane' },
-  '5': { name: 'Ayyar South San Francisco', city: 'South San Francisco', address: '202 Bay Street' },
-  '6': { name: "Mina's Cafe Foster City", city: 'Foster City', address: '303 Cafe Plaza' },
-  '7': { name: 'La Prada San Jose', city: 'San Jose', address: '404 Garden Road' },
-};
+import { sendInvoiceEmail } from '@/lib/email-service';
+import { getCustomerById } from '@/lib/customer-storage';
 
 const FRUITS = ['Lulo Fruit', 'Tomate de arbol'];
 
@@ -47,6 +40,12 @@ const LABELS = {
     createNewInvoice: 'Create New Invoice',
     markAsPaid: 'Mark as Paid',
     markAsUnpaid: 'Mark as Unpaid',
+    emailInvoice: 'Email Invoice',
+    emailHeading: 'Send this invoice by email',
+    emailAddress: 'Customer email',
+    emailMessage: 'Message (optional)',
+    emailMessagePlaceholder: 'Add a note for the customer...',
+    sending: 'Sending...',
   },
   es: {
     title: 'Crear factura',
@@ -66,11 +65,18 @@ const LABELS = {
     createNewInvoice: 'Crear nueva factura',
     markAsPaid: 'Marcar como pagado',
     markAsUnpaid: 'Marcar como no pagado',
+    emailInvoice: 'Enviar por correo',
+    emailHeading: 'Enviar esta factura por correo',
+    emailAddress: 'Correo del cliente',
+    emailMessage: 'Mensaje (opcional)',
+    emailMessagePlaceholder: 'Agrega una nota para el cliente...',
+    sending: 'Enviando...',
   },
 };
 
 interface PageProps {
   params: Promise<{ customerId: string }>;
+  searchParams: Promise<{ invoice?: string | string[] }>;
 }
 
 function recalcInvoice(invoice: Invoice): Invoice {
@@ -83,8 +89,10 @@ function recalcInvoice(invoice: Invoice): Invoice {
   };
 }
 
-export default function InvoicePage({ params }: PageProps) {
+export default function InvoicePage({ params, searchParams }: PageProps) {
   const [customerId, setCustomerId] = useState<string>('');
+  const [requestedInvoiceId, setRequestedInvoiceId] = useState<string | null>(null);
+  const [routeReady, setRouteReady] = useState(false);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [previousInvoices, setPreviousInvoices] = useState<Invoice[]>([]);
   const [currentFruit, setCurrentFruit] = useState(FRUITS[0]);
@@ -97,28 +105,57 @@ export default function InvoicePage({ params }: PageProps) {
   const [searchInvoiceNumber, setSearchInvoiceNumber] = useState('');
   const [searchDate, setSearchDate] = useState('');
   const [language, setLanguage] = useState<'en' | 'es'>('en');
+  const [customerMissing, setCustomerMissing] = useState(false);
+  const [emailTo, setEmailTo] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Resolved together so the saved invoice named in `?invoice=` is known before
+  // the effect below decides between loading it and starting a blank one.
+  useEffect(() => {
+    Promise.all([params, searchParams]).then(([resolvedParams, resolvedSearch]) => {
+      setCustomerId(resolvedParams.customerId);
+      setRequestedInvoiceId(
+        typeof resolvedSearch.invoice === 'string' ? resolvedSearch.invoice : null
+      );
+      setRouteReady(true);
+    });
+  }, [params, searchParams]);
 
   useEffect(() => {
-    params.then((p) => setCustomerId(p.customerId));
-  }, [params]);
+    if (!routeReady || !customerId) return;
 
-  useEffect(() => {
-    if (!customerId || !CUSTOMERS[customerId]) return;
+    setPreviousInvoices(getInvoicesByCustomerId(customerId));
 
-    const customer = CUSTOMERS[customerId];
-    const invoices = getInvoicesByCustomerId(customerId);
-    setPreviousInvoices(invoices);
+    // A saved invoice carries its own customer name, city, and address, so it
+    // opens even after that customer is removed from the list.
+    const requested = requestedInvoiceId ? getInvoiceById(requestedInvoiceId) : undefined;
+    if (requested) {
+      setInvoice(requested);
+      setSelectedInvoiceId(requested.id);
+      return;
+    }
 
-    const startingInvoice = createNewInvoice(
-      customerId,
-      customer.name,
-      customer.city,
-      customer.address ?? '',
-      ''
+    // Only a blank invoice needs the customer record to start from.
+    const customer = getCustomerById(customerId);
+    if (!customer) {
+      setCustomerMissing(true);
+      return;
+    }
+
+    setInvoice(
+      createNewInvoice(customerId, customer.name, customer.city, customer.address ?? '', '')
     );
-    setInvoice(startingInvoice);
     setSelectedInvoiceId(null);
-  }, [customerId]);
+  }, [routeReady, customerId, requestedInvoiceId]);
+
+  // Prefilled as a starting point only — whatever is in the box at send time is
+  // the address that gets the invoice.
+  useEffect(() => {
+    if (!routeReady || !customerId) return;
+    setEmailTo(getCustomerById(customerId)?.email ?? '');
+  }, [routeReady, customerId]);
 
   useEffect(() => {
     const map: Record<string, string> = {
@@ -141,6 +178,17 @@ export default function InvoicePage({ params }: PageProps) {
     });
   }, [previousInvoices, searchCustomer, searchInvoiceNumber, searchDate]);
 
+  if (customerMissing) {
+    return (
+      <div className="theme-dark min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-4">
+        <p className="text-slate-400">That customer no longer exists.</p>
+        <Link href="/">
+          <button className="btn btn-secondary">← Back to Customers</button>
+        </Link>
+      </div>
+    );
+  }
+
   if (!customerId || !invoice) {
     return (
       <div className="theme-dark min-h-screen bg-slate-900 flex items-center justify-center">
@@ -149,7 +197,12 @@ export default function InvoicePage({ params }: PageProps) {
     );
   }
 
-  const customer = CUSTOMERS[customerId];
+  const customer: { name: string; city: string; address?: string } =
+    getCustomerById(customerId) ?? {
+      name: invoice.customerName,
+      city: invoice.customerCity,
+      address: invoice.customerAddress,
+    };
   const t = LABELS[language];
 
   const updateInvoice = (updated: Invoice) => {
@@ -226,6 +279,35 @@ export default function InvoicePage({ params }: PageProps) {
     }
     const pdf = generateInvoicePDF(invoice);
     downloadInvoicePDF(pdf, invoice.invoiceNumber);
+  };
+
+  const handleEmailInvoice = async () => {
+    if (!invoice) return;
+
+    const recipient = emailTo.trim();
+    if (!recipient) {
+      setEmailStatus({ ok: false, text: 'Enter an email address to send to.' });
+      return;
+    }
+    if (invoice.items.length === 0) {
+      setEmailStatus({ ok: false, text: 'Add at least one item before sending.' });
+      return;
+    }
+
+    setEmailSending(true);
+    setEmailStatus(null);
+    try {
+      await sendInvoiceEmail(recipient, invoice, emailMessage);
+      setEmailStatus({ ok: true, text: `Invoice ${invoice.invoiceNumber} sent to ${recipient}.` });
+      setEmailMessage('');
+    } catch (error) {
+      setEmailStatus({
+        ok: false,
+        text: error instanceof Error ? error.message : 'Could not send the invoice.',
+      });
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   const handleAddOrUpdateItem = () => {
@@ -563,6 +645,54 @@ export default function InvoicePage({ params }: PageProps) {
                 <button className="btn btn-secondary" onClick={handleDeleteCurrentInvoice}>{t.deleteInvoice}</button>
                 <button className="btn btn-secondary" onClick={handlePrintInvoice}>{t.printInvoice}</button>
                 <button className="btn btn-secondary" onClick={handleDownloadPDF}>{t.downloadPDF}</button>
+              </div>
+
+              <div className="border-t border-slate-700 mt-8 pt-6">
+                <h3 className="text-lg font-bold mb-4">{t.emailHeading}</h3>
+                <div className="grid gap-4">
+                  <div>
+                    <label htmlFor="invoice-email" className="block text-sm font-medium text-slate-300 mb-2">
+                      {t.emailAddress}
+                    </label>
+                    <input
+                      id="invoice-email"
+                      type="email"
+                      className="input"
+                      value={emailTo}
+                      onChange={(e) => setEmailTo(e.target.value)}
+                      placeholder="customer@example.com"
+                      autoComplete="email"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="invoice-email-message" className="block text-sm font-medium text-slate-300 mb-2">
+                      {t.emailMessage}
+                    </label>
+                    <input
+                      id="invoice-email-message"
+                      type="text"
+                      className="input"
+                      value={emailMessage}
+                      onChange={(e) => setEmailMessage(e.target.value)}
+                      placeholder={t.emailMessagePlaceholder}
+                    />
+                  </div>
+                  <button
+                    className="btn btn-primary w-full sm:w-auto"
+                    onClick={handleEmailInvoice}
+                    disabled={emailSending}
+                  >
+                    {emailSending ? t.sending : t.emailInvoice}
+                  </button>
+                  {emailStatus && (
+                    <p
+                      role="status"
+                      className={`text-sm ${emailStatus.ok ? 'text-emerald-400' : 'text-red-400'}`}
+                    >
+                      {emailStatus.text}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -343,12 +343,33 @@ body {
     overflow-x: auto;
   }
 
+  /* The <select> popup, scrollbars, and autofill are painted by the browser, not
+     by our rules, and follow color-scheme rather than the .select styles below.
+     Without this they render light-on-white against the dark theme. */
+  .theme-dark {
+    color-scheme: dark;
+  }
+
+  /* Chrome on Windows still paints option rows from the system palette even under
+     color-scheme: dark, so set them explicitly to match the field itself. */
+  .theme-dark .select option,
+  .theme-dark select option {
+    background-color: #0f172a;
+    color: #e2e8f0;
+  }
+
   /* Dark surfaces, scoped to .theme-dark so the light login screen and the
      marketing homepage keep using the same .card/.input/.items-table classes. */
   .theme-dark .card {
     background-color: #1e293b;
     border-color: #334155;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .theme-dark .hero-card {
+    background: linear-gradient(135deg, #1e293b 0%, #14312a 100%);
+    border-color: #334155;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
   }
 
   /* background-color, not the `background` shorthand: .select sets its arrow via

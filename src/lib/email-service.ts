@@ -1,38 +1,42 @@
 import { Invoice } from '@/types';
+import { generateInvoicePDF } from '@/lib/pdf-generator';
 
 /**
- * Send invoice via email using Resend or alternative email service
- * This is a template that can be integrated with your email provider
+ * Render the invoice PDF and hand back just the base64 payload. jsPDF gives a
+ * full data URI, and Resend wants the bytes without the `data:...;base64,` prefix.
+ */
+function invoicePdfAsBase64(invoice: Invoice): string {
+  const dataUri = generateInvoicePDF(invoice).output('datauristring');
+  return dataUri.slice(dataUri.indexOf('base64,') + 'base64,'.length);
+}
+
+/**
+ * Email an invoice to a customer, with the same PDF the Download button produces
+ * attached. Throws with the server's explanation so the caller can show it.
  */
 export async function sendInvoiceEmail(
   customerEmail: string,
-  customerName: string,
   invoice: Invoice,
-  invoicePdfUrl?: string
-) {
-  try {
-    const response = await fetch('/api/send-invoice', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: customerEmail,
-        customerName,
-        invoice,
-        pdfUrl: invoicePdfUrl,
-      }),
-    });
+  message?: string
+): Promise<{ success: true; id: string; to: string }> {
+  const response = await fetch('/api/send-invoice', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: customerEmail,
+      invoice,
+      message: message?.trim() || undefined,
+      pdfBase64: invoicePdfAsBase64(invoice),
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error('Failed to send invoice email');
-    }
+  const data = await response.json().catch(() => null);
 
-    return await response.json();
-  } catch (error) {
-    console.error('Error sending invoice email:', error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(data?.error ?? `Failed to send invoice email (${response.status})`);
   }
+
+  return data;
 }
 
 /**
