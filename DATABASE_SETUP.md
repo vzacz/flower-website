@@ -1,205 +1,69 @@
-# Alchemy Fruit Distribution - Database Schema
+# Database
 
-This document outlines the database schema that needs to be created in Supabase.
+LA FRUTA stores customers and invoices in Postgres (Supabase), provisioned
+through the Vercel Marketplace. Connection variables (`SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_URL`, …) are set by that integration —
+pull them locally with `vercel env pull`.
 
-## Setup Instructions
+## Schema
 
-1. Create a new Supabase project
-2. Go to the SQL Editor
-3. Execute the SQL scripts below to create all tables
+[`db/schema.sql`](db/schema.sql) is the source of truth. Apply it with:
 
----
-
-## SQL Schema
-
-### Customers Table
-```sql
-CREATE TABLE customers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  phone VARCHAR(20),
-  address TEXT,
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-
--- Allow all authenticated users to read
-CREATE POLICY "customers_read" ON customers
-  FOR SELECT USING (true);
-
--- Allow all authenticated users to create
-CREATE POLICY "customers_create" ON customers
-  FOR INSERT WITH CHECK (true);
-
--- Allow all authenticated users to update
-CREATE POLICY "customers_update" ON customers
-  FOR UPDATE USING (true);
-
--- Allow all authenticated users to delete
-CREATE POLICY "customers_delete" ON customers
-  FOR DELETE USING (true);
+```bash
+node scripts/apply-schema.mjs
 ```
 
-### Products Table
-```sql
-CREATE TABLE products (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name VARCHAR(255) NOT NULL,
-  sku VARCHAR(100) NOT NULL UNIQUE,
-  price DECIMAL(10, 2) NOT NULL,
-  unit VARCHAR(50) NOT NULL DEFAULT 'kg',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+Every statement is idempotent, so it is safe to re-run after an edit.
 
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+Verify the invoice logic against the real database with:
 
-CREATE POLICY "products_read" ON products
-  FOR SELECT USING (true);
-
-CREATE POLICY "products_create" ON products
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "products_update" ON products
-  FOR UPDATE USING (true);
+```bash
+node scripts/verify-db.mjs
 ```
 
-### Orders Table
-```sql
-CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-  total_amount DECIMAL(10, 2) NOT NULL,
-  delivery_date DATE NOT NULL,
-  notes TEXT,
-  status VARCHAR(50) NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+It checks the money arithmetic, line-item ordering, re-save behaviour, and the
+foreign key that stops a customer with invoices being deleted. It cleans up
+after itself.
 
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+## How access works
 
-CREATE POLICY "orders_read" ON orders
-  FOR SELECT USING (true);
+- `customers`, `invoices`, and `invoice_items` have **RLS enabled with no
+  policies**. The anon/publishable key ships to the browser and can therefore
+  read nothing.
+- All access goes through the **service role key** in [`src/lib/db.ts`](src/lib/db.ts),
+  which is `server-only`. Importing it from a Client Component fails the build.
+- Client Components reach data through the Server Actions in
+  [`src/app/actions/`](src/app/actions/). Each one calls `verifySession()` first —
+  Server Actions are POST endpoints and are reachable without going through the
+  UI.
 
-CREATE POLICY "orders_create" ON orders
-  FOR INSERT WITH CHECK (true);
+## Notes on the design
 
-CREATE POLICY "orders_update" ON orders
-  FOR UPDATE USING (true);
-```
+- **Money is `NUMERIC(12,2)`, never a float.** Binary floats can't represent
+  0.10 exactly and the error compounds across line items.
+- **Invoices denormalise the customer's name, address, and city.** An invoice is
+  a historical record: if a customer moves, invoices already issued must still
+  show the address they were billed at.
+- **`save_invoice(jsonb)` writes an invoice and its items in one transaction**,
+  and recomputes `subtotal`/`total_due` from the items rather than trusting the
+  client.
+- **Ids are `TEXT`, not `UUID`.** Invoices created before the database existed
+  used millisecond-timestamp ids and referenced seed customers as `'1'`..`'7'`;
+  keeping TEXT let those import unchanged.
+- **Invoice numbers are `max + 1`, computed in the app.** A sequence would be
+  race-proof but consumes a number even when the invoice is never saved, leaving
+  permanent gaps in the books. `UNIQUE` on `invoice_number` is the backstop.
 
-### Order Items Table
-```sql
-CREATE TABLE order_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id UUID NOT NULL REFERENCES products(id),
-  quantity DECIMAL(10, 2) NOT NULL,
-  unit_price DECIMAL(10, 2) NOT NULL,
-  subtotal DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+## TLS
 
-ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+Supabase signs its database certificates with its own CA, so Node rejects them
+by default. [`db/supabase-ca.crt`](db/supabase-ca.crt) is Supabase's public root
+CA (from `supabase-downloads.s3-ap-southeast-1.amazonaws.com`), and the scripts
+connect with `sslmode=verify-full` against it. Do not "fix" a certificate error
+by disabling verification — that sends the database password to whoever answers.
 
-CREATE POLICY "order_items_read" ON order_items
-  FOR SELECT USING (true);
+## Migrating browser data
 
-CREATE POLICY "order_items_create" ON order_items
-  FOR INSERT WITH CHECK (true);
-```
-
-### Invoices Table
-```sql
-CREATE TABLE invoices (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  invoice_number VARCHAR(50) NOT NULL UNIQUE,
-  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-  total_amount DECIMAL(10, 2) NOT NULL,
-  paid_amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
-  due_date DATE NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'unpaid',
-  pdf_url TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "invoices_read" ON invoices
-  FOR SELECT USING (true);
-
-CREATE POLICY "invoices_create" ON invoices
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "invoices_update" ON invoices
-  FOR UPDATE USING (true);
-```
-
-### Payments Table
-```sql
-CREATE TABLE payments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-  amount DECIMAL(10, 2) NOT NULL,
-  payment_date DATE NOT NULL,
-  method VARCHAR(50) NOT NULL,
-  reference TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "payments_read" ON payments
-  FOR SELECT USING (true);
-
-CREATE POLICY "payments_create" ON payments
-  FOR INSERT WITH CHECK (true);
-```
-
-### Delivery Routes Table
-```sql
-CREATE TABLE delivery_routes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  date DATE NOT NULL,
-  status VARCHAR(50) NOT NULL DEFAULT 'pending',
-  distance DECIMAL(10, 2),
-  estimated_time INTEGER,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE delivery_routes ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "delivery_routes_read" ON delivery_routes
-  FOR SELECT USING (true);
-
-CREATE POLICY "delivery_routes_create" ON delivery_routes
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "delivery_routes_update" ON delivery_routes
-  FOR UPDATE USING (true);
-```
-
-### Seed Initial Products
-```sql
-INSERT INTO products (name, sku, price, unit) VALUES
-  ('Lulu Fruit', 'LULU-001', 8.50, 'kg'),
-  ('Tomate del Árbol', 'TOMATE-001', 6.75, 'kg');
-```
-
----
-
-## Next Steps
-
-1. Copy the SQL scripts above
-2. Go to your Supabase project SQL Editor
-3. Execute each script in order
-4. Copy your Supabase URL and API keys to `.env.local`
-5. Start building features!
+Invoices created before the database live in whichever browser made them. Visit
+`/migrate` **in that browser** to copy them across. It skips anything already
+imported and never clears localStorage.

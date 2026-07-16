@@ -1,23 +1,26 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Invoice } from '@/types';
+import { Customer, Invoice } from '@/types';
 import {
   addInvoiceItem,
   createNewInvoice,
-  deleteInvoice,
-  getInvoiceById,
-  getInvoicesByCustomerId,
   markInvoiceAsPaid,
   markInvoiceAsUnpaid,
-  saveInvoice,
   removeInvoiceItem,
   updateInvoiceItem,
-} from '@/lib/invoice-storage';
+} from '@/lib/invoice-model';
+import {
+  deleteInvoice,
+  getInvoice,
+  listInvoicesByCustomer,
+  nextInvoiceNumber,
+  saveInvoice,
+} from '@/app/actions/invoices';
+import { getCustomer } from '@/app/actions/customers';
 import { generateInvoicePDF, downloadInvoicePDF } from '@/lib/pdf-generator';
 import { sendInvoiceEmail } from '@/lib/email-service';
-import { getCustomerById } from '@/lib/customer-storage';
 
 const FRUITS = ['Lulo Fruit', 'Tomate de arbol'];
 
@@ -110,6 +113,11 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
   const [emailMessage, setEmailMessage] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [emailStatus, setEmailStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  // Read from the database now, so it has to be state rather than a lookup
+  // during render.
+  const [customerRecord, setCustomerRecord] = useState<Customer | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, startSaving] = useTransition();
 
   // Resolved together so the saved invoice named in `?invoice=` is known before
   // the effect below decides between loading it and starting a blank one.
@@ -126,36 +134,63 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
   useEffect(() => {
     if (!routeReady || !customerId) return;
 
-    setPreviousInvoices(getInvoicesByCustomerId(customerId));
+    let cancelled = false;
 
-    // A saved invoice carries its own customer name, city, and address, so it
-    // opens even after that customer is removed from the list.
-    const requested = requestedInvoiceId ? getInvoiceById(requestedInvoiceId) : undefined;
-    if (requested) {
-      setInvoice(requested);
-      setSelectedInvoiceId(requested.id);
-      return;
-    }
+    (async () => {
+      try {
+        const [history, customer] = await Promise.all([
+          listInvoicesByCustomer(customerId),
+          getCustomer(customerId),
+        ]);
+        if (cancelled) return;
 
-    // Only a blank invoice needs the customer record to start from.
-    const customer = getCustomerById(customerId);
-    if (!customer) {
-      setCustomerMissing(true);
-      return;
-    }
+        setPreviousInvoices(history);
+        setCustomerRecord(customer ?? null);
+        // Prefilled as a starting point only — whatever is in the box at send
+        // time is the address that gets the invoice.
+        setEmailTo(customer?.email ?? '');
 
-    setInvoice(
-      createNewInvoice(customerId, customer.name, customer.city, customer.address ?? '', '')
-    );
-    setSelectedInvoiceId(null);
+        // A saved invoice carries its own customer name, city, and address, so
+        // it opens even after that customer is removed from the list.
+        const requested = requestedInvoiceId ? await getInvoice(requestedInvoiceId) : undefined;
+        if (cancelled) return;
+
+        if (requested) {
+          setInvoice(requested);
+          setSelectedInvoiceId(requested.id);
+          return;
+        }
+
+        // Only a blank invoice needs the customer record to start from.
+        if (!customer) {
+          setCustomerMissing(true);
+          return;
+        }
+
+        const invoiceNumber = await nextInvoiceNumber();
+        if (cancelled) return;
+
+        setInvoice(
+          createNewInvoice(
+            invoiceNumber,
+            customerId,
+            customer.name,
+            customer.city,
+            customer.address ?? '',
+            ''
+          )
+        );
+        setSelectedInvoiceId(null);
+      } catch (error: unknown) {
+        if (cancelled) return;
+        setLoadError(error instanceof Error ? error.message : 'Could not load this customer.');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [routeReady, customerId, requestedInvoiceId]);
-
-  // Prefilled as a starting point only — whatever is in the box at send time is
-  // the address that gets the invoice.
-  useEffect(() => {
-    if (!routeReady || !customerId) return;
-    setEmailTo(getCustomerById(customerId)?.email ?? '');
-  }, [routeReady, customerId]);
 
   useEffect(() => {
     const map: Record<string, string> = {
@@ -189,6 +224,17 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="theme-dark min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="text-red-300">{loadError}</p>
+        <Link href="/">
+          <button className="btn btn-secondary">← Back to Customers</button>
+        </Link>
+      </div>
+    );
+  }
+
   if (!customerId || !invoice) {
     return (
       <div className="theme-dark min-h-screen bg-slate-900 flex items-center justify-center">
@@ -197,12 +243,13 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     );
   }
 
-  const customer: { name: string; city: string; address?: string } =
-    getCustomerById(customerId) ?? {
-      name: invoice.customerName,
-      city: invoice.customerCity,
-      address: invoice.customerAddress,
-    };
+  // Falls back to the invoice's own snapshot, so a deleted customer still
+  // renders the invoice they were billed on.
+  const customer: { name: string; city: string; address?: string } = customerRecord ?? {
+    name: invoice.customerName,
+    city: invoice.customerCity,
+    address: invoice.customerAddress,
+  };
   const t = LABELS[language];
 
   const updateInvoice = (updated: Invoice) => {
@@ -215,39 +262,83 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
       window.alert('Please add at least one item');
       return;
     }
-    const saved = saveInvoice(invoice);
-    setInvoice(saved);
-    setPreviousInvoices(getInvoicesByCustomerId(customerId));
-    setSelectedInvoiceId(saved.id);
-    window.alert(`Invoice ${saved.invoiceNumber} saved successfully!`);
+
+    startSaving(async () => {
+      try {
+        // The saved copy comes back with the totals the database calculated,
+        // which are the authoritative ones.
+        const saved = await saveInvoice(invoice);
+        setInvoice(saved);
+        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setSelectedInvoiceId(saved.id);
+        window.alert(`Invoice ${saved.invoiceNumber} saved successfully!`);
+      } catch (error: unknown) {
+        window.alert(
+          error instanceof Error ? error.message : 'Could not save the invoice. Nothing was saved.'
+        );
+      }
+    });
+  };
+
+  const handleSetPaid = (paid: boolean) => {
+    if (!invoice) return;
+
+    startSaving(async () => {
+      try {
+        const saved = await saveInvoice(
+          paid ? markInvoiceAsPaid(invoice) : markInvoiceAsUnpaid(invoice)
+        );
+        setInvoice(saved);
+        setSelectedInvoiceId(saved.id);
+        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+      } catch (error: unknown) {
+        window.alert(
+          error instanceof Error ? error.message : 'Could not update the invoice status.'
+        );
+      }
+    });
   };
 
   const handleDeleteSavedInvoice = (invoiceId: string) => {
     if (!window.confirm('Delete this saved invoice?')) return;
-    deleteInvoice(invoiceId);
-    const updatedList = getInvoicesByCustomerId(customerId);
-    setPreviousInvoices(updatedList);
-    if (selectedInvoiceId === invoiceId) {
-      setSelectedInvoiceId(null);
-    }
+
+    startSaving(async () => {
+      try {
+        await deleteInvoice(invoiceId);
+        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        if (selectedInvoiceId === invoiceId) {
+          setSelectedInvoiceId(null);
+        }
+      } catch (error: unknown) {
+        window.alert(error instanceof Error ? error.message : 'Could not delete the invoice.');
+      }
+    });
   };
 
   const handleDeleteCurrentInvoice = () => {
     if (!invoice) return;
     const invoiceIdToDelete = selectedInvoiceId || invoice.id;
     if (!window.confirm('Delete this invoice?')) return;
-    deleteInvoice(invoiceIdToDelete);
-    const updatedList = getInvoicesByCustomerId(customerId);
-    setPreviousInvoices(updatedList);
-    const newInvoice = createNewInvoice(
-      customerId,
-      customer.name,
-      customer.city,
-      customer.address ?? '',
-      ''
-    );
-    setInvoice(newInvoice);
-    setSelectedInvoiceId(null);
+
+    startSaving(async () => {
+      try {
+        await deleteInvoice(invoiceIdToDelete);
+        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setInvoice(
+          createNewInvoice(
+            await nextInvoiceNumber(),
+            customerId,
+            customer.name,
+            customer.city,
+            customer.address ?? '',
+            ''
+          )
+        );
+        setSelectedInvoiceId(null);
+      } catch (error: unknown) {
+        window.alert(error instanceof Error ? error.message : 'Could not delete the invoice.');
+      }
+    });
   };
 
   const handleLoadInvoice = () => {
@@ -354,20 +445,23 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
   };
 
   const handleCreateNewInvoice = () => {
-    const newInvoice = createNewInvoice(
-      customerId,
-      customer.name,
-      customer.city,
-      customer.address ?? '',
-      ''
-    );
-    setInvoice(newInvoice);
-    setCurrentFruit(FRUITS[0]);
-    setCurrentQuantity('');
-    setCurrentPrice('');
-    setCurrentDescription('');
-    setEditingItemId(null);
-    setSelectedInvoiceId(null);
+    startSaving(async () => {
+      const newInvoice = createNewInvoice(
+        await nextInvoiceNumber(),
+        customerId,
+        customer.name,
+        customer.city,
+        customer.address ?? '',
+        ''
+      );
+      setInvoice(newInvoice);
+      setCurrentFruit(FRUITS[0]);
+      setCurrentQuantity('');
+      setCurrentPrice('');
+      setCurrentDescription('');
+      setEditingItemId(null);
+      setSelectedInvoiceId(null);
+    });
   };
 
   return (
@@ -705,24 +799,16 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
               <div className="mt-6 grid gap-2">
                 <button
                   className="btn btn-light w-full"
-                  onClick={() => {
-                    const paidInvoice = markInvoiceAsPaid(invoice);
-                    const saved = saveInvoice(paidInvoice);
-                    setInvoice(saved);
-                    setPreviousInvoices(getInvoicesByCustomerId(customerId));
-                  }}
+                  disabled={saving}
+                  onClick={() => handleSetPaid(true)}
                 >
                   {t.markAsPaid}
                 </button>
                 {invoice.status === 'paid' && (
                   <button
                     className="btn btn-secondary w-full"
-                    onClick={() => {
-                      const unpaidInvoice = markInvoiceAsUnpaid(invoice);
-                      const saved = saveInvoice(unpaidInvoice);
-                      setInvoice(saved);
-                      setPreviousInvoices(getInvoicesByCustomerId(customerId));
-                    }}
+                    disabled={saving}
+                    onClick={() => handleSetPaid(false)}
                   >
                     {t.markAsUnpaid}
                   </button>

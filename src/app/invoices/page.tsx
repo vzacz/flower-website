@@ -1,31 +1,30 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Download, Pencil, RotateCw, Trash2 } from 'lucide-react';
 import { Invoice } from '@/types';
-import {
-  deleteInvoice,
-  getInvoices,
-  markInvoiceAsPaid,
-  markInvoiceAsUnpaid,
-  saveInvoice,
-} from '@/lib/invoice-storage';
+import { deleteInvoice, listInvoices, saveInvoice } from '@/app/actions/invoices';
+import { markInvoiceAsPaid, markInvoiceAsUnpaid } from '@/lib/invoice-model';
 import { downloadInvoicePDF, generateInvoicePDF } from '@/lib/pdf-generator';
 
 export default function InvoicesPage() {
-  // localStorage only exists on the client, and this route is prerendered, so
-  // the list has to be read after mount rather than during render.
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [busy, startBusy] = useTransition();
 
-  const refresh = () => setInvoices(getInvoices());
+  const refresh = async () => setInvoices(await listInvoices());
 
   useEffect(() => {
-    refresh();
-    setLoaded(true);
+    listInvoices()
+      .then(setInvoices)
+      .catch((err: unknown) =>
+        setError(err instanceof Error ? err.message : 'Could not load invoices.')
+      )
+      .finally(() => setLoaded(true));
   }, []);
 
   const sorted = useMemo(() => {
@@ -49,14 +48,30 @@ export default function InvoicesPage() {
     .reduce((sum, invoice) => sum + invoice.totalDue, 0);
 
   const handleTogglePaid = (invoice: Invoice) => {
-    saveInvoice(invoice.status === 'paid' ? markInvoiceAsUnpaid(invoice) : markInvoiceAsPaid(invoice));
-    refresh();
+    setError(null);
+    startBusy(async () => {
+      try {
+        await saveInvoice(
+          invoice.status === 'paid' ? markInvoiceAsUnpaid(invoice) : markInvoiceAsPaid(invoice)
+        );
+        await refresh();
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Could not update the invoice.');
+      }
+    });
   };
 
   const handleDelete = (invoice: Invoice) => {
     if (!window.confirm(`Delete invoice ${invoice.invoiceNumber}?`)) return;
-    deleteInvoice(invoice.id);
-    refresh();
+    setError(null);
+    startBusy(async () => {
+      try {
+        await deleteInvoice(invoice.id);
+        await refresh();
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Could not delete the invoice.');
+      }
+    });
   };
 
   const handleDownload = (invoice: Invoice) => {
@@ -75,6 +90,12 @@ export default function InvoicesPage() {
             New invoice
           </Link>
         </div>
+
+        {error && (
+          <p className="rounded-lg border border-red-800 bg-red-950/40 p-4 text-sm text-red-300">
+            {error}
+          </p>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">

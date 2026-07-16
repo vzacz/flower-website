@@ -6,19 +6,25 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { StatCard } from '@/components/UIComponents';
 import { DollarSign, FileText, Plus, TrendingUp, Users } from 'lucide-react';
 import { Customer, Invoice } from '@/types';
-import { getInvoices } from '@/lib/invoice-storage';
-import { getCustomers } from '@/lib/customer-storage';
+import { listInvoices } from '@/app/actions/invoices';
+import { listCustomers } from '@/app/actions/customers';
 
 export default function Dashboard() {
-  // Both stores live in localStorage, so they can only be read after mount.
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    setInvoices(getInvoices());
-    setCustomers(getCustomers());
-    setLoading(false);
+    Promise.all([listInvoices(), listCustomers()])
+      .then(([invoiceRows, customerRows]) => {
+        setInvoices(invoiceRows);
+        setCustomers(customerRows);
+      })
+      .catch((error: unknown) =>
+        setLoadError(error instanceof Error ? error.message : 'Could not load your data.')
+      )
+      .finally(() => setLoading(false));
   }, []);
 
   const paid = invoices.filter((invoice) => invoice.status === 'paid');
@@ -46,6 +52,14 @@ export default function Dashboard() {
             New invoice
           </Link>
         </div>
+
+        {/* Without this the totals below would read $0.00 on a failed load,
+            which looks like "no sales" rather than "nothing loaded". */}
+        {loadError && (
+          <p className="rounded-2xl border border-red-800 bg-red-950/40 p-4 text-sm text-red-300">
+            {loadError} These totals are not your real numbers — reload the page.
+          </p>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard

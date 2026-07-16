@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { ClipboardList, FileText, Plus, ShoppingBasket, Trash2, Truck } from 'lucide-react';
 import { Customer } from '@/types';
-import { addCustomer, deleteCustomer, getCustomers } from '@/lib/customer-storage';
+import { createCustomer, deleteCustomer, listCustomers } from '@/app/actions/customers';
 
 const FEATURES = [
   {
@@ -27,34 +27,65 @@ const FEATURES = [
 const EMPTY_FORM = { name: '', city: '', address: '' };
 
 export default function Home() {
-  // Seeded and read from localStorage, so it has to happen after mount — the
-  // page is prerendered and the store is empty on the server.
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [formError, setFormError] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Customer | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [saving, startSaving] = useTransition();
+  const [deleting, startDeleting] = useTransition();
+
+  const refresh = async () => {
+    const rows = await listCustomers();
+    setCustomers(rows);
+  };
 
   useEffect(() => {
-    setCustomers(getCustomers());
+    listCustomers()
+      .then(setCustomers)
+      .catch((error: unknown) =>
+        setLoadError(error instanceof Error ? error.message : 'Could not load customers.')
+      )
+      .finally(() => setLoading(false));
   }, []);
 
   const handleAddCustomer = (event: React.FormEvent) => {
     event.preventDefault();
-    addCustomer({
-      name: form.name.trim(),
-      city: form.city.trim(),
-      address: form.address.trim(),
+    setFormError(null);
+
+    const data = new FormData();
+    data.set('name', form.name.trim());
+    data.set('city', form.city.trim());
+    data.set('address', form.address.trim());
+
+    startSaving(async () => {
+      const result = await createCustomer({}, data);
+      if (result.error) {
+        setFormError(result.error);
+        return;
+      }
+      await refresh();
+      setForm(EMPTY_FORM);
+      setShowForm(false);
     });
-    setCustomers(getCustomers());
-    setForm(EMPTY_FORM);
-    setShowForm(false);
   };
 
   const handleConfirmDelete = () => {
     if (!pendingDelete) return;
-    deleteCustomer(pendingDelete.id);
-    setCustomers(getCustomers());
-    setPendingDelete(null);
+    setDeleteError(null);
+
+    startDeleting(async () => {
+      const result = await deleteCustomer(pendingDelete.id);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
+      await refresh();
+      setPendingDelete(null);
+    });
   };
 
   return (
@@ -126,6 +157,20 @@ export default function Home() {
             </div>
           </div>
 
+          {loadError && (
+            <p className="mt-6 rounded-2xl border border-red-800 bg-red-950/40 p-4 text-sm text-red-300">
+              {loadError}
+            </p>
+          )}
+
+          {loading && !loadError && <p className="mt-6 text-slate-400">Loading customers...</p>}
+
+          {!loading && !loadError && customers.length === 0 && (
+            <p className="mt-6 text-slate-400">
+              No customers yet. Add your first one to start invoicing.
+            </p>
+          )}
+
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {customers.map((customer) => (
               <div key={customer.id} className="group relative">
@@ -188,19 +233,27 @@ export default function Home() {
                 />
               </div>
 
+              {formError && (
+                <p className="rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300">
+                  {formError}
+                </p>
+              )}
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   className="btn btn-secondary flex-1"
+                  disabled={saving}
                   onClick={() => {
                     setForm(EMPTY_FORM);
+                    setFormError(null);
                     setShowForm(false);
                   }}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary flex-1">
-                  Create
+                <button type="submit" className="btn btn-primary flex-1" disabled={saving}>
+                  {saving ? 'Saving...' : 'Create'}
                 </button>
               </div>
             </form>
@@ -217,16 +270,31 @@ export default function Home() {
               customer list. This can&apos;t be undone.
             </p>
 
+            {deleteError && (
+              <p className="mt-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300">
+                {deleteError}
+              </p>
+            )}
+
             <div className="flex gap-3 pt-6">
-              <button type="button" className="btn btn-secondary flex-1" onClick={() => setPendingDelete(null)}>
+              <button
+                type="button"
+                className="btn btn-secondary flex-1"
+                disabled={deleting}
+                onClick={() => {
+                  setDeleteError(null);
+                  setPendingDelete(null);
+                }}
+              >
                 Cancel
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-full bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-500"
+                className="flex-1 rounded-full bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
+                disabled={deleting}
                 onClick={handleConfirmDelete}
               >
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>
