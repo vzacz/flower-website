@@ -26,19 +26,28 @@ body {
   line-height: 1.6;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Must stay in @layer base: unlayered rules outrank every cascade layer, so an
+   unlayered `*` reset silently strips padding/margin from Tailwind utilities
+   and from .card/.btn below. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
-a {
-  color: var(--primary-green);
-  text-decoration: none;
-}
+/* Also layered: unlayered `a { color }` beat Tailwind's text-* utilities, which
+   rendered the active nav link green-on-green. */
+@layer base {
+  a {
+    color: var(--primary-green);
+    text-decoration: none;
+  }
 
-a:hover {
-  text-decoration: none;
+  a:hover {
+    text-decoration: none;
+  }
 }
 
 @layer utilities {
@@ -273,15 +282,6 @@ a:hover {
   .text-right {
     text-align: right;
   }
-
-  .mt-1 { margin-top: 8px; }
-  .mt-2 { margin-top: 16px; }
-  .mt-3 { margin-top: 24px; }
-  .mb-1 { margin-bottom: 8px; }
-  .mb-2 { margin-bottom: 16px; }
-  .mb-3 { margin-bottom: 24px; }
-  .p-2 { padding: 16px; }
-  .p-3 { padding: 24px; }
 
   .tab {
     display: inline-block;
