@@ -15,9 +15,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LA FRUTA - Fruit Invoice Website",
   description: "A polished fruit invoice workspace for LA FRUTA customers, orders, and deliveries.",
-  icons: {
-    icon: "/favicon.ico",
-  },
+  // No `icons` here on purpose: src/app/icon.png is picked up automatically and
+  // pointing at the deleted favicon.ico would 404.
 };
 
 export default function RootLayout({

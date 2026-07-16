@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ClipboardList, FileText, Plus, ShoppingBasket, Trash2, Truck } from 'lucide-react';
 import { Customer } from '@/types';
@@ -92,9 +93,20 @@ export default function Home() {
     <div className="theme-dark min-h-screen bg-slate-900 text-slate-100">
       <div className="header">
         <div className="container py-14 lg:py-20">
-          <div className="max-w-4xl text-center">
-            <span className="brand-badge">LA FRUTA</span>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mt-4">
+          <div className="mx-auto max-w-4xl text-center">
+            {/* The logo sits on its own cream field, so it needs to read as a
+                deliberate badge against the green header rather than a pasted
+                rectangle — hence the circular crop and the soft ring. */}
+            <Image
+              src="/la-fruta-logo.png"
+              alt=""
+              width={1254}
+              height={1254}
+              priority
+              sizes="160px"
+              className="mx-auto h-32 w-32 rounded-full object-cover shadow-xl ring-4 ring-white/20 sm:h-40 sm:w-40"
+            />
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mt-6">
               Fresh fruit invoices for every delivery.
             </h1>
             <p className="mt-4 text-lg text-emerald-50/90 max-w-2xl mx-auto">

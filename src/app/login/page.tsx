@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { Lock } from 'lucide-react';
+import Image from 'next/image';
 import { login, type LoginState } from '@/app/actions/auth';
 
 const initialState: LoginState = {};
@@ -13,11 +13,19 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.12),_transparent_42%),linear-gradient(135deg,_#f9fff8_0%,_#fdfefe_100%)] px-4">
       <div className="card w-full max-w-sm">
         <div className="text-center">
-          <div className="mx-auto w-fit rounded-xl bg-emerald-100 p-3 text-emerald-700">
-            <Lock size={20} />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 mt-4">LA FRUTA</h1>
-          <p className="text-slate-600 mt-1 text-sm">Sign in to access the workspace.</p>
+          {/* The mark already reads "LA FRUTA", so the heading it replaces is
+              kept for screen readers rather than printed twice. */}
+          <Image
+            src="/la-fruta-logo.png"
+            alt=""
+            width={1254}
+            height={1254}
+            priority
+            sizes="128px"
+            className="mx-auto h-32 w-32 rounded-full object-cover shadow-sm ring-1 ring-emerald-900/10"
+          />
+          <h1 className="sr-only">LA FRUTA</h1>
+          <p className="text-slate-600 mt-4 text-sm">Sign in to access the workspace.</p>
         </div>
 
         <form action={formAction} className="mt-6 space-y-4">
