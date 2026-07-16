@@ -18,10 +18,10 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="fixed left-0 top-0 hidden h-full w-64 border-r border-emerald-100 bg-white/90 backdrop-blur md:block">
-      <div className="border-b border-emerald-100 p-6">
-        <h1 className="text-2xl font-black text-emerald-700">LA FRUTA</h1>
-        <p className="mt-1 text-sm text-slate-500">Fruit invoice workspace</p>
+    <nav className="fixed left-0 top-0 hidden h-full w-64 border-r border-slate-800 bg-slate-950/95 backdrop-blur md:block">
+      <div className="border-b border-slate-800 p-6">
+        <h1 className="text-2xl font-black text-emerald-400">LA FRUTA</h1>
+        <p className="mt-1 text-sm text-slate-400">Fruit invoice workspace</p>
       </div>
 
       <div className="space-y-2 p-4">
@@ -34,7 +34,7 @@ const Navigation = () => {
               className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                 isActive
                   ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-emerald-400'
               }`}
             >
               <Icon size={20} />
@@ -44,11 +44,11 @@ const Navigation = () => {
         })}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 border-t border-emerald-100 p-4">
+      <div className="absolute inset-x-0 bottom-0 border-t border-slate-800 p-4">
         <form action={logout}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-600 transition-all hover:bg-emerald-50 hover:text-emerald-700"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-400 transition-all hover:bg-slate-800 hover:text-emerald-400"
           >
             <LogOut size={20} />
             <span>Sign out</span>

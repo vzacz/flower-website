@@ -4,7 +4,7 @@ import Navigation from './Navigation';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-emerald-50 text-slate-900">
+    <div className="min-h-screen bg-slate-900 text-slate-100">
       <div className="flex min-h-screen">
         <Navigation />
         <main className="flex-1 md:ml-64">
