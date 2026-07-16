@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Home, Package, ShoppingCart, FileText, Truck } from 'lucide-react';
+import { BarChart3, Home, Package, ShoppingCart, FileText, LogOut, Truck } from 'lucide-react';
+import { logout } from '@/app/actions/auth';
 
 const Navigation = () => {
   const pathname = usePathname();
@@ -41,6 +42,18 @@ const Navigation = () => {
             </Link>
           );
         })}
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 border-t border-emerald-100 p-4">
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-600 transition-all hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            <LogOut size={20} />
+            <span>Sign out</span>
+          </button>
+        </form>
       </div>
     </nav>
   );
