@@ -1,6 +1,0 @@
-node_modules/
-temporary_screenshots/
-.env
-.env.local
-
-.vercel
