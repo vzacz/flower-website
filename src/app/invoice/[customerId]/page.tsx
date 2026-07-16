@@ -143,8 +143,8 @@ export default function InvoicePage({ params }: PageProps) {
 
   if (!customerId || !invoice) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="theme-dark min-h-screen bg-slate-900 flex items-center justify-center">
+        <p className="text-slate-400">Loading...</p>
       </div>
     );
   }
@@ -289,7 +289,7 @@ export default function InvoicePage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="theme-dark min-h-screen bg-slate-900 text-slate-100">
       <div className="header">
         <div className="container flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
           <div>
@@ -298,7 +298,7 @@ export default function InvoicePage({ params }: PageProps) {
           </div>
           <div className="flex flex-wrap gap-3 items-center">
             <Link href="/">
-              <button className="btn btn-secondary">? Back to Customers</button>
+              <button className="btn btn-secondary">← Back to Customers</button>
             </Link>
             <button className="btn btn-light" onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
               {language === 'en' ? 'Espanol' : 'English'}
@@ -314,7 +314,7 @@ export default function InvoicePage({ params }: PageProps) {
               <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end mb-6">
                 <div>
                   <h2 className="text-2xl font-bold">{t.title}</h2>
-                  <p className="text-gray-600 mt-1">{customer.name}</p>
+                  <p className="text-slate-400 mt-1">{customer.name}</p>
                 </div>
                 <div className="flex gap-3 flex-wrap">
                   <button className="btn btn-secondary" onClick={handleCreateNewInvoice}>{t.createNewInvoice}</button>
@@ -324,11 +324,11 @@ export default function InvoicePage({ params }: PageProps) {
 
               <div className="grid gap-4 lg:grid-cols-2 mb-8">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Invoice Number</p>
-                  <p className="text-lg font-bold text-gray-900">{invoice.invoiceNumber}</p>
+                  <p className="text-sm text-slate-400 mb-1">Invoice Number</p>
+                  <p className="text-lg font-bold text-slate-100">{invoice.invoiceNumber}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Date</p>
+                  <p className="text-sm text-slate-400 mb-1">Date</p>
                   <input
                     type="date"
                     className="input"
@@ -337,7 +337,7 @@ export default function InvoicePage({ params }: PageProps) {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Customer Name</p>
+                  <p className="text-sm text-slate-400 mb-1">Customer Name</p>
                   <input
                     type="text"
                     className="input"
@@ -346,7 +346,7 @@ export default function InvoicePage({ params }: PageProps) {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Location</p>
+                  <p className="text-sm text-slate-400 mb-1">Location</p>
                   <input
                     type="text"
                     className="input"
@@ -358,7 +358,7 @@ export default function InvoicePage({ params }: PageProps) {
 
               <div className="grid gap-4 lg:grid-cols-2 mb-6">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Address</p>
+                  <p className="text-sm text-slate-400 mb-1">Address</p>
                   <input
                     type="text"
                     className="input"
@@ -367,7 +367,7 @@ export default function InvoicePage({ params }: PageProps) {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Notes</p>
+                  <p className="text-sm text-slate-400 mb-1">Notes</p>
                   <input
                     type="text"
                     className="input"
@@ -377,11 +377,11 @@ export default function InvoicePage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-6 mb-6">
+              <div className="border-t border-slate-700 pt-6 mb-6">
                 <h3 className="text-lg font-bold mb-4">{t.addItem}</h3>
                 <div className="grid gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Fruit</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Fruit</label>
                     <select className="select" value={currentFruit} onChange={(e) => setCurrentFruit(e.target.value)}>
                       {FRUITS.map((fruit) => (
                         <option key={fruit} value={fruit}>{fruit}</option>
@@ -389,7 +389,7 @@ export default function InvoicePage({ params }: PageProps) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
                     <input
                       type="text"
                       className="input"
@@ -401,7 +401,7 @@ export default function InvoicePage({ params }: PageProps) {
 
                   <div className="grid gap-4 lg:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Quantity</label>
                       <input
                         type="number"
                         className="input"
@@ -412,7 +412,7 @@ export default function InvoicePage({ params }: PageProps) {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Price per box</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">Price per box</label>
                       <input
                         type="number"
                         className="input"
@@ -433,7 +433,7 @@ export default function InvoicePage({ params }: PageProps) {
               <div className="items-table-wrap mb-6">
                 <table className="items-table text-sm w-full">
                   <thead>
-                    <tr className="border-b-2 border-gray-200">
+                    <tr className="border-b-2 border-slate-700">
                       <th className="text-left py-2 px-2 font-bold">Quantity</th>
                       <th className="text-left py-2 px-2 font-bold">Fruit</th>
                       <th className="text-left py-2 px-2 font-bold">Description</th>
@@ -445,11 +445,11 @@ export default function InvoicePage({ params }: PageProps) {
                   <tbody>
                     {invoice.items.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-gray-500">Add items to start the receipt.</td>
+                        <td colSpan={6} className="py-8 text-center text-slate-400">Add items to start the receipt.</td>
                       </tr>
                     ) : (
                       invoice.items.map((item) => (
-                        <tr key={item.id} className="border-b border-gray-100">
+                        <tr key={item.id} className="border-b border-slate-800">
                           <td className="py-3 px-2 w-24">
                             <input
                               type="number"
@@ -510,13 +510,13 @@ export default function InvoicePage({ params }: PageProps) {
                                 setCurrentDescription(item.description ?? '');
                                 setEditingItemId(item.id);
                               }}
-                              className="text-blue-600 hover:text-blue-800 font-medium mr-3"
+                              className="text-blue-400 hover:text-blue-300 font-medium mr-3"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => updateInvoice(removeInvoiceItem(invoice, item.id))}
-                              className="text-red-600 hover:text-red-800 font-medium"
+                              className="text-red-400 hover:text-red-300 font-medium"
                             >
                               Delete
                             </button>
@@ -530,7 +530,7 @@ export default function InvoicePage({ params }: PageProps) {
 
               <div className="grid gap-4 lg:grid-cols-2 mb-8">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Discount</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Discount</label>
                   <input
                     type="number"
                     className="input"
@@ -543,15 +543,15 @@ export default function InvoicePage({ params }: PageProps) {
               </div>
 
               <div className="grid gap-2 mb-8">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-400">
                   <span>Subtotal</span>
                   <span>${invoice.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-400">
                   <span>Discount</span>
                   <span>-${invoice.discount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between pt-3 border-t border-gray-200 text-lg font-bold">
+                <div className="flex justify-between pt-3 border-t border-slate-700 text-lg font-bold">
                   <span>Final total</span>
                   <span>${invoice.totalDue.toFixed(2)}</span>
                 </div>
@@ -568,10 +568,10 @@ export default function InvoicePage({ params }: PageProps) {
           </div>
 
           <div className="grid gap-6" style={{ gridAutoRows: 'max-content' }}>
-            <div className="card bg-green-50 border-2 border-green-200">
-              <p className="text-sm text-gray-600 mb-2">Current total</p>
-              <p className="text-4xl font-bold text-green-700">${invoice.totalDue.toFixed(2)}</p>
-              <p className="text-sm text-gray-600 mt-4">{invoice.items.length} item{invoice.items.length !== 1 ? 's' : ''}</p>
+            <div className="rounded-3xl border-2 border-emerald-700 bg-emerald-900/20 p-6 shadow-lg">
+              <p className="text-sm text-slate-400 mb-2">Current total</p>
+              <p className="text-4xl font-bold text-emerald-400">${invoice.totalDue.toFixed(2)}</p>
+              <p className="text-sm text-slate-400 mt-4">{invoice.items.length} item{invoice.items.length !== 1 ? 's' : ''}</p>
               <div className="mt-6 grid gap-2">
                 <button
                   className="btn btn-light w-full"
@@ -608,7 +608,7 @@ export default function InvoicePage({ params }: PageProps) {
             <div className="card">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">{t.invoiceHistory}</h3>
-                <span className="text-sm text-gray-500">{previousInvoices.length} saved</span>
+                <span className="text-sm text-slate-400">{previousInvoices.length} saved</span>
               </div>
               <div className="grid gap-3 mb-4">
                 <input
@@ -634,12 +634,12 @@ export default function InvoicePage({ params }: PageProps) {
               </div>
               <div className="space-y-3">
                 {historyInvoices.length === 0 ? (
-                  <p className="text-sm text-gray-600">{t.noInvoices}</p>
+                  <p className="text-sm text-slate-400">{t.noInvoices}</p>
                 ) : (
                   historyInvoices.map((prev) => (
                     <div
                       key={prev.id}
-                      className={`history-item w-full p-3 rounded-lg border ${selectedInvoiceId === prev.id ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-gray-50'} hover:border-emerald-400`}
+                      className={`history-item w-full p-3 rounded-lg border ${selectedInvoiceId === prev.id ? 'border-emerald-500 bg-emerald-900/30' : 'border-slate-700 bg-slate-800'} hover:border-emerald-400`}
                     >
                       <button
                         type="button"
@@ -647,13 +647,13 @@ export default function InvoicePage({ params }: PageProps) {
                         onClick={() => setSelectedInvoiceId(prev.id)}
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <p className="font-bold text-gray-900">{prev.invoiceNumber}</p>
+                          <p className="font-bold text-slate-100">{prev.invoiceNumber}</p>
                           <span className={`px-2 py-1 text-xs font-bold rounded ${prev.status === 'paid' ? 'badge-success' : 'badge-error'}`}>
                             {prev.status.toUpperCase()}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">{prev.date}</p>
-                        <p className="text-sm font-bold text-gray-900 mt-1">${prev.totalDue.toFixed(2)}</p>
+                        <p className="text-sm text-slate-400">{prev.date}</p>
+                        <p className="text-sm font-bold text-slate-100 mt-1">${prev.totalDue.toFixed(2)}</p>
                       </button>
                       <button
                         type="button"

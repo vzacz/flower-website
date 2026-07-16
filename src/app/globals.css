@@ -299,45 +299,106 @@ body {
 }
 
 /* Invoice responsive layout */
-@media (max-width: 1023px) {
-  .invoice-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+@layer utilities {
+  @media (max-width: 1023px) {
+    .invoice-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
   }
-}
 
-@media (min-width: 1024px) {
-  .invoice-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
+  @media (min-width: 1024px) {
+    .invoice-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
   }
-}
 
-.items-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+  .items-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-.items-table th {
-  padding: 12px 10px;
-  background: #f8fafc;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: #374151;
-}
+  .items-table th {
+    padding: 12px 10px;
+    background: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #374151;
+  }
 
-.items-table td {
-  padding: 10px;
-  background: white;
-  color: #111827;
-}
+  .items-table td {
+    padding: 10px;
+    background: white;
+    color: #111827;
+  }
 
-.items-table tr:hover {
-  background: #f8fafc;
-}
+  .items-table tr:hover {
+    background: #f8fafc;
+  }
 
-.items-table-wrap {
-  overflow-x: auto;
+  .items-table-wrap {
+    overflow-x: auto;
+  }
+
+  /* Dark surfaces, scoped to .theme-dark so the light login screen and the
+     marketing homepage keep using the same .card/.input/.items-table classes. */
+  .theme-dark .card {
+    background-color: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  /* background-color, not the `background` shorthand: .select sets its arrow via
+     background-image plus repeat/position/size, and the shorthand would reset
+     those and tile the arrow across the field. */
+  .theme-dark .input,
+  .theme-dark .select,
+  .theme-dark .textarea {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .theme-dark .input:focus,
+  .theme-dark .select:focus,
+  .theme-dark .textarea:focus {
+    background-color: #0f172a;
+    border-color: #059669;
+  }
+
+  .theme-dark .input::placeholder,
+  .theme-dark .textarea::placeholder {
+    color: #64748b;
+  }
+
+  .theme-dark .select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  }
+
+  .theme-dark .btn-secondary {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+  }
+
+  .theme-dark .btn-secondary:hover {
+    background-color: #334155;
+  }
+
+  .theme-dark .items-table th {
+    background-color: #0f172a;
+    color: #cbd5e1;
+  }
+
+  .theme-dark .items-table td {
+    background-color: #1e293b;
+    color: #e2e8f0;
+  }
+
+  .theme-dark .items-table tr:hover {
+    background-color: #263449;
+  }
 }
