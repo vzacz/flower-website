@@ -1,6 +1,6 @@
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { Customer, Invoice, InvoiceItem } from '@/types';
+import { Customer, Invoice, InvoiceItem, SentEmail } from '@/types';
 
 /**
  * Database access for the workspace.
@@ -307,4 +307,145 @@ export async function saveInvoice(invoice: Invoice): Promise<Invoice> {
 export async function deleteInvoice(invoiceId: string): Promise<void> {
   const { error } = await db().from('invoices').delete().eq('id', invoiceId);
   if (error) throw new Error(`Could not delete invoice: ${error.message}`);
+}
+
+// --- sent emails ------------------------------------------------------------
+
+type SentEmailRow = {
+  id: string;
+  invoice_id: string | null;
+  customer_id: string | null;
+  invoice_number: string;
+  customer_name: string;
+  recipient: string;
+  message: string | null;
+  total_due: number | string;
+  invoice: unknown;
+  status: 'sent' | 'failed';
+  error: string | null;
+  provider_id: string | null;
+  sent_at: string;
+};
+
+/**
+ * The stored snapshot is whatever the API route validated at send time, which
+ * carries no database ids for its line items and may predate fields added
+ * later. Filling the gaps here means the rest of the app — including the PDF
+ * generator, which re-renders these on a re-send — can treat it as a normal
+ * Invoice instead of a special case.
+ */
+function toEmailedInvoice(raw: unknown, row: SentEmailRow): Invoice {
+  const snapshot = (raw ?? {}) as Partial<Invoice> & { items?: Partial<InvoiceItem>[] };
+
+  return {
+    id: snapshot.id ?? row.invoice_id ?? '',
+    invoiceNumber: snapshot.invoiceNumber ?? row.invoice_number,
+    customerId: snapshot.customerId ?? row.customer_id ?? '',
+    customerName: snapshot.customerName ?? row.customer_name,
+    customerAddress: snapshot.customerAddress ?? '',
+    customerCity: snapshot.customerCity ?? '',
+    date: snapshot.date ?? row.sent_at.slice(0, 10),
+    notes: snapshot.notes ?? '',
+    items: (snapshot.items ?? []).map((item, index) => ({
+      id: item.id ?? `${row.id}-${index}`,
+      fruit: item.fruit ?? '',
+      description: item.description,
+      quantity: Number(item.quantity ?? 0),
+      pricePerBox: Number(item.pricePerBox ?? 0),
+      amount: Number(item.amount ?? 0),
+    })),
+    subtotal: Number(snapshot.subtotal ?? 0),
+    discount: Number(snapshot.discount ?? 0),
+    totalDue: Number(snapshot.totalDue ?? row.total_due),
+    status: snapshot.status ?? 'unpaid',
+    createdAt: snapshot.createdAt ?? row.sent_at,
+    updatedAt: snapshot.updatedAt ?? row.sent_at,
+  };
+}
+
+function toSentEmail(row: SentEmailRow, places: Map<string, string>): SentEmail {
+  return {
+    id: row.id,
+    invoiceId: row.invoice_id ?? undefined,
+    customerId: row.customer_id ?? undefined,
+    invoiceNumber: row.invoice_number,
+    place: (row.customer_id ? places.get(row.customer_id) : undefined) ?? row.customer_name,
+    customerName: row.customer_name,
+    recipient: row.recipient,
+    message: row.message ?? undefined,
+    totalDue: num(row.total_due),
+    invoice: toEmailedInvoice(row.invoice, row),
+    status: row.status,
+    error: row.error ?? undefined,
+    providerId: row.provider_id ?? undefined,
+    sentAt: row.sent_at,
+  };
+}
+
+export async function getSentEmails(): Promise<SentEmail[]> {
+  const { data, error } = await db()
+    .from('sent_emails')
+    .select('*')
+    .order('sent_at', { ascending: false });
+
+  if (error) throw new Error(`Could not load sent emails: ${error.message}`);
+
+  const rows = data as unknown as SentEmailRow[];
+
+  // Looked up rather than stored so renaming a customer retitles their past
+  // emails too. customer_id is deliberately not a foreign key (see schema.sql),
+  // so PostgREST cannot join these for us — hence the second query.
+  const ids = [...new Set(rows.map((row) => row.customer_id).filter((id): id is string => !!id))];
+  const places = new Map<string, string>();
+
+  if (ids.length > 0) {
+    const { data: customers, error: customerError } = await db()
+      .from('customers')
+      .select('id, name')
+      .in('id', ids);
+
+    // A missing name only costs the nicer title — each row falls back to the
+    // name stored at send time, so the log still lists everything.
+    if (customerError) {
+      console.error('Could not load customer names for the email log:', customerError.message);
+    } else {
+      for (const customer of customers as { id: string; name: string }[]) {
+        places.set(customer.id, customer.name);
+      }
+    }
+  }
+
+  return rows.map((row) => toSentEmail(row, places));
+}
+
+export async function recordSentEmail(input: {
+  invoice: Invoice;
+  recipient: string;
+  message?: string;
+  status: 'sent' | 'failed';
+  error?: string;
+  providerId?: string;
+}): Promise<void> {
+  const { error } = await db()
+    .from('sent_emails')
+    .insert({
+      invoice_id: input.invoice.id || null,
+      customer_id: input.invoice.customerId || null,
+      invoice_number: input.invoice.invoiceNumber,
+      customer_name: input.invoice.customerName,
+      recipient: input.recipient,
+      message: input.message ?? null,
+      total_due: input.invoice.totalDue,
+      invoice: input.invoice,
+      status: input.status,
+      error: input.error ?? null,
+      provider_id: input.providerId ?? null,
+    });
+
+  if (error) throw new Error(`Could not record the sent email: ${error.message}`);
+}
+
+export async function deleteSentEmail(id: string): Promise<void> {
+  const { error } = await db().from('sent_emails').delete().eq('id', id);
+  if (error) throw new Error(`Could not delete the email record: ${error.message}`);
 }

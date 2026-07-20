@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Home, FileText, LogOut } from 'lucide-react';
+import { BarChart3, Home, FileText, LogOut, Mail } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 const Navigation = () => {
@@ -12,6 +12,7 @@ const Navigation = () => {
     { href: '/', label: 'Home', icon: Home },
     { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { href: '/invoices', label: 'Invoices', icon: FileText },
+    { href: '/emails', label: 'Email', icon: Mail },
   ];
 
   return (

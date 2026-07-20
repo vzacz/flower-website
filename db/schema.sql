@@ -66,6 +66,40 @@ CREATE TABLE IF NOT EXISTS invoice_items (
   position      INTEGER NOT NULL DEFAULT 0
 );
 
+-- A record of every invoice email the workspace has tried to send.
+--
+-- invoice_id and customer_id are plain TEXT, deliberately not foreign keys.
+-- This is a log of what actually happened: an invoice can be emailed before it
+-- is ever saved, and deleting an invoice later must not erase the evidence that
+-- it was sent. A foreign key would block the first case and rewrite the second.
+CREATE TABLE IF NOT EXISTS sent_emails (
+  id             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  invoice_id     TEXT,
+  customer_id    TEXT,
+  invoice_number TEXT NOT NULL,
+  customer_name  TEXT NOT NULL,
+  recipient      TEXT NOT NULL,
+  message        TEXT,
+  total_due      NUMERIC(12, 2) NOT NULL DEFAULT 0,
+
+  -- The invoice exactly as it went out. Editing the invoice afterwards must not
+  -- change what this record says was emailed, and re-sending has to reproduce
+  -- the same content the customer originally received.
+  invoice        JSONB NOT NULL,
+
+  -- Failed attempts are kept, not discarded: "did that actually send?" is only
+  -- answerable if the failures are recorded alongside the successes.
+  status         TEXT NOT NULL CHECK (status IN ('sent', 'failed')),
+  error          TEXT,
+
+  -- Resend's id for the message, for cross-referencing in their dashboard.
+  provider_id    TEXT,
+  sent_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS sent_emails_sent_at_idx ON sent_emails (sent_at DESC);
+CREATE INDEX IF NOT EXISTS sent_emails_customer_id_idx ON sent_emails (customer_id);
+
 CREATE INDEX IF NOT EXISTS invoices_customer_id_idx ON invoices (customer_id);
 CREATE INDEX IF NOT EXISTS invoices_date_idx ON invoices (date DESC);
 CREATE INDEX IF NOT EXISTS invoice_items_invoice_id_idx ON invoice_items (invoice_id, position);
@@ -73,6 +107,7 @@ CREATE INDEX IF NOT EXISTS invoice_items_invoice_id_idx ON invoice_items (invoic
 ALTER TABLE customers     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoices      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sent_emails   ENABLE ROW LEVEL SECURITY;
 
 -- Saves an invoice and its line items as one unit.
 --

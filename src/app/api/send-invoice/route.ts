@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getSession } from '@/lib/session';
+import { recordSentEmail } from '@/lib/db';
+import { Invoice } from '@/types';
 
 // An invoice PDF is a few KB. This only exists so a malformed body can't push a
 // huge attachment upstream.
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
 
 const itemSchema = z.object({
+  id: z.string().optional(),
   fruit: z.string(),
   description: z.string().optional(),
   quantity: z.number(),
@@ -14,7 +17,12 @@ const itemSchema = z.object({
   amount: z.number(),
 });
 
+// id and customerId are optional because an invoice can be emailed before it is
+// ever saved. They are accepted rather than stripped so the sent-email log can
+// point back at the invoice and customer when they do exist.
 const invoiceSchema = z.object({
+  id: z.string().optional(),
+  customerId: z.string().optional(),
   invoiceNumber: z.string(),
   customerName: z.string(),
   customerAddress: z.string().optional(),
@@ -26,6 +34,8 @@ const invoiceSchema = z.object({
   discount: z.number(),
   totalDue: z.number(),
   status: z.enum(['unpaid', 'paid']),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 const bodySchema = z.object({
@@ -47,6 +57,50 @@ function escapeHtml(value: string): string {
 
 function money(value: number): string {
   return `$${value.toFixed(2)}`;
+}
+
+/** Fills the optional fields so the snapshot stored in the log is a whole Invoice. */
+function toInvoiceSnapshot(payload: InvoicePayload): Invoice {
+  const now = new Date().toISOString();
+
+  return {
+    id: payload.id ?? '',
+    invoiceNumber: payload.invoiceNumber,
+    customerId: payload.customerId ?? '',
+    customerName: payload.customerName,
+    customerAddress: payload.customerAddress ?? '',
+    customerCity: payload.customerCity ?? '',
+    date: payload.date,
+    notes: payload.notes ?? '',
+    items: payload.items.map((item, index) => ({
+      id: item.id ?? String(index),
+      fruit: item.fruit,
+      description: item.description,
+      quantity: item.quantity,
+      pricePerBox: item.pricePerBox,
+      amount: item.amount,
+    })),
+    subtotal: payload.subtotal,
+    discount: payload.discount,
+    totalDue: payload.totalDue,
+    status: payload.status,
+    createdAt: payload.createdAt ?? now,
+    updatedAt: payload.updatedAt ?? now,
+  };
+}
+
+/**
+ * Writes the log entry without ever changing the outcome of the send. An email
+ * that reached the customer must still be reported as sent even if the database
+ * is unreachable — losing the record is bad, but claiming a delivered invoice
+ * failed would send it twice.
+ */
+async function logAttempt(entry: Parameters<typeof recordSentEmail>[0]): Promise<void> {
+  try {
+    await recordSentEmail(entry);
+  } catch (error) {
+    console.error('Could not record the email in the sent log:', error);
+  }
 }
 
 function buildHtml(invoice: InvoicePayload, message?: string): string {
@@ -124,6 +178,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { to, invoice, message, pdfBase64 } = parsed.data;
+  const snapshot = toInvoiceSnapshot(invoice);
 
   if (pdfBase64 && pdfBase64.length * 0.75 > MAX_PDF_BYTES) {
     return NextResponse.json({ error: 'Attachment too large' }, { status: 413 });
@@ -153,15 +208,39 @@ export async function POST(request: NextRequest) {
       // Resend says *why* it refused — unverified sender domain, bad key, test-mode
       // recipient limits. Passing that through is what makes the failure fixable.
       console.error('Resend rejected the send:', data);
-      return NextResponse.json(
-        { error: data?.message ?? 'The email provider rejected the request' },
-        { status: response.status }
-      );
+
+      const reason = data?.message ?? 'The email provider rejected the request';
+      await logAttempt({
+        invoice: snapshot,
+        recipient: to,
+        message,
+        status: 'failed',
+        error: reason,
+      });
+
+      return NextResponse.json({ error: reason }, { status: response.status });
     }
+
+    await logAttempt({
+      invoice: snapshot,
+      recipient: to,
+      message,
+      status: 'sent',
+      providerId: data.id,
+    });
 
     return NextResponse.json({ success: true, id: data.id, to });
   } catch (error) {
     console.error('Error sending invoice email:', error);
+
+    await logAttempt({
+      invoice: snapshot,
+      recipient: to,
+      message,
+      status: 'failed',
+      error: 'Could not reach the email provider',
+    });
+
     return NextResponse.json({ error: 'Could not reach the email provider' }, { status: 502 });
   }
 }

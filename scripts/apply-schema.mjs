@@ -64,7 +64,7 @@ try {
     SELECT table_name, (SELECT count(*) FROM customers) AS customer_count
     FROM information_schema.tables
     WHERE table_schema = 'public'
-      AND table_name IN ('customers', 'invoices', 'invoice_items')
+      AND table_name IN ('customers', 'invoices', 'invoice_items', 'sent_emails')
     ORDER BY table_name
   `);
 
