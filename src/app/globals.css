@@ -138,7 +138,7 @@ body {
     font-size: 14px;
     font-family: inherit;
     width: 100%;
-    background: #f8fafc;
+    background-color: #f8fafc;
     color: #0f172a;
     min-height: 44px;
   }
@@ -149,7 +149,11 @@ body {
     outline: none;
     border-color: #059669;
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.16);
-    background: #ffffff;
+    /* background-color, not the `background` shorthand: the shorthand resets
+       background-repeat/position/size, and .select's arrow rule below is lower
+       specificity than this one, so it cannot restore them. The arrow would fall
+       back to repeat/0 0/auto and tile across the whole field once focused. */
+    background-color: #ffffff;
   }
 
   .select {
