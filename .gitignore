@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# database backups — real customer names, addresses, and emails. This
+# repository is public; these must never be committed.
+/backups
+
 # vercel
 .vercel
 
