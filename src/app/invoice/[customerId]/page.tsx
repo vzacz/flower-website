@@ -388,7 +388,22 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     setEmailSending(true);
     setEmailStatus(null);
     try {
-      await sendInvoiceEmail(recipient, invoice, emailMessage);
+      // Emailing used to leave nothing behind: an invoice could reach the
+      // customer and disappear when the page closed. Saving first means
+      // anything a customer has received is also in the history.
+      let sending = invoice;
+      try {
+        sending = await saveInvoice(invoice);
+        setInvoice(sending);
+        setSelectedInvoiceId(sending.id);
+        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+      } catch {
+        // A database hiccup shouldn't hold the customer's invoice hostage. The
+        // send still goes ahead, and the sent-email log keeps its own full copy
+        // of whatever went out, so the order is recorded either way.
+      }
+
+      await sendInvoiceEmail(recipient, sending, emailMessage);
       setEmailStatus({ ok: true, text: `Invoice ${invoice.invoiceNumber} sent to ${recipient}.` });
       setEmailMessage('');
     } catch (error) {
