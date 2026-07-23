@@ -290,8 +290,11 @@ export default function EmailsPage() {
 
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <p className="text-sm text-slate-400">
-                            Subtotal ${email.invoice.subtotal.toFixed(2)} · Discount −$
-                            {email.invoice.discount.toFixed(2)} ·{' '}
+                            Subtotal ${email.invoice.subtotal.toFixed(2)}
+                            {email.invoice.discount > 0
+                              ? ` · Discount −$${email.invoice.discount.toFixed(2)}`
+                              : ''}{' '}
+                            ·{' '}
                             <span className="font-bold text-white">
                               Total ${email.totalDue.toFixed(2)}
                             </span>

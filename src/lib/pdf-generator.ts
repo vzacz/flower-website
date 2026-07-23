@@ -98,11 +98,16 @@ export function generateInvoicePDF(invoice: Invoice): jsPDF {
   doc.text(`$${invoice.subtotal.toFixed(2)}`, totalX + 35, y, { align: 'right' });
   y += 6;
 
-  doc.setTextColor(100, 100, 100);
-  doc.text('Discount:', totalX, y);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`$${invoice.discount.toFixed(2)}`, totalX + 35, y, { align: 'right' });
-  y += 10;
+  // Only shown when the owner set the total below the subtotal. A total at or
+  // above the subtotal carries no discount line — the Total Due below says it all.
+  if (invoice.discount > 0) {
+    doc.setTextColor(100, 100, 100);
+    doc.text('Discount:', totalX, y);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`-$${invoice.discount.toFixed(2)}`, totalX + 35, y, { align: 'right' });
+    y += 6;
+  }
+  y += 4;
 
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');

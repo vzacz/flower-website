@@ -92,6 +92,13 @@ function recalcInvoice(invoice: Invoice): Invoice {
   };
 }
 
+// The Total box shows a plain number the owner can retype. String(140) is "140",
+// not "140.00", so there's no stray zero to delete before typing a new amount.
+function formatTotal(value: number): string {
+  const rounded = Math.round(value * 100) / 100;
+  return Number.isFinite(rounded) ? String(rounded) : '';
+}
+
 export default function InvoicePage({ params, searchParams }: PageProps) {
   const [customerId, setCustomerId] = useState<string>('');
   const [requestedInvoiceId, setRequestedInvoiceId] = useState<string | null>(null);
@@ -113,6 +120,10 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
   const [emailMessage, setEmailMessage] = useState('');
   const [emailSending, setEmailSending] = useState(false);
   const [emailStatus, setEmailStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  // What's typed in the Total box. Kept separate from the invoice so typing —
+  // including clearing it or a half-finished "12." — shows exactly as entered.
+  const [totalDraft, setTotalDraft] = useState('');
+  const [totalFocused, setTotalFocused] = useState(false);
   // Read from the database now, so it has to be state rather than a lookup
   // during render.
   const [customerRecord, setCustomerRecord] = useState<Customer | null>(null);
@@ -199,6 +210,14 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     };
     setCurrentDescription(map[currentFruit] ?? '');
   }, [currentFruit]);
+
+  // Keep the Total box in step with the invoice's total — when items change, a
+  // different invoice loads, or the form is cleared — but never while it's being
+  // edited, so syncing can't yank a number out from under someone mid-type.
+  useEffect(() => {
+    if (!invoice || totalFocused) return;
+    setTotalDraft(formatTotal(invoice.totalDue));
+  }, [invoice?.totalDue, totalFocused]);
 
   const historyInvoices = useMemo(() => {
     return previousInvoices.filter((item) => {
@@ -721,15 +740,33 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
 
               <div className="grid gap-4 lg:grid-cols-2 mb-8">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Discount</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Total</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     className="input"
-                    value={invoice.discount}
-                    min="0"
-                    step="0.01"
-                    onChange={(e) => updateInvoice({ ...invoice, discount: parseFloat(e.target.value) || 0 })}
+                    value={totalDraft}
+                    placeholder="0.00"
+                    onFocus={() => setTotalFocused(true)}
+                    onBlur={() => setTotalFocused(false)}
+                    onChange={(e) => {
+                      // Strip any leading zero as it's typed so "0" + "1245" reads
+                      // as "1245", not "01245".
+                      const raw = e.target.value.replace(/^0+(?=\d)/, '');
+                      setTotalDraft(raw);
+                      // The typed total is stored as the gap between the items'
+                      // subtotal and this number (the invoice's "discount"), so the
+                      // database — which always recomputes total_due as subtotal
+                      // minus discount — lands on exactly this amount. A total above
+                      // the subtotal makes that gap negative, i.e. an increase.
+                      const total = Math.max(0, parseFloat(raw) || 0);
+                      const discount = Math.round((invoice.subtotal - total) * 100) / 100;
+                      updateInvoice({ ...invoice, discount });
+                    }}
                   />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Starts at the sum of the items above. Type any amount to set the total yourself.
+                  </p>
                 </div>
               </div>
 
@@ -737,10 +774,6 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>Subtotal</span>
                   <span>${invoice.subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm text-slate-400">
-                  <span>Discount</span>
-                  <span>-${invoice.discount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-slate-700 text-lg font-bold">
                   <span>Final total</span>

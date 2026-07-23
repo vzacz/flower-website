@@ -140,7 +140,7 @@ function buildHtml(invoice: InvoicePayload, message?: string): string {
       <tbody>${rows}</tbody>
     </table>
     <p style="margin:2px 0;color:#64748b;">Subtotal: ${money(invoice.subtotal)}</p>
-    <p style="margin:2px 0;color:#64748b;">Discount: -${money(invoice.discount)}</p>
+    ${invoice.discount > 0 ? `<p style="margin:2px 0;color:#64748b;">Discount: -${money(invoice.discount)}</p>` : ''}
     <p style="margin:10px 0;font-size:18px;font-weight:bold;">Final total: ${money(invoice.totalDue)}</p>
     <p style="color:${invoice.status === 'paid' ? '#059669' : '#dc2626'};font-weight:bold;">
       ${invoice.status.toUpperCase()}
