@@ -133,6 +133,37 @@ function toInvoice(row: InvoiceRow): Invoice {
 
 const INVOICE_SELECT = '*, invoice_items(*)';
 
+// --- backup -----------------------------------------------------------------
+
+// Every table, so a restore never has to guess what was missed — the same set
+// the `npm run backup` script dumps.
+const BACKUP_TABLES = ['customers', 'invoices', 'invoice_items', 'sent_emails'] as const;
+
+export type DatabaseBackup = {
+  takenAt: string;
+  tables: Record<string, unknown[]>;
+};
+
+/**
+ * Reads every table as raw rows for an off-site backup. Unlike the local
+ * `scripts/backup.mjs`, this goes through PostgREST rather than a direct
+ * Postgres connection, so the four reads aren't one transaction — for a
+ * single-user business backing up nightly, the sub-second drift between tables
+ * is not worth a stored procedure. Rows are returned exactly as stored so the
+ * file stays restorable without this app.
+ */
+export async function dumpAllTables(): Promise<DatabaseBackup> {
+  const tables: Record<string, unknown[]> = {};
+
+  for (const table of BACKUP_TABLES) {
+    const { data, error } = await db().from(table).select('*');
+    if (error) throw new Error(`Could not read ${table} for backup: ${error.message}`);
+    tables[table] = data ?? [];
+  }
+
+  return { takenAt: new Date().toISOString(), tables };
+}
+
 // --- customers --------------------------------------------------------------
 
 export async function getCustomers(): Promise<Customer[]> {
