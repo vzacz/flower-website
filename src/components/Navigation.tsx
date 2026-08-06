@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Home, FileText, LogOut, Mail } from 'lucide-react';
+import { BarChart3, Home, FileText, LogOut, Mail, UserRound, Wallet } from 'lucide-react';
 import { logout } from '@/app/actions/auth';
 
 const Navigation = () => {
@@ -12,6 +12,11 @@ const Navigation = () => {
     { href: '/', label: 'Home', icon: Home },
     { href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { href: '/invoices', label: 'Invoices', icon: FileText },
+    // The list, not a blank invoice: from in here it's "who have I billed on
+    // their own?". The button on the home page is the one that starts a new
+    // solo invoice outright.
+    { href: '/solo/list', label: 'Solo customers', icon: UserRound },
+    { href: '/costs', label: 'Costs', icon: Wallet },
     { href: '/emails', label: 'Email', icon: Mail },
   ];
 

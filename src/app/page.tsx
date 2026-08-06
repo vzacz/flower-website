@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ClipboardList, FileText, Plus, ShoppingBasket, Trash2, Truck } from 'lucide-react';
+import { ClipboardList, FileText, Plus, ShoppingBasket, Trash2, Truck, UserRound } from 'lucide-react';
 import { Customer } from '@/types';
 import { createCustomer, deleteCustomer, listCustomers } from '@/app/actions/customers';
 
@@ -39,13 +39,14 @@ export default function Home() {
   const [saving, startSaving] = useTransition();
   const [deleting, startDeleting] = useTransition();
 
+  // Stores only — solo customers have their own page at /solo.
   const refresh = async () => {
-    const rows = await listCustomers();
+    const rows = await listCustomers('store');
     setCustomers(rows);
   };
 
   useEffect(() => {
-    listCustomers()
+    listCustomers('store')
       .then(setCustomers)
       .catch((error: unknown) =>
         setLoadError(error instanceof Error ? error.message : 'Could not load customers.')
@@ -61,6 +62,7 @@ export default function Home() {
     data.set('name', form.name.trim());
     data.set('city', form.city.trim());
     data.set('address', form.address.trim());
+    data.set('kind', 'store');
 
     startSaving(async () => {
       const result = await createCustomer({}, data);
@@ -119,6 +121,13 @@ export default function Home() {
               </Link>
               <Link href="/dashboard" className="btn btn-secondary">
                 Open dashboard
+              </Link>
+              <Link
+                href="/invoice/new"
+                className="btn btn-secondary inline-flex items-center gap-2"
+              >
+                <UserRound size={18} />
+                Solo customers
               </Link>
             </div>
           </div>

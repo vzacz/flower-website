@@ -3,7 +3,7 @@
 // Usage: npm run backup
 //
 // Writes backups/la-fruta-backup-<date>.json — customers, invoices, line items,
-// and the sent-email log, exactly as they are right now. The file is plain JSON
+// the sent-email log, and costs, exactly as they are right now. The file is JSON
 // so it stays readable without this app, any particular database, or me.
 //
 // backups/ is gitignored on purpose: this file holds real customer names,
@@ -14,7 +14,9 @@ import { fileURLToPath } from 'node:url';
 import { Client } from 'pg';
 
 // Every table, so a restore never has to guess what was missed.
-const TABLES = ['customers', 'invoices', 'invoice_items', 'sent_emails'];
+// costs before cost_stores: a restore has to write the cost rows before the
+// links that point at them.
+const TABLES = ['customers', 'invoices', 'invoice_items', 'sent_emails', 'costs', 'cost_stores'];
 
 function parseVar(contents, name) {
   const line = contents

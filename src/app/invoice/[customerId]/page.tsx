@@ -18,7 +18,7 @@ import {
   nextInvoiceNumber,
   saveInvoice,
 } from '@/app/actions/invoices';
-import { getCustomer } from '@/app/actions/customers';
+import { createSoloCustomer, getCustomer } from '@/app/actions/customers';
 import { generateInvoicePDF, downloadInvoicePDF } from '@/lib/pdf-generator';
 import { sendInvoiceEmail } from '@/lib/email-service';
 
@@ -82,6 +82,13 @@ interface PageProps {
   searchParams: Promise<{ invoice?: string | string[] }>;
 }
 
+// /invoice/new is the solo route: an invoice for someone who isn't on the books
+// yet. The customer record is created from the name typed on the invoice, the
+// first time it is saved or emailed — nothing is written for an invoice that
+// gets abandoned. Real ids are uuids or the seed strings '1'..'7', so this can
+// never collide with a customer.
+const NEW_SOLO = 'new';
+
 function recalcInvoice(invoice: Invoice): Invoice {
   const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
   const totalDue = Math.max(0, subtotal - invoice.discount);
@@ -130,6 +137,17 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
 
+  // On the solo route this fills in once the customer has been created, so
+  // everything downstream — history, saving again — works on a real id.
+  const [soloCustomerId, setSoloCustomerId] = useState('');
+  const isSolo = customerId === NEW_SOLO;
+  const activeCustomerId = isSolo ? soloCustomerId : customerId;
+
+  // Empty until a solo customer exists, which is also when they have no
+  // history to list.
+  const loadHistory = async (): Promise<Invoice[]> =>
+    activeCustomerId ? listInvoicesByCustomer(activeCustomerId) : [];
+
   // Resolved together so the saved invoice named in `?invoice=` is known before
   // the effect below decides between loading it and starting a blank one.
   useEffect(() => {
@@ -149,6 +167,18 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
 
     (async () => {
       try {
+        // A solo invoice starts blank: no customer to look up, no history to
+        // show, and the name boxes waiting to be filled in.
+        if (isSolo) {
+          const invoiceNumber = await nextInvoiceNumber();
+          if (cancelled) return;
+
+          setPreviousInvoices([]);
+          setInvoice(createNewInvoice(invoiceNumber, '', '', '', '', ''));
+          setSelectedInvoiceId(null);
+          return;
+        }
+
         const [history, customer] = await Promise.all([
           listInvoicesByCustomer(customerId),
           getCustomer(customerId),
@@ -201,7 +231,7 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     return () => {
       cancelled = true;
     };
-  }, [routeReady, customerId, requestedInvoiceId]);
+  }, [routeReady, customerId, requestedInvoiceId, isSolo]);
 
   useEffect(() => {
     const map: Record<string, string> = {
@@ -275,6 +305,30 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     setInvoice(recalcInvoice(updated));
   };
 
+  /**
+   * An invoice has to belong to a customer, and a solo one doesn't have a
+   * customer until now. Creates them from the name on the invoice and hands
+   * back the invoice pointing at them; for everyone else it changes nothing.
+   */
+  const withCustomer = async (current: Invoice): Promise<Invoice> => {
+    if (current.customerId) return current;
+
+    const result = await createSoloCustomer({
+      name: current.customerName,
+      city: current.customerCity,
+      address: current.customerAddress,
+    });
+
+    if (result.error || !result.customerId) {
+      throw new Error(result.error ?? 'Could not save this customer.');
+    }
+
+    setSoloCustomerId(result.customerId);
+    const linked = { ...current, customerId: result.customerId };
+    setInvoice(linked);
+    return linked;
+  };
+
   const handleSaveInvoice = () => {
     if (!invoice) return;
     if (invoice.items.length === 0) {
@@ -286,9 +340,9 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
       try {
         // The saved copy comes back with the totals the database calculated,
         // which are the authoritative ones.
-        const saved = await saveInvoice(invoice);
+        const saved = await saveInvoice(await withCustomer(invoice));
         setInvoice(saved);
-        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setPreviousInvoices(await loadHistory());
         setSelectedInvoiceId(saved.id);
         window.alert(`Invoice ${saved.invoiceNumber} saved successfully!`);
       } catch (error: unknown) {
@@ -304,12 +358,13 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
 
     startSaving(async () => {
       try {
+        const ready = await withCustomer(invoice);
         const saved = await saveInvoice(
-          paid ? markInvoiceAsPaid(invoice) : markInvoiceAsUnpaid(invoice)
+          paid ? markInvoiceAsPaid(ready) : markInvoiceAsUnpaid(ready)
         );
         setInvoice(saved);
         setSelectedInvoiceId(saved.id);
-        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setPreviousInvoices(await loadHistory());
       } catch (error: unknown) {
         window.alert(
           error instanceof Error ? error.message : 'Could not update the invoice status.'
@@ -324,7 +379,7 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     startSaving(async () => {
       try {
         await deleteInvoice(invoiceId);
-        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setPreviousInvoices(await loadHistory());
         if (selectedInvoiceId === invoiceId) {
           setSelectedInvoiceId(null);
         }
@@ -342,11 +397,11 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     startSaving(async () => {
       try {
         await deleteInvoice(invoiceIdToDelete);
-        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setPreviousInvoices(await loadHistory());
         setInvoice(
           createNewInvoice(
             await nextInvoiceNumber(),
-            customerId,
+            activeCustomerId,
             customer.name,
             customer.city,
             customer.address ?? '',
@@ -412,10 +467,10 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
       // anything a customer has received is also in the history.
       let sending = invoice;
       try {
-        sending = await saveInvoice(invoice);
+        sending = await saveInvoice(await withCustomer(invoice));
         setInvoice(sending);
         setSelectedInvoiceId(sending.id);
-        setPreviousInvoices(await listInvoicesByCustomer(customerId));
+        setPreviousInvoices(await loadHistory());
       } catch {
         // A database hiccup shouldn't hold the customer's invoice hostage. The
         // send still goes ahead, and the sent-email log keeps its own full copy
@@ -482,7 +537,7 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
     startSaving(async () => {
       const newInvoice = createNewInvoice(
         await nextInvoiceNumber(),
-        customerId,
+        activeCustomerId,
         customer.name,
         customer.city,
         customer.address ?? '',
@@ -510,6 +565,11 @@ export default function InvoicePage({ params, searchParams }: PageProps) {
             <Link href="/">
               <button className="btn btn-secondary">← Back to Customers</button>
             </Link>
+            {isSolo && (
+              <Link href="/solo/list">
+                <button className="btn btn-secondary">Past solo customers</button>
+              </Link>
+            )}
             <button className="btn btn-light" onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}>
               {language === 'en' ? 'Espanol' : 'English'}
             </button>

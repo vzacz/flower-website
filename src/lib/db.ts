@@ -1,6 +1,6 @@
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { Customer, Invoice, InvoiceItem, SentEmail } from '@/types';
+import { Cost, Customer, CustomerKind, Invoice, InvoiceItem, SentEmail } from '@/types';
 
 /**
  * Database access for the workspace.
@@ -43,6 +43,7 @@ type CustomerRow = {
   id: string;
   name: string;
   city: string;
+  kind: 'store' | 'solo';
   email: string | null;
   phone: string | null;
   address: string | null;
@@ -87,6 +88,7 @@ function toCustomer(row: CustomerRow): Customer {
     id: row.id,
     name: row.name,
     city: row.city,
+    kind: row.kind,
     email: row.email ?? undefined,
     phone: row.phone ?? undefined,
     address: row.address ?? undefined,
@@ -137,7 +139,14 @@ const INVOICE_SELECT = '*, invoice_items(*)';
 
 // Every table, so a restore never has to guess what was missed — the same set
 // the `npm run backup` script dumps.
-const BACKUP_TABLES = ['customers', 'invoices', 'invoice_items', 'sent_emails'] as const;
+const BACKUP_TABLES = [
+  'customers',
+  'invoices',
+  'invoice_items',
+  'sent_emails',
+  'costs',
+  'cost_stores',
+] as const;
 
 export type DatabaseBackup = {
   takenAt: string;
@@ -166,8 +175,11 @@ export async function dumpAllTables(): Promise<DatabaseBackup> {
 
 // --- customers --------------------------------------------------------------
 
-export async function getCustomers(): Promise<Customer[]> {
-  const { data, error } = await db().from('customers').select('*').order('name');
+/** Every customer, or just the stores or just the solo ones. */
+export async function getCustomers(kind?: CustomerKind): Promise<Customer[]> {
+  const query = db().from('customers').select('*').order('name');
+  const { data, error } = await (kind ? query.eq('kind', kind) : query);
+
   if (error) throw new Error(`Could not load customers: ${error.message}`);
   return (data as unknown as CustomerRow[]).map(toCustomer);
 }
@@ -181,6 +193,7 @@ export async function getCustomerById(id: string): Promise<Customer | undefined>
 export async function addCustomer(input: {
   name: string;
   city: string;
+  kind?: CustomerKind;
   address?: string;
   email?: string;
   phone?: string;
@@ -191,6 +204,7 @@ export async function addCustomer(input: {
     .insert({
       name: input.name,
       city: input.city,
+      kind: input.kind ?? 'store',
       address: input.address ?? null,
       email: input.email ?? null,
       phone: input.phone ?? null,
@@ -479,4 +493,116 @@ export async function recordSentEmail(input: {
 export async function deleteSentEmail(id: string): Promise<void> {
   const { error } = await db().from('sent_emails').delete().eq('id', id);
   if (error) throw new Error(`Could not delete the email record: ${error.message}`);
+}
+
+// --- costs ------------------------------------------------------------------
+
+type CostRow = {
+  id: string;
+  date: string;
+  all_amount: number | string;
+  cargo_amount: number | string;
+  goods_cost: number | string;
+  airline_fee: number | string;
+  broker_fee: number | string;
+  final_amount: number | string;
+  have_to_pay: number | string;
+  created_at: string;
+  updated_at: string;
+  // One entry per store the cost is split across. The name comes through the
+  // link rather than being copied, so a renamed store retitles its costs.
+  cost_stores?: { store_id: string; customers?: { name: string } | null }[];
+};
+
+const COST_SELECT = '*, cost_stores(store_id, customers(name))';
+
+function toCost(row: CostRow): Cost {
+  // Sorted by name so a cost's stores read the same way every time, rather
+  // than in whatever order the rows came back.
+  const links = [...(row.cost_stores ?? [])].sort((a, b) =>
+    (a.customers?.name ?? '').localeCompare(b.customers?.name ?? '')
+  );
+
+  return {
+    id: row.id,
+    storeIds: links.map((link) => link.store_id),
+    // The store is a real foreign key, so the join always has a row to find —
+    // the fallback only exists so a missing name can't blank out the record.
+    storeNames: links.map((link) => link.customers?.name ?? 'Unknown store'),
+    date: row.date,
+    allAmount: num(row.all_amount),
+    cargoAmount: num(row.cargo_amount),
+    goodsCost: num(row.goods_cost),
+    airlineFee: num(row.airline_fee),
+    brokerFee: num(row.broker_fee),
+    finalAmount: num(row.final_amount),
+    haveToPay: num(row.have_to_pay),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function getCosts(): Promise<Cost[]> {
+  const { data, error } = await db()
+    .from('costs')
+    .select(COST_SELECT)
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) throw new Error(`Could not load costs: ${error.message}`);
+  return (data as unknown as CostRow[]).map(toCost);
+}
+
+export async function getCostById(id: string): Promise<Cost | undefined> {
+  const { data, error } = await db().from('costs').select(COST_SELECT).eq('id', id).maybeSingle();
+
+  if (error) throw new Error(`Could not load the cost: ${error.message}`);
+  return data ? toCost(data as unknown as CostRow) : undefined;
+}
+
+/**
+ * Writes a cost and its store links atomically — see save_cost in schema.sql
+ * for why this goes through a database function rather than two inserts.
+ */
+export async function addCost(input: {
+  storeIds: string[];
+  date: string;
+  allAmount: number;
+  cargoAmount: number;
+  goodsCost: number;
+  airlineFee: number;
+  brokerFee: number;
+  finalAmount: number;
+  haveToPay: number;
+}): Promise<Cost> {
+  const { data, error } = await db().rpc('save_cost', {
+    payload: {
+      store_ids: input.storeIds,
+      date: input.date,
+      all_amount: input.allAmount,
+      cargo_amount: input.cargoAmount,
+      goods_cost: input.goodsCost,
+      airline_fee: input.airlineFee,
+      broker_fee: input.brokerFee,
+      final_amount: input.finalAmount,
+      have_to_pay: input.haveToPay,
+    },
+  });
+
+  if (error) {
+    // 23503 = foreign key violation: a store id doesn't match a customer.
+    if (error.code === '23503') {
+      throw new Error('One of those stores is no longer in your list, so the cost was not saved.');
+    }
+    throw new Error(`Could not save the cost: ${error.message}`);
+  }
+
+  const saved = await getCostById(data as unknown as string);
+  if (!saved) throw new Error('Cost saved but could not be read back.');
+  return saved;
+}
+
+export async function deleteCost(id: string): Promise<void> {
+  const { error } = await db().from('costs').delete().eq('id', id);
+  if (error) throw new Error(`Could not delete the cost: ${error.message}`);
 }
